@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<script>
+    (function() {
+        var lang = localStorage.getItem('appLang') || 'tr';
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.classList.add('i18n-loading');
+    })();
+</script>
+<style>
+    html.i18n-loading [data-i18n] { visibility: hidden; }
+</style>
+<meta name="view-transition" content="same-origin" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oxygen - Profile</title>
+    <!-- Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ffb4ab",
+                        "on-surface": "#e2e2e2",
+                        "on-surface-variant": "#e7bdb8",
+                        "surface-container": "#1e2020",
+                        "surface-container-high": "#282a2b",
+                        "background": "#121414"
+                    },
+                    spacing: {
+                        "stack-md": "1rem",
+                        "stack-lg": "2rem",
+                        "stack-sm": "0.5rem",
+                        "glass-padding": "1.5rem",
+                        "container-margin": "1.25rem"
+                    },
+                    fontFamily: {
+                        "headline-sm": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "body-md": ["LiraFix", "Inter", "sans-serif"],
+                        "label-caps": ["LiraFix", "JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .preload * { transition: none !important; }
+        .glass-panel {
+            background-color: rgba(24, 26, 27, 0.85) !important;
+            backdrop-filter: blur(80px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(80px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+        }
+    </style>
+    <style>
+        @keyframes pageFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        main { animation: pageFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+
+    <style>
+        .glass-panel {
+            background-color: rgba(24, 26, 27, 0.85) !important;
+            backdrop-filter: blur(80px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(80px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+        }
+        
+        .input-glass {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.3) !important;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+
+</head>
+<body class="preload bg-background text-on-surface h-screen flex overflow-hidden">
+<script>if(localStorage.getItem('sidebarState') === 'collapsed') document.body.classList.add('sidebar-collapsed');</script>
+<script>window.addEventListener('load', () => { setTimeout(() => { document.body.classList.remove('preload'); }, 50); });</script>
+<!-- STITCH_SHADER_START:ANIMATION_4 class="fixed inset-0 w-full h-full -z-10 opacity-60" -->
+<div class="fixed inset-0 w-full h-full -z-10 opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_4" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_4');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+// Simplex noise-like liquid effect
+vec3 palette(float t) {
+    vec3 a = vec3(0.05, 0.0, 0.0); // Very dark red base
+    vec3 b = vec3(0.5, 0.05, 0.05); // Vivid red glow
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263, 0.416, 0.557);
+    return a + b*cos( 6.28318*(c*t+d) );
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.y, u_resolution.x);
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
+    
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
+        float d = length(uv) * exp(-length(uv0));
+        vec3 col = palette(length(uv0) + i*.4 + u_time*.4);
+        d = sin(d*8. + u_time)/8.;
+        d = abs(d);
+        d = pow(0.01 / d, 1.2);
+        finalColor += col * d;
+    }
+    
+    // Darken it significantly for "Smoked Glass" background
+    gl_FragColor = vec4(finalColor * 0.15, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let lastMouseX = -1;
+    let lastMouseY = -1;
+    let virtualTime = 0;
+    let targetTime = 0;
+
+    window.addEventListener('mousemove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width && rect.height) {
+        const nx = (event.clientX - rect.left) / rect.width;
+        const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+        mouse.x = nx * canvas.width;
+        mouse.y = ny * canvas.height;
+        
+        if (lastMouseX !== -1) {
+            const dx = event.clientX - lastMouseX;
+            const dy = event.clientY - lastMouseY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            targetTime += dist * 0.002; // Speed multiplier for mouse movement
+        }
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+      }
+    });
+
+    function render(t) {
+      if (typeof ResizeObserver === 'undefined') syncSize();
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      
+      // Smoothly catch up to mouse-driven time, plus a VERY slow idle animation
+      targetTime += 0.0005; // Idle speed
+      virtualTime += (targetTime - virtualTime) * 0.05; // Smoothing factor
+      
+      if (uTime) gl.uniform1f(uTime, virtualTime);
+      if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+      if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(render);
+    }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_4 -->
+
+    
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute top-[-10%] start-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] end-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full md:ms-64 relative z-10 overflow-y-auto no-scrollbar">
+        <!-- Mobile Header -->
+        <header class="sticky top-0 start-0 w-full z-40 flex justify-between items-center px-container-margin py-stack-sm bg-black/20 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_20px_-5px_rgba(227,30,36,0.2)]">
+            <div class="flex items-center gap-stack-sm">
+                <a href="/index.html" class="w-8 h-8 flex items-center justify-center rounded-full glass-panel text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                </a>
+                <span data-i18n="profile.title" class="font-headline-sm text-headline-sm text-on-surface">My Profile</span>
+            </div>
+            <div class="flex items-center gap-stack-md">
+                <span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="language">language</span>
+            </div>
+        </header>
+
+        <div class="p-container-margin pt-stack-lg pb-32 max-w-4xl mx-auto w-full flex flex-col justify-center min-h-[calc(100vh-80px)]">
+            
+            <!-- Bento Grid Container -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto">
+                <!-- Cell 1: Account Info -->
+                <div class="glass-panel p-glass-padding rounded-2xl flex flex-col justify-between relative overflow-hidden border border-primary/10">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col h-full justify-between gap-4">
+                        <div class="flex items-center justify-between">
+                            <span class="material-symbols-outlined text-primary text-3xl">person</span>
+                            <span data-i18n="profile.accountTitle" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Account</span>
+                        </div>
+                        <div class="mt-4">
+                            <label data-i18n="profile.displayName" class="font-label-caps text-xs text-on-surface-variant block mb-1">Display Name</label>
+                            <div id="profile-display-name" data-i18n="profile.loading" class="font-body-md text-on-surface font-bold break-all">Loading...</div>
+                        </div>
+                        <div class="mt-2">
+                            <label data-i18n="profile.email" class="font-label-caps text-xs text-on-surface-variant block mb-1">Email</label>
+                            <div id="profile-email" data-i18n="profile.loading" class="font-body-md text-on-surface break-all">Loading...</div>
+                        </div>
+                        <div class="mt-2">
+                            <label data-i18n="profile.role" class="font-label-caps text-xs text-on-surface-variant block mb-1">Role</label>
+                            <div id="profile-role" data-i18n="profile.loading" class="inline-block bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider w-max">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cell 2: Edit Profile -->
+                <div class="glass-panel p-glass-padding rounded-2xl flex flex-col justify-between relative overflow-hidden border border-primary/10 md:col-span-2 animate-in fade-in duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <span class="material-symbols-outlined text-primary text-3xl">manage_accounts</span>
+                            <span data-i18n="profile.editTitle" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Edit Profile</span>
+                        </div>
+                        <form id="edit-profile-form" class="flex flex-col gap-3 mt-2">
+                            <div class="flex flex-col gap-1">
+                                <label data-i18n="profile.displayName" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Display Name</label>
+                                <input type="text" id="edit-display-name" data-i18n="profile.displayNamePlaceholder" placeholder="Enter display name" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label data-i18n="profile.newPassword" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">New Password</label>
+                                <input type="password" id="edit-password" data-i18n="profile.passwordPlaceholderMin" placeholder="Min 6 characters" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
+                            </div>
+                            <button type="submit" id="update-profile-btn" data-i18n="profile.updateBtn" class="bg-primary/10 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-2.5 px-4 rounded-lg transition-all duration-300 shadow-[0_0_15px_-5px_rgba(227,30,36,0.2)] hover:shadow-[0_0_20px_-5px_rgba(227,30,36,0.6)] text-xs mt-2">
+                                Update Profile
+                            </button>
+                        </form>
+                        <div id="update-status" class="hidden text-xs text-center mt-1"></div>
+                    </div>
+                </div>
+
+                <!-- Cell 3: Add New User (Admin only) -->
+                <div id="admin-section" class="glass-panel p-glass-padding rounded-2xl flex flex-col justify-between relative overflow-hidden border border-primary/10 md:col-span-2 hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <span class="material-symbols-outlined text-primary text-3xl">admin_panel_settings</span>
+                            <span data-i18n="profile.admin" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Add New User</span>
+                        </div>
+                        <p data-i18n="profile.adminDesc" class="text-xs text-on-surface-variant leading-relaxed">
+                            As an Admin, you can create restricted technician accounts. Technicians can create and edit tickets, but cannot access Settings or user management.
+                        </p>
+                        <form id="create-user-form" class="flex flex-col gap-3 mt-2">
+                            <input type="email" id="new-user-email" data-i18n="profile.emailPlaceholder" placeholder="Employee Email" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
+                            <input type="password" id="new-user-password" data-i18n="profile.passwordPlaceholder" placeholder="Temporary Password" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
+                            <select id="new-user-role" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors appearance-none">
+                                <option value="technician" data-i18n="profile.roleTech">Technician (Restricted)</option>
+                                <option value="admin" data-i18n="profile.roleAdmin">Administrator (Full Access)</option>
+                            </select>
+                            <button type="submit" id="create-user-btn" data-i18n="profile.createUserBtn" class="bg-primary/10 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-2.5 px-4 rounded-lg transition-all duration-300 shadow-[0_0_15px_-5px_rgba(227,30,36,0.2)] hover:shadow-[0_0_20px_-5px_rgba(227,30,36,0.6)] text-xs">
+                                Create User
+                            </button>
+                        </form>
+                        <div id="create-status" class="hidden text-xs text-center mt-1"></div>
+                    </div>
+                </div>
+
+                <!-- Cell 4: User Directory (Admin only) -->
+                <div id="user-directory-section" class="glass-panel p-glass-padding rounded-2xl flex flex-col relative overflow-hidden border border-primary/10 hidden max-h-[350px]">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col h-full overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="material-symbols-outlined text-primary text-3xl">group</span>
+                            <span data-i18n="profile.userDirectory" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">User Directory</span>
+                        </div>
+                        <div id="user-list" class="flex-1 overflow-y-auto no-scrollbar divide-y divide-primary/10">
+                            <!-- Users will be injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cell 5: Sign Out Cell -->
+                <div class="glass-panel p-glass-padding rounded-2xl flex flex-col justify-between relative overflow-hidden border border-primary/10 min-h-[140px]">
+                    <div class="absolute inset-0 bg-gradient-to-br from-error/5 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col h-full justify-between gap-4">
+                        <div class="flex items-center justify-between">
+                            <span class="material-symbols-outlined text-error text-3xl">logout</span>
+                            <span data-i18n="profile.sessionTitle" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Session</span>
+                        </div>
+                        <div>
+                            <button id="logout-btn" class="w-full flex items-center justify-center gap-2 bg-error/10 hover:bg-error/20 text-error border border-error/20 py-2.5 rounded-lg font-bold transition-all shadow-[0_0_15px_-5px_rgba(255,180,171,0.2)] text-xs">
+                                <span class="material-symbols-outlined text-[16px]">logout</span>
+                                <span data-i18n="profile.signOutBtn">Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="/src/nav.ts"></script>
+    <script type="module" src="/src/profileLogic.ts"></script>
+    <script type="module">
+        import { applyTranslation } from "/src/lib/i18n.ts";
+        applyTranslation();
+    </script>
+</body>
+</html>

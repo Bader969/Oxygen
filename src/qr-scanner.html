@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<script>
+    (function() {
+        var lang = localStorage.getItem('appLang') || 'tr';
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.classList.add('i18n-loading');
+    })();
+</script>
+<style>
+    html.i18n-loading [data-i18n] { visibility: hidden; }
+</style>
+<meta name="view-transition" content="same-origin" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Oxygen - QR Scanner</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c8c6c9",
+                        "surface-dim": "#121414",
+                        "inverse-surface": "#e2e2e2",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#e7bdb8",
+                        "surface-container": "#1e2020",
+                        "tertiary-container": "#747377",
+                        "primary-container": "#e31e24",
+                        "background": "#121414",
+                        "on-primary": "#690006",
+                        "on-primary-fixed": "#410002",
+                        "outline-variant": "#5d3f3c",
+                        "inverse-on-surface": "#2f3131",
+                        "on-surface": "#e2e2e2",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#474649",
+                        "secondary-fixed-dim": "#c8c6c8",
+                        "tertiary": "#c8c6c9",
+                        "surface-container-high": "#282a2b",
+                        "surface-tint": "#ffb4ab",
+                        "on-tertiary-fixed": "#1b1b1e",
+                        "on-primary-fixed-variant": "#93000d",
+                        "secondary": "#c8c6c8",
+                        "on-secondary-fixed": "#1c1b1d",
+                        "surface-bright": "#38393a",
+                        "primary-fixed": "#ffdad6",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#ffb4ab",
+                        "outline": "#ae8883",
+                        "surface-container-low": "#1a1c1c",
+                        "on-primary-container": "#fffafa",
+                        "secondary-container": "#474649",
+                        "surface-container-lowest": "#0c0f0f",
+                        "on-tertiary": "#303033",
+                        "on-secondary": "#313032",
+                        "tertiary-fixed": "#e4e1e5",
+                        "on-secondary-container": "#b7b4b7",
+                        "surface": "#121414",
+                        "surface-container-highest": "#333535",
+                        "on-tertiary-container": "#fdfafe",
+                        "secondary-fixed": "#e5e1e4",
+                        "surface-variant": "#333535",
+                        "on-background": "#e2e2e2",
+                        "inverse-primary": "#c00014",
+                        "on-tertiary-fixed-variant": "#47464a",
+                        "primary": "#ffb4ab",
+                        "on-error": "#690005"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "stack-lg": "2rem",
+                        "stack-sm": "0.5rem",
+                        "glass-padding": "1.5rem",
+                        "gutter": "1rem",
+                        "container-margin": "1.25rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "headline-lg-mobile": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "label-caps": ["LiraFix", "JetBrains Mono", "monospace"],
+                        "headline-sm": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "body-lg": ["LiraFix", "Inter", "sans-serif"],
+                        "headline-md": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "body-md": ["LiraFix", "Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .scan-line {
+            animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(240px); opacity: 0; }
+        }
+        .ripple {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 0 0 rgba(227, 30, 36, 0.7); }
+            70% { transform: scale(1.1); opacity: 0; box-shadow: 0 0 0 30px rgba(227, 30, 36, 0); }
+            100% { transform: scale(0.8); opacity: 0; box-shadow: 0 0 0 0 rgba(227, 30, 36, 0); }
+        }
+        .corner-tl { border-top-width: 4px; border-left-width: 4px; }
+        .corner-tr { border-top-width: 4px; border-right-width: 4px; }
+        .corner-bl { border-bottom-width: 4px; border-left-width: 4px; }
+        .corner-br { border-bottom-width: 4px; border-right-width: 4px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+      <style>
+        @keyframes pageFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        main { animation: pageFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    </style>
+
+    <style>
+        .preload * { transition: none !important; }
+        .glass-panel {
+            background-color: rgba(24, 26, 27, 0.85) !important;
+            backdrop-filter: blur(80px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(80px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+        }
+        
+        .input-glass {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.3) !important;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+
+</head>
+<body class="preload bg-background text-on-background h-screen w-full overflow-hidden relative">
+<script>if(localStorage.getItem('sidebarState') === 'collapsed') document.body.classList.add('sidebar-collapsed');</script>
+<script>window.addEventListener('load', () => { setTimeout(() => { document.body.classList.remove('preload'); }, 50); });</script>
+<!-- STITCH_SHADER_START:ANIMATION_4 class="fixed inset-0 w-full h-full -z-10 opacity-60" -->
+<div class="fixed inset-0 w-full h-full -z-10 opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_4" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_4');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+// Simplex noise-like liquid effect
+vec3 palette(float t) {
+    vec3 a = vec3(0.05, 0.0, 0.0); // Very dark red base
+    vec3 b = vec3(0.5, 0.05, 0.05); // Vivid red glow
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263, 0.416, 0.557);
+    return a + b*cos( 6.28318*(c*t+d) );
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.y, u_resolution.x);
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
+    
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
+        float d = length(uv) * exp(-length(uv0));
+        vec3 col = palette(length(uv0) + i*.4 + u_time*.4);
+        d = sin(d*8. + u_time)/8.;
+        d = abs(d);
+        d = pow(0.01 / d, 1.2);
+        finalColor += col * d;
+    }
+    
+    // Darken it significantly for "Smoked Glass" background
+    gl_FragColor = vec4(finalColor * 0.15, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let lastMouseX = -1;
+    let lastMouseY = -1;
+    let virtualTime = 0;
+    let targetTime = 0;
+
+    window.addEventListener('mousemove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width && rect.height) {
+        const nx = (event.clientX - rect.left) / rect.width;
+        const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+        mouse.x = nx * canvas.width;
+        mouse.y = ny * canvas.height;
+        
+        if (lastMouseX !== -1) {
+            const dx = event.clientX - lastMouseX;
+            const dy = event.clientY - lastMouseY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            targetTime += dist * 0.002; // Speed multiplier for mouse movement
+        }
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+      }
+    });
+
+    function render(t) {
+      if (typeof ResizeObserver === 'undefined') syncSize();
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      
+      // Smoothly catch up to mouse-driven time, plus a VERY slow idle animation
+      targetTime += 0.0005; // Idle speed
+      virtualTime += (targetTime - virtualTime) * 0.05; // Smoothing factor
+      
+      if (uTime) gl.uniform1f(uTime, virtualTime);
+      if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+      if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(render);
+    }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_4 -->
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<!-- Live Camera Background -->
+<div class="absolute inset-0 bg-black z-0 overflow-hidden">
+        <div id="reader" class="absolute inset-0 w-full h-full object-cover"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80 pointer-events-none"></div>
+    </div>
+<!-- Top Navigation (Task-Focused - Suppressed standard nav) -->
+<div class="absolute top-0 start-0 w-full z-50 flex justify-between items-center px-container-margin py-stack-lg pt-12 bg-gradient-to-b from-black/60 to-transparent">
+<a href="/index.html" class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-xl border border-primary/20 flex items-center justify-center text-on-surface hover:bg-primary/10 hover:border-primary/50 transition-all shadow-[0_0_15px_-3px_rgba(227,30,36,0.1)]">
+        <span class="material-symbols-outlined" data-icon="close">close</span>
+    </a>
+<span class="font-headline-md text-headline-md font-bold text-white/50 tracking-widest uppercase text-sm">Oxygen</span>
+<button class="w-12 h-12 rounded-full bg-black/40 backdrop-blur-xl border border-primary/20 flex items-center justify-center text-on-surface hover:bg-primary/10 hover:border-primary/50 transition-all shadow-[0_0_15px_-3px_rgba(227,30,36,0.1)]">
+<span class="material-symbols-outlined" data-icon="flash_on">flash_on</span>
+</button>
+</div>
+<!-- Scanner Reticle Area -->
+<div class="absolute inset-0 flex items-center justify-center z-10">
+<div class="relative w-72 h-64 ripple">
+<!-- Reticle Corners -->
+<div class="absolute top-0 start-0 w-8 h-8 border-primary corner-tl shadow-[0_0_20px_rgba(227,30,36,0.3)]"></div>
+<div class="absolute top-0 end-0 w-8 h-8 border-primary corner-tr shadow-[0_0_20px_rgba(227,30,36,0.3)]"></div>
+<div class="absolute bottom-0 start-0 w-8 h-8 border-primary corner-bl shadow-[0_0_20px_rgba(227,30,36,0.3)]"></div>
+<div class="absolute bottom-0 end-0 w-8 h-8 border-primary corner-br shadow-[0_0_20px_rgba(227,30,36,0.3)]"></div>
+<!-- Scan Line -->
+<div class="absolute top-0 start-0 w-full h-[2px] bg-primary shadow-[0_0_15px_3px_rgba(227,30,36,0.6)] scan-line"></div>
+<!-- Target Area Hint (Very subtle) -->
+<div class="absolute inset-0 bg-primary/5 backdrop-blur-sm border border-primary/10 rounded-lg m-2"></div>
+</div>
+</div>
+<!-- Bottom Instruction Panel -->
+<div class="absolute bottom-12 start-0 w-full px-container-margin z-50 flex justify-center">
+<div class="bg-black/40 backdrop-blur-2xl border border-primary/30 rounded-xl px-glass-padding py-stack-md flex flex-col items-center shadow-[0_0_30px_-10px_rgba(227,30,36,0.3)] max-w-sm w-full">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="qr_code_scanner" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<p class="font-headline-sm text-headline-sm text-on-surface text-center mb-1">Point at QR Code</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center opacity-60">QR Koduna Odaklanın / وجه الكاميرا نحو رمز QR</p>
+</div>
+</div>
+<!-- SideNavBar (Suppressed due to Task-Focused intent) -->
+<!-- BottomNavBar (Suppressed due to Task-Focused intent) -->
+<script type="module" src="/src/scannerLogic.ts"></script>
+<script type="module" src="/src/nav.ts"></script>
+    <script type="module">
+      import { applyTranslation } from "/src/lib/i18n.ts";
+      applyTranslation();
+    </script>
+</body></html>

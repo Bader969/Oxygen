@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<script>
+    (function() {
+        var lang = localStorage.getItem('appLang') || 'tr';
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.classList.add('i18n-loading');
+    })();
+</script>
+<style>
+    html.i18n-loading [data-i18n] { visibility: hidden; }
+</style>
+<meta name="view-transition" content="same-origin" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Oxygen Repair Management - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed-dim": "#c8c6c9",
+                        "surface-dim": "#121414",
+                        "inverse-surface": "#e2e2e2",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#e7bdb8",
+                        "surface-container": "#1e2020",
+                        "tertiary-container": "#747377",
+                        "primary-container": "#e31e24",
+                        "background": "#121414",
+                        "on-primary": "#690006",
+                        "on-primary-fixed": "#410002",
+                        "outline-variant": "#5d3f3c",
+                        "inverse-on-surface": "#2f3131",
+                        "on-surface": "#e2e2e2",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#474649",
+                        "secondary-fixed-dim": "#c8c6c8",
+                        "tertiary": "#c8c6c9",
+                        "surface-container-high": "#282a2b",
+                        "surface-tint": "#ffb4ab",
+                        "on-tertiary-fixed": "#1b1b1e",
+                        "on-primary-fixed-variant": "#93000d",
+                        "secondary": "#c8c6c8",
+                        "on-secondary-fixed": "#1c1b1d",
+                        "surface-bright": "#38393a",
+                        "primary-fixed": "#ffdad6",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#ffb4ab",
+                        "outline": "#ae8883",
+                        "surface-container-low": "#1a1c1c",
+                        "on-primary-container": "#fffafa",
+                        "secondary-container": "#474649",
+                        "surface-container-lowest": "#0c0f0f",
+                        "on-tertiary": "#303033",
+                        "on-secondary": "#313032",
+                        "tertiary-fixed": "#e4e1e5",
+                        "on-secondary-container": "#b7b4b7",
+                        "surface": "#121414",
+                        "surface-container-highest": "#333535",
+                        "on-tertiary-container": "#fdfafe",
+                        "secondary-fixed": "#e5e1e4",
+                        "surface-variant": "#333535",
+                        "on-background": "#e2e2e2",
+                        "inverse-primary": "#c00014",
+                        "on-tertiary-fixed-variant": "#47464a",
+                        "primary": "#ffb4ab",
+                        "on-error": "#690005"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "stack-md": "1rem",
+                        "stack-lg": "2rem",
+                        "stack-sm": "0.5rem",
+                        "glass-padding": "1.5rem",
+                        "gutter": "1rem",
+                        "container-margin": "1.25rem"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "headline-lg-mobile": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "label-caps": ["LiraFix", "JetBrains Mono", "monospace"],
+                        "headline-sm": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "body-lg": ["LiraFix", "Inter", "sans-serif"],
+                        "headline-md": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
+                        "body-md": ["LiraFix", "Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-lg-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "500" }],
+                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-weight {
+            font-variation-settings: 'FILL' 1;
+        }
+        .preload * { transition: none !important; }
+        .glass-panel {
+            background-color: rgba(24, 26, 27, 0.85) !important;
+            backdrop-filter: blur(80px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(80px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(227, 30, 36, 0.3);
+            box-shadow: 0 0 20px -5px rgba(227, 30, 36, 0.2);
+        }
+        .text-gradient-primary {
+            background: linear-gradient(to right, #ffb4ab, #fffafa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+    <style>
+        @keyframes pageFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        main { animation: pageFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    </style>
+
+    <style>
+        .glass-panel {
+            background-color: rgba(24, 26, 27, 0.85) !important;
+            backdrop-filter: blur(80px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(80px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+        }
+        
+        .input-glass {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.3) !important;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+
+</head>
+<body class="preload bg-background text-on-surface min-h-screen overflow-x-hidden font-body-lg">
+<script>if(localStorage.getItem('sidebarState') === 'collapsed') document.body.classList.add('sidebar-collapsed');</script>
+<script>window.addEventListener('load', () => { setTimeout(() => { document.body.classList.remove('preload'); }, 50); });</script>
+<!-- Background Shader -->
+<!-- STITCH_SHADER_START:ANIMATION_4 class="fixed inset-0 w-full h-full -z-10 opacity-60" -->
+<div class="fixed inset-0 w-full h-full -z-10 opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_4" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_4');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+// Simplex noise-like liquid effect
+vec3 palette(float t) {
+    vec3 a = vec3(0.05, 0.0, 0.0); // Very dark red base
+    vec3 b = vec3(0.5, 0.05, 0.05); // Vivid red glow
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263, 0.416, 0.557);
+    return a + b*cos( 6.28318*(c*t+d) );
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.y, u_resolution.x);
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
+    
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
+        float d = length(uv) * exp(-length(uv0));
+        vec3 col = palette(length(uv0) + i*.4 + u_time*.4);
+        d = sin(d*8. + u_time)/8.;
+        d = abs(d);
+        d = pow(0.01 / d, 1.2);
+        finalColor += col * d;
+    }
+    
+    // Darken it significantly for "Smoked Glass" background
+    gl_FragColor = vec4(finalColor * 0.15, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    let lastMouseX = -1;
+    let lastMouseY = -1;
+    let virtualTime = 0;
+    let targetTime = 0;
+
+    window.addEventListener('mousemove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width && rect.height) {
+        const nx = (event.clientX - rect.left) / rect.width;
+        const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+        mouse.x = nx * canvas.width;
+        mouse.y = ny * canvas.height;
+        
+        if (lastMouseX !== -1) {
+            const dx = event.clientX - lastMouseX;
+            const dy = event.clientY - lastMouseY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            targetTime += dist * 0.002; // Speed multiplier for mouse movement
+        }
+        lastMouseX = event.clientX;
+        lastMouseY = event.clientY;
+      }
+    });
+
+    function render(t) {
+      if (typeof ResizeObserver === 'undefined') syncSize();
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      
+      // Smoothly catch up to mouse-driven time, plus a VERY slow idle animation
+      targetTime += 0.0005; // Idle speed
+      virtualTime += (targetTime - virtualTime) * 0.05; // Smoothing factor
+      
+      if (uTime) gl.uniform1f(uTime, virtualTime);
+      if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+      if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(render);
+    }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_4 -->
+<!-- SideNavBar (Web) -->
+<nav class="hidden md:flex flex-col h-full w-72 fixed start-0 top-0 bg-black/40 backdrop-blur-2xl border-e border-primary/20 shadow-2xl shadow-primary/5 py-stack-lg z-50">
+<!-- Floating Toggle -->
+<button class="sidebar-toggle absolute top-10 end-[-14px] w-7 h-7 rounded-full bg-primary/20 backdrop-blur-md border border-primary text-primary flex items-center justify-center shadow-[0_0_10px_rgba(255,180,171,0.3)] hover:bg-primary hover:text-black hover:scale-110 transition-all z-[60]">
+    <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<!-- Brand -->
+<div class="brand-container relative px-glass-padding mb-stack-lg flex items-center justify-between">
+    <div class="flex items-center gap-stack-md overflow-hidden">
+        <img alt="Oxygen Logo" class="w-12 h-12 min-w-[3rem] rounded-full object-cover border border-primary/30 shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLFZrha7fL9vSiwCCcD4Dnbc4NlfqkvIYvJtkkdPA3gCQCtrfefOjh5QQz8sL75YuFYLlmGbbeOj6rgRJXl1VSEN1SyiLUQSQFOVzKGAypvzhKQJhEmEWlK-FbJgcHZodVM5NEZQSftAelcrnP862JO6w7BnzunB3AwAxO6JjLOpHHFNt7y6Wfcsq05l1SMQOjpPPJqa0VTCdd0mBOkvOrpEXz3FANm0jWCOIjWfuMeQSzZtl3GV__tEIGL9qcoO_qWgg" />
+        <div class="sidebar-text whitespace-normal transition-opacity duration-300">
+            <h1 data-i18n="app.title" class="font-headline-sm text-headline-sm font-bold text-primary">Oxygen</h1>
+            <p data-i18n="app.subtitle" class="font-label-caps text-label-caps text-on-surface-variant whitespace-normal">Repair Management</p>
+        </div>
+    </div>
+</div>
+<div class="flex-1 flex flex-col gap-stack-sm">
+<!-- Active Tab -->
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all scale-98 transition-transform" href="/index.html">
+<span class="material-symbols-outlined fill-weight" data-icon="dashboard">dashboard</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.dashboard">Dashboard</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/new-ticket.html">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.tickets">Tickets</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/qr-scanner.html">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.scanner">QR Scanner</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/kanban.html">
+<span class="material-symbols-outlined" data-icon="view_kanban">view_kanban</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.kanban">Kanban</span></span>
+</a>
+  <a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/customers.html">
+  <span class="material-symbols-outlined" data-icon="groups">groups</span>
+  <span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span data-i18n="nav.customers" class="font-label-caps text-label-caps">Customers</span></span>
+  </a>
+  <a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/devices.html">
+  <span class="material-symbols-outlined" data-icon="devices">devices</span>
+  <span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span data-i18n="nav.devices" class="font-label-caps text-label-caps">Devices</span></span>
+  </a>
+
+</div>
+<div class="mt-auto flex flex-col gap-stack-sm border-t border-primary/10 pt-stack-md mx-glass-padding">
+<a class="flex items-center gap-stack-md text-on-surface-variant py-stack-sm hover:text-primary transition-all admin-only" href="/src/settings.html" style="display: none;">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.settings">Settings</span></span>
+</a>
+<a class="btn-logout flex items-center gap-stack-md text-on-surface-variant py-stack-sm hover:text-primary transition-all" href="/src/login.html" class="btn-logout" href="/src/login.html">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.logout">Logout</span></span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar (Mobile Anchor) -->
+<header class="fixed top-0 start-0 w-full z-40 flex justify-between items-center px-container-margin py-stack-sm bg-black/20 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_20px_-5px_rgba(227,30,36,0.2)] md:ps-[19.5rem]">
+<div class="flex items-center gap-stack-sm">
+<img alt="Oxygen Logo" class="w-8 h-8 rounded-full md:hidden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtWv7AiasS_U0KKLpWaw4a2ZyjMpr4GL88SNb2DUaAwMgYRK-E4XwA7udH8Ib2Jcb4dBASVVaenyNh8N6a3-81HU8TrBgBIe8a15LAA8yieJRW9GYXjEFlFmHwh5s3hSibhKNKHxalbqyqCI-FNLbJzhQ6xooc9dcAewZf76wUOJ90OXTo1UUKPMtArcejnldHq399SlSZlUJot6pSxWH3-NDA2oaRaOVvqAsgLNe52N97nCCyDeYJdSj3CADm0-FZ3VA"/>
+<span data-i18n="app.title" class="font-headline-md text-headline-md font-bold text-primary md:hidden">Oxygen</span>
+<span data-i18n="dir.customers" class="font-headline-sm text-headline-sm text-on-surface hidden md:block">Customers Directory</span>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="language">language</span>
+<a href="/src/profile.html" class="flex"><span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="account_circle">account_circle</span></a>
+</div>
+</header>
+<!-- Main Content Canvas -->
+
+<main class="flex-1 flex flex-col h-[100dvh] pt-[5rem] md:pt-[5rem] md:ps-[19.5rem] relative z-10 w-full overflow-hidden">
+    <!-- Header -->
+    <header class="w-full flex-none pt-safe pb-stack-sm px-container-margin z-40 bg-black/20 backdrop-blur-xl border-b border-primary/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] md:hidden">
+        <div class="flex items-center gap-4 h-16 pt-8 md:pt-0">
+            <button class="md:hidden text-on-surface-variant hover:text-primary transition-colors sidebar-open">
+                <span class="material-symbols-outlined text-[24px]">menu</span>
+            </button>
+            <h1 class="font-headline-md text-headline-md font-medium" data-i18n="dir.customers">Customers Directory</h1>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto px-container-margin py-stack-lg custom-scrollbar">
+        <!-- List Container -->
+        <div class="glass-panel rounded-2xl border border-primary/10 overflow-hidden flex flex-col h-full max-h-[800px]">
+            <!-- List Header (Search & Filters) -->
+            <div class="p-stack-md border-b border-primary/10 bg-black/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar filter-pills">
+                    <button class="px-4 py-1.5 rounded-full border border-primary text-primary bg-primary/10 text-sm whitespace-nowrap hover:bg-primary hover:text-black transition-all active-filter" data-filter="all" data-i18n="dir.filterAll">All</button>
+                    
+                    <button class="px-4 py-1.5 rounded-full border border-primary/30 text-on-surface-variant bg-black/20 text-sm whitespace-nowrap hover:border-primary hover:text-primary transition-all" data-filter="active" data-i18n="dir.filterActive">Active</button>
+                </div>
+                <div class="relative w-full md:w-80 group">
+                    <span class="material-symbols-outlined absolute start-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors z-10 text-[20px]">search</span>
+                    <input type="text" id="customerSearch" class="w-full bg-black/40 border border-primary/20 text-on-surface rounded-full py-2 ps-10 pe-4 focus:outline-none focus:border-primary/60 focus:bg-black/60 transition-all placeholder-on-surface-variant text-sm" data-i18n="dir.searchCust" placeholder="Search by name or phone...">
+                </div>
+            </div>
+            
+            <!-- Table Header -->
+            <div class="hidden md:grid grid-cols-12 gap-4 px-stack-md py-3 border-b border-primary/10 text-xs font-label-caps text-on-surface-variant uppercase tracking-wider bg-black/40">
+                <div class="col-span-1">#</div>
+                <div class="col-span-3"><span data-i18n="table.customer">Customer</span></div>
+                <div class="col-span-3"><span data-i18n="table.contact">Contact</span></div>
+                <div class="col-span-2"><span data-i18n="table.status">Status</span></div>
+                <div class="col-span-2 text-center"><span data-i18n="table.tickets">Tickets</span></div>
+                <div class="col-span-1 text-end"><span data-i18n="table.action">Action</span></div>
+            </div>
+
+            <!-- List Body -->
+            <div id="customerList" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col divide-y divide-primary/5">
+                <!-- Rows injected via JS -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 start-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 md:hidden bg-black/40 backdrop-blur-2xl rounded-t-xl border-t border-primary/30 shadow-[0_-4px_20px_rgba(227,30,36,0.15)]">
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center text-primary fill-weight scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-caps text-[10px] uppercase">Home</span>
+<div class="w-1 h-1 bg-primary rounded-full mt-1 shadow-[0_0_8px_rgba(227,30,36,1)]"></div>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="list_alt">list_alt</span>
+<span class="font-label-caps text-[10px] uppercase" data-i18n="nav.tickets">Tickets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 transition-colors relative -top-3" href="#">
+<div class="bg-primary text-white p-3 rounded-full shadow-[0_4px_20px_rgba(227,30,36,0.5)]">
+<span class="material-symbols-outlined" data-icon="center_focus_weak">center_focus_weak</span>
+</div>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="view_column">view_column</span>
+<span class="font-label-caps text-[10px] uppercase" data-i18n="nav.kanban">Board</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for buttons
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            el.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+            el.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+    <script type="module" src="/src/nav.ts"></script>
+    <script type="module" src="/src/customersLogic.ts"></script>
+    <script type="module">
+      import { applyTranslation } from "/src/lib/i18n.ts";
+      applyTranslation();
+    </script>
+
+
+</body>
+</html>
