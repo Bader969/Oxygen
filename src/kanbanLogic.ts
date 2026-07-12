@@ -116,6 +116,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (cols[2]) { const b = cols[2].querySelector('.bg-surface-container-high'); if (b) b.textContent = counts['quality_check']; }
         if (cols[3]) { const b = cols[3].querySelector('.bg-surface-container-high'); if (b) b.textContent = counts['ready_for_pickup']; }
 
+        // Update mobile pipeline tab counts
+        const mobCounts = [counts['pending'], counts['in_progress'], counts['quality_check'], counts['ready_for_pickup']];
+        mobCounts.forEach((c, i) => {
+            const el = document.getElementById(`mob-count-${i}`);
+            if (el) el.textContent = String(c);
+        });
+
+        // Wire mobile pipeline tabs → scroll to column
+        const boardEl = document.getElementById('kanban-board-view');
+        const colEls = boardEl ? Array.from(boardEl.querySelectorAll(':scope > div')) : [];
+        const pipeTabs = document.querySelectorAll('.mob-pipe-tab');
+
+        pipeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const idx = parseInt(tab.getAttribute('data-col') || '0', 10);
+                const target = colEls[idx] as HTMLElement;
+                if (target && boardEl) {
+                    boardEl.scrollTo({ left: target.offsetLeft - boardEl.offsetLeft, behavior: 'smooth' });
+                }
+                pipeTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // IntersectionObserver: swipe updates active tab
+        if (boardEl && colEls.length && pipeTabs.length && typeof IntersectionObserver !== 'undefined') {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                        const idx = colEls.indexOf(entry.target as HTMLElement);
+                        if (idx >= 0) {
+                            pipeTabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+                        }
+                    }
+                });
+            }, { root: boardEl, threshold: 0.5 });
+            colEls.forEach(col => observer.observe(col));
+        }
+
         // Wire up ticket card clicks to edit modal
         document.querySelectorAll('.kanban-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -163,22 +202,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         const viewList = document.getElementById('kanban-list-view') as HTMLDivElement;
 
         if (btnBoard && btnList && viewBoard && viewList) {
-            btnBoard.addEventListener('click', () => {
-                btnBoard.className = 'px-4 py-1.5 rounded-full bg-primary text-black font-bold transition-all duration-300';
-                btnList.className = 'px-4 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface transition-all duration-300';
-                
+            const showBoard = () => {
+                btnBoard.className = 'px-3 py-1.5 rounded-full bg-primary text-black font-bold transition-all duration-300';
+                btnList.className  = 'px-3 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface transition-all duration-300';
                 viewBoard.classList.remove('hidden');
                 viewList.classList.add('hidden');
-            });
+                const pipeTabs = document.getElementById('mobile-pipeline-tabs');
+                if (pipeTabs) pipeTabs.style.display = '';
+            };
+
+            btnBoard.addEventListener('click', showBoard);
 
             btnList.addEventListener('click', () => {
-                btnList.className = 'px-4 py-1.5 rounded-full bg-primary text-black font-bold transition-all duration-300';
-                btnBoard.className = 'px-4 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface transition-all duration-300';
-                
+                btnList.className  = 'px-3 py-1.5 rounded-full bg-primary text-black font-bold transition-all duration-300';
+                btnBoard.className = 'px-3 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface transition-all duration-300';
                 viewList.classList.remove('hidden');
                 viewBoard.classList.add('hidden');
-                
+
+                // Hide pipeline tabs when in list view
+                const pipeTabs = document.getElementById('mobile-pipeline-tabs');
+                if (pipeTabs) pipeTabs.style.display = 'none';
+
                 renderTicketsList();
+
+                // Wire search input (once, on first list open)
+                const searchInput = document.getElementById('list-search') as HTMLInputElement;
+                if (searchInput && !searchInput.dataset.wired) {
+                    searchInput.dataset.wired = 'true';
+                    searchInput.addEventListener('input', () => renderTicketsList());
+                }
             });
         }
 
@@ -284,10 +336,27 @@ function renderTicketsList() {
 
     const statusFilter = (document.getElementById('list-filter-status') as HTMLInputElement)?.getAttribute('data-value') || 'all';
     const sortOrder = (document.getElementById('list-sort-order') as HTMLInputElement)?.getAttribute('data-value') || 'newest';
+    const searchQuery = ((document.getElementById('list-search') as HTMLInputElement)?.value || '').trim().toLowerCase();
 
     let filtered = [...repairsList];
     if (statusFilter !== 'all') {
         filtered = filtered.filter(r => r.status === statusFilter);
+    }
+
+    // Live search: match ticket ID, customer name, device model, issue description
+    if (searchQuery) {
+        filtered = filtered.filter(r => {
+            const customerName = (r.customers?.name || '').toLowerCase();
+            const shortId = r.id.split('-')[0].toLowerCase();
+            const deviceModel = (r.device_model || '').toLowerCase();
+            const issue = (r.issue_description || '').toLowerCase();
+            return (
+                shortId.includes(searchQuery) ||
+                customerName.includes(searchQuery) ||
+                deviceModel.includes(searchQuery) ||
+                issue.includes(searchQuery)
+            );
+        });
     }
 
     if (sortOrder === 'newest') {
@@ -301,7 +370,9 @@ function renderTicketsList() {
     }
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center py-12"><p class="text-xs text-on-surface-variant italic">No matching tickets found.</p></div>`;
+        const lang = localStorage.getItem('appLang') || 'tr';
+        const msg = lang === 'ar' ? 'لا توجد تذاكر مطابقة.' : 'Eşleşen talep bulunamadı.';
+        container.innerHTML = `<div class="text-center py-12"><p class="text-xs text-on-surface-variant italic">${msg}</p></div>`;
         return;
     }
 
