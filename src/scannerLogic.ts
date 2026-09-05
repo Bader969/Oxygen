@@ -27,25 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const lang = localStorage.getItem('appLang') || 'tr';
 
     // ── Manual Hash Input ──────────────────────────────────────────────────
-    const container = document.querySelector('.absolute.bottom-12');
-    if (container) {
-        const existing = document.getElementById('manual-hash');
-        if (!existing) {
-            container.querySelector('.bg-black\\/40')?.insertAdjacentHTML('beforeend', `
-            <div class="mt-4 flex flex-col items-center w-full z-50">
-                <input type="text" id="manual-hash"
-                    data-i18n="scanner.paste"
-                    placeholder="${lang === 'ar' ? 'الصق هاش QR هنا' : 'QR Hash kodunu buraya yapıştırın'}"
-                    class="w-full bg-black/80 border border-primary/30 rounded-lg px-4 py-3 text-center text-on-surface mb-2 focus:border-primary outline-none backdrop-blur-md">
-                <button id="lookup-btn"
-                    data-i18n="scanner.lookup"
-                    class="w-full bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors font-bold shadow-[0_0_15px_rgba(227,30,36,0.3)]">
-                    ${lang === 'ar' ? 'استعلام عن التذكرة' : 'Talep Sorgula'}
-                </button>
-            </div>`);
-        }
-        document.getElementById('lookup-btn')?.addEventListener('click', () => handleScan());
-    }
+    const lookupBtn = document.getElementById('lookup-btn');
+    const manualInput = document.getElementById('manual-hash') as HTMLInputElement;
+
+    lookupBtn?.addEventListener('click', () => handleScan());
+    manualInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleScan();
+    });
 
     // ── Camera Initialization ──────────────────────────────────────────────
     try {

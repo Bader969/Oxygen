@@ -286,16 +286,19 @@ export const deleteRepair = async (id: string) => {
 };
 
 /**
- * Fetches users via staff_users view (admins only).
+ * Fetches users via secure get_staff_users RPC (admins only).
  */
 export const getStaffUsers = async () => {
-  const { data, error } = await supabase
-    .from('staff_users')
-    .select('*');
+  const { data, error } = await supabase.rpc('get_staff_users');
 
   if (error) {
-    console.error('Error fetching staff users:', error);
-    throw error;
+    // Fallback to view query in case migration is still pending
+    const fallback = await supabase.from('staff_users').select('*');
+    if (fallback.error) {
+      console.error('Error fetching staff users:', error);
+      throw error;
+    }
+    return fallback.data || [];
   }
   return data || [];
 };

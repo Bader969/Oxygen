@@ -315,8 +315,8 @@ void main() {
 </button>
 </div>
 <!-- Scanner Reticle Area -->
-<div class="absolute inset-0 flex items-center justify-center z-10">
-<div class="relative w-72 h-64 ripple">
+<div class="absolute inset-0 flex items-center justify-center z-10 pb-36 pointer-events-none">
+<div class="relative w-64 h-64 ripple">
 <!-- Reticle Corners -->
 <div class="absolute top-0 start-0 w-8 h-8 border-primary corner-tl shadow-[0_0_20px_rgba(227,30,36,0.3)]"></div>
 <div class="absolute top-0 end-0 w-8 h-8 border-primary corner-tr shadow-[0_0_20px_rgba(227,30,36,0.3)]"></div>
@@ -328,12 +328,21 @@ void main() {
 <div class="absolute inset-0 bg-primary/5 backdrop-blur-sm border border-primary/10 rounded-lg m-2"></div>
 </div>
 </div>
-<!-- Bottom Instruction Panel -->
-<div class="absolute bottom-12 start-0 w-full px-container-margin z-50 flex justify-center">
-<div class="bg-black/40 backdrop-blur-2xl border border-primary/30 rounded-xl px-glass-padding py-stack-md flex flex-col items-center shadow-[0_0_30px_-10px_rgba(227,30,36,0.3)] max-w-sm w-full">
-<span class="material-symbols-outlined text-primary mb-2" data-icon="qr_code_scanner" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
-<p class="font-headline-sm text-headline-sm text-on-surface text-center mb-1">Point at QR Code</p>
-<p class="font-label-caps text-label-caps text-on-surface-variant text-center opacity-60">QR Koduna Odaklanın / وجه الكاميرا نحو رمز QR</p>
+<!-- Bottom Instruction & Lookup Panel (Elevated above mobile bottom nav) -->
+<div class="absolute bottom-[5.5rem] md:bottom-8 start-0 w-full px-container-margin z-40 flex justify-center pointer-events-auto">
+<div class="bg-black/60 backdrop-blur-2xl border border-primary/30 rounded-2xl p-4 flex flex-col items-center shadow-[0_0_30px_-10px_rgba(227,30,36,0.4)] max-w-sm w-full">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<p class="font-headline-sm text-sm text-on-surface font-bold">Point at QR Code</p>
+</div>
+<p class="font-label-caps text-[11px] text-on-surface-variant text-center opacity-75 mb-3">QR Koduna Odaklanın / وجه الكاميرا نحو رمز QR</p>
+<div class="flex gap-2 w-full">
+<input type="text" id="manual-hash" data-i18n="scanner.paste" placeholder="Paste QR Hash here" class="flex-1 bg-surface-container/60 border border-primary/30 rounded-xl px-3 py-2 text-xs text-on-surface focus:border-primary focus:outline-none backdrop-blur-md text-center font-mono">
+<button id="lookup-btn" data-i18n="scanner.lookup" class="bg-primary hover:bg-primary/90 text-black font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-[0_0_15px_rgba(227,30,36,0.3)] shrink-0 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">search</span>
+<span>Lookup</span>
+</button>
+</div>
 </div>
 </div>
 <!-- SideNavBar (Suppressed due to Task-Focused intent) -->
