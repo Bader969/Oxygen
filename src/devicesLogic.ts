@@ -166,8 +166,11 @@ function renderDevices(filter = 'all', search = '') {
                 try {
                     await deleteDevice(id);
                     await loadData();
+                    const msg = lang === 'ar' ? 'تم حذف الجهاز بنجاح' : 'Cihaz başarıyla silindi';
+                    (window as any).showToast ? (window as any).showToast(msg, 'info') : null;
                 } catch (err: any) {
-                    alert('Error: ' + err.message);
+                    const errMsg = 'Error: ' + (err?.message || err);
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
                 }
             }
         });
@@ -201,8 +204,12 @@ async function showQrOverlay(qrHash: string, tktName: string) {
         `;
         document.body.appendChild(qrOverlay);
         qrOverlay.querySelector('#close-qr-overlay')?.addEventListener('click', () => qrOverlay.remove());
+        qrOverlay.addEventListener('click', (e) => {
+            if (e.target === qrOverlay) qrOverlay.remove();
+        });
     } catch (err: any) {
-        alert('Failed to generate QR Code: ' + err.message);
+        const errMsg = 'Failed to generate QR Code: ' + (err?.message || err);
+        (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
     }
 }
 
@@ -278,6 +285,9 @@ function openDeviceDetailsModal(id: string) {
 
     document.body.appendChild(modal);
     modal.querySelector('#close-details-modal')?.addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
 
     modal.querySelectorAll('.tkt-qr-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -364,6 +374,9 @@ function openDeviceModal(id?: string) {
     document.body.appendChild(modal);
 
     modal.querySelector('#close-modal')?.addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
     
     modal.querySelector('#modal-device-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -381,8 +394,13 @@ function openDeviceModal(id?: string) {
             }
             modal.remove();
             await loadData();
+            const msg = device
+                ? (lang === 'ar' ? 'تم تحديث بيانات الجهاز بنجاح' : 'Cihaz bilgileri güncellendi')
+                : (lang === 'ar' ? 'تم إضافة الجهاز بنجاح' : 'Yeni cihaz eklendi');
+            (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
         } catch (err: any) {
-            alert('Error: ' + err.message);
+            const errMsg = 'Error: ' + (err?.message || err);
+            (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
         }
     });
 }

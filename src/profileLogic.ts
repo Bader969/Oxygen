@@ -205,8 +205,11 @@ async function loadUserDirectory(currentUser: any) {
                 try {
                     await adminUpdateUserRole(targetId, newRole);
                     await loadUserDirectory(currentUser);
+                    const msg = currentLang === 'ar' ? 'تم تحديث دور المستخدم بنجاح' : 'Kullanıcı rolü başarıyla güncellendi';
+                    (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
                 } catch (err: any) {
-                    alert('Error: ' + err.message);
+                    const errMsg = 'Error: ' + (err?.message || err);
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
                 }
             });
         });
@@ -220,8 +223,11 @@ async function loadUserDirectory(currentUser: any) {
                     try {
                         await adminDeleteUser(targetId);
                         await loadUserDirectory(currentUser);
+                        const msg = lang === 'ar' ? 'تم حذف المستخدم بنجاح' : 'Kullanıcı başarıyla silindi';
+                        (window as any).showToast ? (window as any).showToast(msg, 'info') : null;
                     } catch (err: any) {
-                        alert('Error: ' + err.message);
+                        const errMsg = 'Error: ' + (err?.message || err);
+                        (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
                     }
                 }
             });

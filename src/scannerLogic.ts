@@ -219,6 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try { html5QrCode?.resume(); } catch (_) {}
         };
         modal.querySelector('#scan-close-modal')?.addEventListener('click', closeAndResume);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeAndResume();
+        });
 
         // Save
         modal.querySelector('#scanner-ticket-form')?.addEventListener('submit', async (e) => {
@@ -239,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusEl.textContent = lang === 'ar' ? '✓ تم الحفظ بنجاح!' : '✓ Başarıyla kaydedildi!';
                 statusEl.className   = 'text-xs text-center font-bold rounded-lg py-2 px-3 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20';
                 statusEl.classList.remove('hidden');
+                (window as any).showToast ? (window as any).showToast(statusEl.textContent, 'success') : null;
                 setTimeout(closeAndResume, 1200);
             } catch (err: any) {
                 statusEl.textContent = (lang === 'ar' ? 'خطأ: ' : 'Hata: ') + err.message;
@@ -246,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusEl.classList.remove('hidden');
                 submitBtn.disabled   = false;
                 submitBtn.textContent = lang === 'ar' ? 'حفظ' : 'Kaydet';
+                (window as any).showToast ? (window as any).showToast(statusEl.textContent, 'error') : null;
             }
         });
 
@@ -255,9 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm(confirmMsg)) {
                 try {
                     await deleteRepair(ticket.id);
+                    (window as any).showToast ? (window as any).showToast(lang === 'ar' ? 'تم حذف التذكرة' : 'Talep silindi', 'info') : null;
                     closeAndResume();
                 } catch (err: any) {
-                    alert((lang === 'ar' ? 'خطأ في الحذف: ' : 'Silme hatası: ') + err.message);
+                    const errMsg = (lang === 'ar' ? 'خطأ في الحذف: ' : 'Silme hatası: ') + err.message;
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
                 }
             }
         });
@@ -281,8 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
                   </div>`;
                 document.body.appendChild(overlay);
                 overlay.querySelector('#close-qr-overlay')?.addEventListener('click', () => overlay.remove());
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.remove();
+                });
             } catch (err: any) {
-                alert('QR error: ' + err.message);
+                const errMsg = 'QR error: ' + (err?.message || err);
+                (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
             }
         });
     }

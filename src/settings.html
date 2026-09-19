@@ -164,165 +164,11 @@
 <body class="preload min-h-screen flex flex-col font-body-md bg-background text-on-background pb-[80px] md:pb-0">
 <script>if(localStorage.getItem('sidebarState') === 'collapsed') document.body.classList.add('sidebar-collapsed');</script>
 <script>window.addEventListener('load', () => { setTimeout(() => { document.body.classList.remove('preload'); }, 50); });</script>
-<!-- STITCH_SHADER_START:ANIMATION_4 class="fixed inset-0 w-full h-full -z-10 opacity-60" -->
-<div class="fixed inset-0 w-full h-full -z-10 opacity-60" style="display:block;">
-<canvas id="shader-canvas-ANIMATION_4" style="display:block;width:100%;height:100%"></canvas>
-<script>
-(function() {
-  const canvas = document.getElementById('shader-canvas-ANIMATION_4');
-
-  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
-  // This fires on initial layout and whenever the element is resized.
-  function syncSize() {
-    const w = canvas.clientWidth  || 1280;
-    const h = canvas.clientHeight || 720;
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width  = w;
-      canvas.height = h;
-    }
-  }
-  if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(syncSize).observe(canvas);
-  }
-  syncSize();
-
-  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-  if (!gl) return;
-  const vs = `attribute vec2 a_position;
-varying vec2 v_texCoord;
-void main() {
-  v_texCoord = a_position * 0.5 + 0.5;
-  gl_Position = vec4(a_position, 0.0, 1.0);
-}`;
-  const fs = `precision highp float;
-varying vec2 v_texCoord;
-uniform float u_time;
-uniform vec2 u_resolution;
-
-// Simplex noise-like liquid effect
-vec3 palette(float t) {
-    vec3 a = vec3(0.05, 0.0, 0.0); // Very dark red base
-    vec3 b = vec3(0.5, 0.05, 0.05); // Vivid red glow
-    vec3 c = vec3(1.0, 1.0, 1.0);
-    vec3 d = vec3(0.263, 0.416, 0.557);
-    return a + b*cos( 6.28318*(c*t+d) );
-}
-
-void main() {
-    vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.y, u_resolution.x);
-    vec2 uv0 = uv;
-    vec3 finalColor = vec3(0.0);
-    
-    for (float i = 0.0; i < 4.0; i++) {
-        uv = fract(uv * 1.5) - 0.5;
-        float d = length(uv) * exp(-length(uv0));
-        vec3 col = palette(length(uv0) + i*.4 + u_time*.4);
-        d = sin(d*8. + u_time)/8.;
-        d = abs(d);
-        d = pow(0.01 / d, 1.2);
-        finalColor += col * d;
-    }
-    
-    // Darken it significantly for "Smoked Glass" background
-    gl_FragColor = vec4(finalColor * 0.15, 1.0);
-}`;
-  function cs(type, src) {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    return s;
-  }
-  const prog = gl.createProgram();
-  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
-  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
-  gl.linkProgram(prog);
-  gl.useProgram(prog);
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-  const pos = gl.getAttribLocation(prog, 'a_position');
-  gl.enableVertexAttribArray(pos);
-  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-  const uTime = gl.getUniformLocation(prog, 'u_time');
-  const uRes = gl.getUniformLocation(prog, 'u_resolution');
-  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
-
-  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
-  // Shaders that need normalized coords should use: u_mouse / u_resolution.
-  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
-    let lastMouseX = -1;
-    let lastMouseY = -1;
-    let virtualTime = 0;
-    let targetTime = 0;
-
-    window.addEventListener('mousemove', (event) => {
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width && rect.height) {
-        const nx = (event.clientX - rect.left) / rect.width;
-        const ny = 1.0 - (event.clientY - rect.top) / rect.height;
-        mouse.x = nx * canvas.width;
-        mouse.y = ny * canvas.height;
-        
-        if (lastMouseX !== -1) {
-            const dx = event.clientX - lastMouseX;
-            const dy = event.clientY - lastMouseY;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            targetTime += dist * 0.002; // Speed multiplier for mouse movement
-        }
-        lastMouseX = event.clientX;
-        lastMouseY = event.clientY;
-      }
-    });
-
-    function render(t) {
-      if (typeof ResizeObserver === 'undefined') syncSize();
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      
-      // Smoothly catch up to mouse-driven time, plus a VERY slow idle animation
-      targetTime += 0.0005; // Idle speed
-      virtualTime += (targetTime - virtualTime) * 0.05; // Smoothing factor
-      
-      if (uTime) gl.uniform1f(uTime, virtualTime);
-      if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
-      if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      requestAnimationFrame(render);
-    }
-  render(0);
-})();
-</script>
+<!-- Ambient Lighting Glow (Static & Eye-Friendly) -->
+<div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[128px]"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-[128px]"></div>
 </div>
-<!-- STITCH_SHADER_END:ANIMATION_4 -->
-
-    <!-- WebGL Background -->
-    <div id="gl-container" class="fixed inset-0 z-0 pointer-events-none opacity-80 mix-blend-screen"></div>
-    <div class="ambient-glow"></div>
-    <script>
-    (function() {
-      const container = document.getElementById('gl-container');
-      const canvas = document.createElement('canvas');
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      container.appendChild(canvas);
-      const gl = canvas.getContext('webgl', { antialias: false, depth: false });
-      function syncSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      syncSize();
-      window.addEventListener('resize', syncSize);
-      if (!gl) return;
-      const vs = `attribute vec2 a_position; varying vec2 v_texCoord; void main() { v_texCoord = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }`;
-      const fs = `precision highp float; varying vec2 v_texCoord; uniform float u_time; uniform vec2 u_resolution; vec3 palette(float t) { vec3 a = vec3(0.05, 0.0, 0.0); vec3 b = vec3(0.5, 0.05, 0.05); vec3 c = vec3(1.0, 1.0, 1.0); vec3 d = vec3(0.263, 0.416, 0.557); return a + b*cos( 6.28318*(c*t+d) ); } void main() { vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.y, u_resolution.x); vec2 uv0 = uv; vec3 finalColor = vec3(0.0); for (float i = 0.0; i < 4.0; i++) { uv = fract(uv * 1.5) - 0.5; float d = length(uv) * exp(-length(uv0)); vec3 col = palette(length(uv0) + i*.4 + u_time*.4); d = sin(d*8. + u_time)/8.; d = abs(d); d = pow(0.01 / d, 1.2); finalColor += col * d; } gl_FragColor = vec4(finalColor * 0.15, 1.0); }`;
-      function cs(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
-      const prog = gl.createProgram(); gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog); gl.useProgram(prog);
-      const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-      const pos = gl.getAttribLocation(prog, 'a_position'); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-      const uTime = gl.getUniformLocation(prog, 'u_time'); const uRes = gl.getUniformLocation(prog, 'u_resolution');
-      function render(t) { gl.viewport(0, 0, canvas.width, canvas.height); if (uTime) gl.uniform1f(uTime, t * 0.001); if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); requestAnimationFrame(render); }
-      render(0);
-    })();
-    </script>
     
     <!-- SideNavBar (Web) -->
     <nav class="hidden md:flex flex-col h-full w-72 fixed start-0 top-0 bg-black/40 backdrop-blur-2xl border-e border-primary/20 shadow-2xl shadow-primary/5 py-stack-lg z-50">
@@ -487,25 +333,7 @@ void main() {
         </div>
     </main>
 
-    <!-- BottomNavBar (Mobile) -->
-    <nav class="bg-black/40 backdrop-blur-2xl docked full-width bottom-0 rounded-t-xl border-t border-primary/30 shadow-[0_-4px_20px_rgba(227,30,36,0.15)] fixed bottom-0 start-0 w-full z-50 flex justify-around items-center px-4 pb-safe h-16 md:hidden">
-        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80" href="/index.html">
-            <span class="material-symbols-outlined text-[24px]" data-icon="dashboard">dashboard</span>
-            <span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps mt-1" data-i18n="nav.dashboard">Dashboard</span></span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80" href="/src/new-ticket.html">
-            <span class="material-symbols-outlined text-[24px]" data-icon="confirmation_number">confirmation_number</span>
-            <span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps mt-1" data-i18n="nav.tickets">Tickets</span></span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80" href="/src/qr-scanner.html">
-            <span class="material-symbols-outlined text-[24px]" data-icon="qr_code_scanner">qr_code_scanner</span>
-            <span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span data-i18n="nav.scanner" class="font-label-caps text-label-caps mt-1">Scanner</span></span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80" href="/src/kanban.html">
-            <span class="material-symbols-outlined text-[24px]" data-icon="view_kanban">view_kanban</span>
-            <span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps mt-1" data-i18n="nav.kanban">Kanban</span></span>
-        </a>
-    </nav>
+    <!-- Mobile Bottom Nav injected centrally by nav.ts -->
 
     <script type="module" src="/src/nav.ts"></script>
     <script type="module">

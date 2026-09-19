@@ -53,75 +53,158 @@ const statusMeta: Record<string, any> = {
     'ready_for_pickup': { color: 'text-emerald-400', border: 'border-emerald-500/20', hoverShadow: 'rgba(16,185,129,0.3)', hoverBorder: 'border-emerald-500/50', icon: 'done_all' }
 };
 
+function updateCounters() {
+    const cols = document.querySelectorAll('.group\\/col');
+    const counts: Record<string, number> = { 'pending': 0, 'in_progress': 0, 'quality_check': 0, 'ready_for_pickup': 0 };
+    repairsList.forEach(r => {
+        counts[r.status] = (counts[r.status] || 0) + 1;
+    });
+
+    if (cols[0]) { const b = cols[0].querySelector('.bg-surface-container-high'); if (b) b.textContent = String(counts['pending']); }
+    if (cols[1]) { const b = cols[1].querySelector('.bg-primary\\/20'); if (b) b.textContent = String(counts['in_progress']); }
+    if (cols[2]) { const b = cols[2].querySelector('.bg-surface-container-high'); if (b) b.textContent = String(counts['quality_check']); }
+    if (cols[3]) { const b = cols[3].querySelector('.bg-surface-container-high'); if (b) b.textContent = String(counts['ready_for_pickup']); }
+
+    // Update mobile pipeline tab counts
+    const mobCounts = [counts['pending'], counts['in_progress'], counts['quality_check'], counts['ready_for_pickup']];
+    mobCounts.forEach((c, i) => {
+        const el = document.getElementById(`mob-count-${i}`);
+        if (el) el.textContent = String(c);
+    });
+}
+
+function renderBoard() {
+    const cols = document.querySelectorAll('.group\\/col');
+    const newTicketsCol = cols[0]?.querySelector('.overflow-y-auto') as HTMLElement;
+    const inProgressCol = cols[1]?.querySelector('.overflow-y-auto') as HTMLElement;
+    const qualityCheckCol = cols[2]?.querySelector('.overflow-y-auto') as HTMLElement;
+    const completedCol = cols[3]?.querySelector('.overflow-y-auto') as HTMLElement;
+
+    if (newTicketsCol) { newTicketsCol.innerHTML = ''; newTicketsCol.dataset.status = 'pending'; }
+    if (inProgressCol) { inProgressCol.innerHTML = ''; inProgressCol.dataset.status = 'in_progress'; }
+    if (qualityCheckCol) { qualityCheckCol.innerHTML = ''; qualityCheckCol.dataset.status = 'quality_check'; qualityCheckCol.classList.remove('opacity-50', 'items-center', 'justify-center'); }
+    if (completedCol) { completedCol.innerHTML = ''; completedCol.dataset.status = 'ready_for_pickup'; }
+
+    const lang = localStorage.getItem('appLang') || 'tr';
+
+    repairsList.forEach(repair => {
+        const meta = statusMeta[repair.status] || statusMeta['pending'];
+        const shortId = repair.id.split('-')[0].toUpperCase();
+        const customerName = repair.customers?.name || ('Customer ' + (repair.customer_id ? repair.customer_id.substring(0,6) : ''));
+        
+        let extraHtml = '';
+        if (repair.status === 'in_progress') {
+            extraHtml = `
+            <div class="w-full bg-surface-container-high h-1 mt-2 rounded-full overflow-hidden pointer-events-none">
+                <div class="bg-primary h-full w-[45%] shadow-[0_0_5px_rgba(227,30,36,0.8)]"></div>
+            </div>`;
+        } else if (repair.status === 'ready_for_pickup') {
+            const notifyText = lang === 'ar' ? 'إشعار العميل' : 'Müşteriyi Bilgilendir';
+            extraHtml = `<button type="button" class="btn-notify-user bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded text-xs font-bold hover:bg-emerald-500 hover:text-black transition-colors pointer-events-auto">${notifyText}</button>`;
+        }
+
+        const cardHtml = `
+        <div data-id="${repair.id}" class="kanban-card cursor-grab bg-black/40 backdrop-blur-md p-stack-md rounded-lg border ${meta.border} hover:shadow-[0_0_20px_-5px_${meta.hoverShadow}] hover:${meta.hoverBorder} transition-all duration-300 relative mb-4">
+            <div class="flex justify-between items-start mb-2 pointer-events-none">
+                <span class="font-label-caps text-label-caps ${meta.color} uppercase tracking-wider">#TKT-${shortId}</span>
+                ${meta.icon !== 'smartphone' ? `<span class="material-symbols-outlined ${meta.color} text-[18px]">${meta.icon}</span>` : ''}
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1 pointer-events-none">${customerName}</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 pointer-events-none">
+                <span class="material-symbols-outlined text-[16px]">devices</span> ${repair.device_model}
+            </p>
+            <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between pointer-events-none">
+                <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-1 rounded line-clamp-1 w-full text-ellipsis overflow-hidden break-all">${repair.issue_description}</span>
+            </div>
+            ${extraHtml}
+        </div>
+        `;
+        
+        if (repair.status === 'pending' && newTicketsCol) newTicketsCol.insertAdjacentHTML('beforeend', cardHtml);
+        else if (repair.status === 'in_progress' && inProgressCol) inProgressCol.insertAdjacentHTML('beforeend', cardHtml);
+        else if (repair.status === 'quality_check' && qualityCheckCol) qualityCheckCol.insertAdjacentHTML('beforeend', cardHtml);
+        else if (repair.status === 'ready_for_pickup' && completedCol) completedCol.insertAdjacentHTML('beforeend', cardHtml);
+    });
+
+    updateCounters();
+
+    // Wire up ticket card clicks to edit modal
+    document.querySelectorAll('.kanban-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+            const ticketId = card.getAttribute('data-id')!;
+            openTicketModal(ticketId);
+        });
+    });
+
+    // Wire up notify button clicks
+    document.querySelectorAll('.btn-notify-user').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const msg = lang === 'ar' ? 'تم إرسال إشعار للعميل بنجاح' : 'Müşteriye bildirim başarıyla iletildi';
+            (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
+        });
+    });
+}
+
+let sortablesInitialized = false;
+function initSortables() {
+    if (sortablesInitialized || typeof Sortable === 'undefined') return;
+
+    const cols = document.querySelectorAll('.group\\/col');
+    const newTicketsCol = cols[0]?.querySelector('.overflow-y-auto') as HTMLElement;
+    const inProgressCol = cols[1]?.querySelector('.overflow-y-auto') as HTMLElement;
+    const qualityCheckCol = cols[2]?.querySelector('.overflow-y-auto') as HTMLElement;
+    const completedCol = cols[3]?.querySelector('.overflow-y-auto') as HTMLElement;
+
+    const sortableOptions = {
+        group: 'kanban',
+        animation: 150,
+        ghostClass: 'opacity-50',
+        dragClass: 'scale-105',
+        onEnd: async function (evt: any) {
+            const itemEl = evt.item;
+            const toList = evt.to;
+            
+            const ticketId = itemEl?.getAttribute('data-id');
+            const newStatus = toList?.getAttribute('data-status');
+            
+            if (ticketId && newStatus && evt.from !== evt.to) {
+                itemEl.style.opacity = '0.7';
+                try {
+                    await updateRepairStatusAndCost(ticketId, newStatus as any);
+                    const rep = repairsList.find(r => r.id === ticketId);
+                    if (rep) {
+                        rep.status = newStatus;
+                    }
+                    itemEl.style.opacity = '1';
+                    updateCounters();
+                    const lang = localStorage.getItem('appLang') || 'tr';
+                    const statusName = getStatusLabel(newStatus, lang);
+                    const toastMsg = lang === 'ar' ? `تم تحديث الحالة إلى: ${statusName}` : `Durum güncellendi: ${statusName}`;
+                    (window as any).showToast ? (window as any).showToast(toastMsg, 'success') : null;
+                } catch (err: any) {
+                    if (evt.from && itemEl) evt.from.appendChild(itemEl);
+                    itemEl.style.opacity = '1';
+                    const errMsg = err?.message || 'Durum güncellenemedi';
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
+                }
+            }
+        },
+    };
+
+    if (newTicketsCol) Sortable.create(newTicketsCol, sortableOptions);
+    if (inProgressCol) Sortable.create(inProgressCol, sortableOptions);
+    if (qualityCheckCol) Sortable.create(qualityCheckCol, sortableOptions);
+    if (completedCol) Sortable.create(completedCol, sortableOptions);
+    sortablesInitialized = true;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         repairsList = await seedDataIfEmpty();
-        
-        const cols = document.querySelectorAll('.group\\/col');
-        const newTicketsCol = cols[0]?.querySelector('.overflow-y-auto') as HTMLElement;
-        const inProgressCol = cols[1]?.querySelector('.overflow-y-auto') as HTMLElement;
-        const qualityCheckCol = cols[2]?.querySelector('.overflow-y-auto') as HTMLElement;
-        const completedCol = cols[3]?.querySelector('.overflow-y-auto') as HTMLElement;
-
-        if (newTicketsCol) { newTicketsCol.innerHTML = ''; newTicketsCol.dataset.status = 'pending'; }
-        if (inProgressCol) { inProgressCol.innerHTML = ''; inProgressCol.dataset.status = 'in_progress'; }
-        if (qualityCheckCol) { qualityCheckCol.innerHTML = ''; qualityCheckCol.dataset.status = 'quality_check'; qualityCheckCol.classList.remove('opacity-50', 'items-center', 'justify-center'); }
-        if (completedCol) { completedCol.innerHTML = ''; completedCol.dataset.status = 'ready_for_pickup'; }
-
-        // Counters
-        const counts: any = { 'pending': 0, 'in_progress': 0, 'quality_check': 0, 'ready_for_pickup': 0 };
-
-        repairsList.forEach(repair => {
-            counts[repair.status] = (counts[repair.status] || 0) + 1;
-            const meta = statusMeta[repair.status] || statusMeta['pending'];
-            const shortId = repair.id.split('-')[0].toUpperCase();
-            const customerName = repair.customers?.name || ('Customer ' + repair.customer_id.substring(0,6));
-            
-            let extraHtml = '';
-            if (repair.status === 'in_progress') {
-                extraHtml = `
-                <div class="w-full bg-surface-container-high h-1 mt-2 rounded-full overflow-hidden pointer-events-none">
-                    <div class="bg-primary h-full w-[45%] shadow-[0_0_5px_rgba(227,30,36,0.8)]"></div>
-                </div>`;
-            } else if (repair.status === 'ready_for_pickup') {
-                extraHtml = `<button class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded text-xs font-bold hover:bg-emerald-500 hover:text-black transition-colors pointer-events-auto">Notify User</button>`;
-            }
-
-            const cardHtml = `
-            <div data-id="${repair.id}" class="kanban-card cursor-grab bg-black/40 backdrop-blur-md p-stack-md rounded-lg border ${meta.border} hover:shadow-[0_0_20px_-5px_${meta.hoverShadow}] hover:${meta.hoverBorder} transition-all duration-300 relative mb-4">
-                <div class="flex justify-between items-start mb-2 pointer-events-none">
-                    <span class="font-label-caps text-label-caps ${meta.color} uppercase tracking-wider">#TKT-${shortId}</span>
-                    ${meta.icon !== 'smartphone' ? `<span class="material-symbols-outlined ${meta.color} text-[18px]">${meta.icon}</span>` : ''}
-                </div>
-                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1 pointer-events-none">${customerName}</h3>
-                <p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 pointer-events-none">
-                    <span class="material-symbols-outlined text-[16px]">devices</span> ${repair.device_model}
-                </p>
-                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between pointer-events-none">
-                    <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-1 rounded line-clamp-1 w-full text-ellipsis overflow-hidden break-all">${repair.issue_description}</span>
-                </div>
-                ${extraHtml}
-            </div>
-            `;
-            
-            if (repair.status === 'pending' && newTicketsCol) newTicketsCol.insertAdjacentHTML('beforeend', cardHtml);
-            else if (repair.status === 'in_progress' && inProgressCol) inProgressCol.insertAdjacentHTML('beforeend', cardHtml);
-            else if (repair.status === 'quality_check' && qualityCheckCol) qualityCheckCol.insertAdjacentHTML('beforeend', cardHtml);
-            else if (repair.status === 'ready_for_pickup' && completedCol) completedCol.insertAdjacentHTML('beforeend', cardHtml);
-        });
-
-        // Update counts
-        if (cols[0]) { const b = cols[0].querySelector('.bg-surface-container-high'); if (b) b.textContent = counts['pending']; }
-        if (cols[1]) { const b = cols[1].querySelector('.bg-primary\\/20'); if (b) b.textContent = counts['in_progress']; }
-        if (cols[2]) { const b = cols[2].querySelector('.bg-surface-container-high'); if (b) b.textContent = counts['quality_check']; }
-        if (cols[3]) { const b = cols[3].querySelector('.bg-surface-container-high'); if (b) b.textContent = counts['ready_for_pickup']; }
-
-        // Update mobile pipeline tab counts
-        const mobCounts = [counts['pending'], counts['in_progress'], counts['quality_check'], counts['ready_for_pickup']];
-        mobCounts.forEach((c, i) => {
-            const el = document.getElementById(`mob-count-${i}`);
-            if (el) el.textContent = String(c);
-        });
+        renderBoard();
+        initSortables();
 
         // Wire mobile pipeline tabs → scroll to column
         const boardEl = document.getElementById('kanban-board-view');
@@ -154,46 +237,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, { root: boardEl, threshold: 0.5 });
             colEls.forEach(col => observer.observe(col));
         }
-
-        // Wire up ticket card clicks to edit modal
-        document.querySelectorAll('.kanban-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if ((e.target as HTMLElement).tagName === 'BUTTON') return;
-                const ticketId = card.getAttribute('data-id')!;
-                openTicketModal(ticketId);
-            });
-        });
-
-        const sortableOptions = {
-            group: 'kanban',
-            animation: 150,
-            ghostClass: 'opacity-50',
-            dragClass: 'scale-105',
-            onEnd: async function (evt: any) {
-                const itemEl = evt.item;
-                const toList = evt.to;
-                
-                const ticketId = itemEl.getAttribute('data-id');
-                const newStatus = toList.getAttribute('data-status');
-                
-                if (ticketId && newStatus && evt.from !== evt.to) {
-                    itemEl.style.opacity = '0.5';
-                    try {
-                        await updateRepairStatusAndCost(ticketId, newStatus as any);
-                        window.location.reload();
-                    } catch (err: any) {
-                        alert('Failed to update status: ' + err.message);
-                        evt.from.appendChild(itemEl);
-                        itemEl.style.opacity = '1';
-                    }
-                }
-            },
-        };
-
-        if (newTicketsCol) Sortable.create(newTicketsCol, sortableOptions);
-        if (inProgressCol) Sortable.create(inProgressCol, sortableOptions);
-        if (qualityCheckCol) Sortable.create(qualityCheckCol, sortableOptions);
-        if (completedCol) Sortable.create(completedCol, sortableOptions);
 
         // View Mode Toggles
         const btnBoard = document.getElementById('view-toggle-board') as HTMLButtonElement;
@@ -376,10 +419,12 @@ function renderTicketsList() {
         return;
     }
 
+    const lang = localStorage.getItem('appLang') || 'tr';
     filtered.forEach((r, index) => {
         const shortId = r.id.split('-')[0].toUpperCase();
         const customerName = r.customers?.name || 'Unknown';
         const meta = statusMeta[r.status] || statusMeta['pending'];
+        const localizedStatus = getStatusLabel(r.status, lang);
         
         container.innerHTML += `
         <div class="list-ticket-row grid grid-cols-1 md:grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${r.id}">
@@ -410,7 +455,7 @@ function renderTicketsList() {
             
             <!-- Status Badge -->
             <div class="col-span-1 flex justify-end">
-                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-surface-container border border-white/5 whitespace-nowrap">${r.status.replace('_', ' ')}</span>
+                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-surface-container border border-white/5 whitespace-nowrap">${localizedStatus}</span>
             </div>
         </div>
         `;
@@ -427,9 +472,12 @@ function renderTicketsList() {
 
 async function openTicketModal(ticketId: string) {
     try {
-        const repairsList = await getRepairs();
-        const repair = repairsList.find(r => r.id === ticketId);
-        if (!repair) return;
+        let repair = repairsList.find(r => r.id === ticketId);
+        if (!repair) {
+            const fetched = await getRepairs();
+            repair = fetched.find((r: any) => r.id === ticketId);
+            if (!repair) return;
+        }
 
         const user = await checkAuthSession();
         const isHardcodedAdmin = user?.email === 'admin@oxygen.com';
@@ -438,13 +486,6 @@ async function openTicketModal(ticketId: string) {
         const lang = localStorage.getItem('appLang') || 'tr';
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-6';
-
-        const statusOptions = `
-            <option value="pending" ${repair.status === 'pending' ? 'selected' : ''}>${lang === 'ar' ? 'قيد الانتظار' : 'Bekliyor'}</option>
-            <option value="in_progress" ${repair.status === 'in_progress' ? 'selected' : ''}>${lang === 'ar' ? 'قيد الإصلاح' : 'Onarımda'}</option>
-            <option value="quality_check" ${repair.status === 'quality_check' ? 'selected' : ''}>${lang === 'ar' ? 'فحص الجودة' : 'Kalite Kontrol'}</option>
-            <option value="ready_for_pickup" ${repair.status === 'ready_for_pickup' ? 'selected' : ''}>${lang === 'ar' ? 'جاهز للتسليم' : 'Teslimata Hazır'}</option>
-        `;
 
         const deleteBtnHtml = isAdmin ? `
             <button type="button" id="delete-ticket-btn" class="w-full bg-error/10 hover:bg-error text-error hover:text-black border border-error/30 font-bold py-3 px-4 rounded-lg transition-all duration-300 mt-2">
@@ -525,6 +566,9 @@ async function openTicketModal(ticketId: string) {
         }
 
         modal.querySelector('#close-modal')?.addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
 
         modal.querySelector('#delete-ticket-btn')?.addEventListener('click', async () => {
             const confirmMsg = lang === 'ar' ? 'هل أنت متأكد من حذف هذه التذكرة؟' : 'Bu talebi silmek istediğinize emin misiniz?';
@@ -532,9 +576,14 @@ async function openTicketModal(ticketId: string) {
                 try {
                     await deleteRepair(ticketId);
                     modal.remove();
-                    window.location.reload();
+                    repairsList = repairsList.filter(r => r.id !== ticketId);
+                    renderBoard();
+                    renderTicketsList();
+                    const msg = lang === 'ar' ? 'تم حذف التذكرة' : 'Talep başarıyla silindi';
+                    (window as any).showToast ? (window as any).showToast(msg, 'info') : null;
                 } catch (err: any) {
-                    alert('Error deleting ticket: ' + err.message);
+                    const errMsg = 'Error deleting ticket: ' + (err?.message || err);
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
                 }
             }
         });
@@ -556,8 +605,12 @@ async function openTicketModal(ticketId: string) {
                 `;
                 document.body.appendChild(qrOverlay);
                 qrOverlay.querySelector('#close-qr-overlay')?.addEventListener('click', () => qrOverlay.remove());
+                qrOverlay.addEventListener('click', (e) => {
+                    if (e.target === qrOverlay) qrOverlay.remove();
+                });
             } catch (err: any) {
-                alert('Failed to generate QR Code: ' + err.message);
+                const errMsg = 'Failed to generate QR Code: ' + (err?.message || err);
+                (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
             }
         });
 
@@ -572,9 +625,20 @@ async function openTicketModal(ticketId: string) {
             try {
                 await updateRepair(ticketId, { deviceModel, issueDescription, status, cost });
                 modal.remove();
-                window.location.reload();
+                const existing = repairsList.find(r => r.id === ticketId);
+                if (existing) {
+                    existing.device_model = deviceModel;
+                    existing.issue_description = issueDescription;
+                    existing.status = status;
+                    if (cost !== undefined) existing.cost = cost;
+                }
+                renderBoard();
+                renderTicketsList();
+                const msg = lang === 'ar' ? 'تم حفظ التعديلات بنجاح' : 'Değişiklikler başarıyla kaydedildi';
+                (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
             } catch (err: any) {
-                alert('Error updating ticket: ' + err.message);
+                const errMsg = 'Error updating ticket: ' + (err?.message || err);
+                (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
             }
         });
     } catch (err: any) {

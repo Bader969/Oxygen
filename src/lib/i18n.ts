@@ -309,9 +309,21 @@ if (typeof document !== 'undefined' && !document.getElementById('arabic-fonts'))
             font-style: normal;
         }
         
-        /* Force font for all elements except material icons when in RTL */
-        html[dir="rtl"] *:not(.material-symbols-outlined) {
+        /* LemonBrushArabic is a stylized display font: reserved for branding & prominent headers */
+        html[dir="rtl"] .brand-title,
+        html[dir="rtl"] h1.font-headline-lg,
+        html[dir="rtl"] .display-font {
             font-family: 'LemonBrushArabic', 'Inter', sans-serif !important;
+        }
+
+        /* Clean, eye-friendly typography for body, tables, cards, and inputs */
+        html[dir="rtl"] input, 
+        html[dir="rtl"] textarea, 
+        html[dir="rtl"] select, 
+        html[dir="rtl"] button, 
+        html[dir="rtl"] table, 
+        html[dir="rtl"] .kanban-card {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif !important;
         }
 
         /* Fix Turkish Lira symbol (U+20BA) rendering globally across all font-families */
@@ -349,11 +361,11 @@ export function applyTranslation(lang?: SupportedLang) {
 
     if (currentLang === 'ar') {
         html.setAttribute('dir', 'rtl');
-        html.style.fontFamily = "'LemonBrushArabic', sans-serif";
-        html.style.fontWeight = '500';
+        html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
+        html.style.fontWeight = 'normal';
     } else {
         html.setAttribute('dir', 'ltr');
-        html.style.fontFamily = 'Inter, sans-serif';
+        html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
         html.style.fontWeight = 'normal';
     }
 

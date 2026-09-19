@@ -402,18 +402,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (submitBtn) {
     submitBtn.addEventListener('click', async (e) => {
       e.preventDefault();
+      const lang = localStorage.getItem('appLang') || 'tr';
       
       const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = 'Processing...';
+      submitBtn.innerHTML = lang === 'ar' ? 'جارٍ الحفظ...' : 'İşleniyor...';
       
       try {
         if (!nameInput.value.trim()) {
-          throw new Error('Please fill in the customer name.');
+          const warnMsg = lang === 'ar' ? 'يرجى إدخال اسم العميل.' : 'Lütfen müşteri adını girin.';
+          throw new Error(warnMsg);
         }
 
         let custId = selectedCustomerId;
         if (!custId) {
-          const newCust = await createCustomer(nameInput.value.trim(), phoneInput.value.trim(), 'tr');
+          const newCust = await createCustomer(nameInput.value.trim(), phoneInput.value.trim(), lang);
           custId = newCust.id;
         }
 
@@ -439,7 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const ticket = await createRepairTicket({
           customerId: custId,
           deviceModel,
-          issueDescription: issueInput.value || 'No description',
+          issueDescription: issueInput.value || (lang === 'ar' ? 'بدون وصف' : 'Açıklama yok'),
           cost: costVal,
           deviceId
         });
@@ -448,29 +450,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-6';
+        const titleText = lang === 'ar' ? 'تم إنشاء التذكرة بنجاح!' : 'Talep Başarıyla Oluşturuldu!';
+        const descText = lang === 'ar' ? 'امسح أو اطبع رمز التتبع للصقه خلف الجهاز.' : 'Cihazın arkasına yapıştırmak için bu takip kodunu tarayın veya yazdırın.';
+        const doneText = lang === 'ar' ? 'تم' : 'Tamam';
+
         modal.innerHTML = `
           <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 text-center max-w-sm w-full animate-in fade-in zoom-in duration-300">
             <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
                 <span class="material-symbols-outlined">check_circle</span>
             </div>
-            <h2 class="text-2xl font-bold text-primary">Ticket Created Successfully!</h2>
-            <p class="text-on-surface-variant text-sm">Scan or print this tracking code for the device backside.</p>
+            <h2 class="text-2xl font-bold text-primary">${titleText}</h2>
+            <p class="text-on-surface-variant text-sm">${descText}</p>
             <div class="bg-white p-4 rounded-xl shadow-[0_0_20px_rgba(255,180,171,0.2)]">
                 <img src="${qrDataUrl}" alt="QR Code" class="w-48 h-48 rounded" />
             </div>
             <p class="font-mono text-xs text-on-surface-variant mt-2 break-all">${ticket.qr_hash}</p>
-            <button id="close-modal" class="mt-4 btn-primary w-full py-3 rounded-xl font-bold">Done</button>
+            <button id="close-modal" class="mt-4 btn-primary w-full py-3 rounded-xl font-bold">${doneText}</button>
           </div>
         `;
         document.body.appendChild(modal);
         
-        document.getElementById('close-modal')?.addEventListener('click', () => {
+        const closeModal = () => {
           modal.remove();
           window.location.href = '/index.html';
+        };
+
+        document.getElementById('close-modal')?.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal();
         });
 
       } catch (err: any) {
-        alert('Error creating ticket: ' + err.message);
+        const errMsg = err?.message || (lang === 'ar' ? 'حدث خطأ أثناء إنشاء التذكرة' : 'Talep oluşturulurken hata oluştu');
+        (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
       } finally {
         submitBtn.innerHTML = originalText;
       }

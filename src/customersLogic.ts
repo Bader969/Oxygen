@@ -134,8 +134,11 @@ function renderCustomers(filter = 'all', search = '') {
                 try {
                     await deleteCustomer(id);
                     await loadData();
+                    const msg = lang === 'ar' ? 'تم حذف العميل بنجاح' : 'Müşteri başarıyla silindi';
+                    (window as any).showToast ? (window as any).showToast(msg, 'info') : null;
                 } catch (err: any) {
-                    alert('Error: ' + err.message);
+                    const errMsg = 'Error: ' + (err?.message || err);
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
                 }
             }
         });
@@ -218,6 +221,9 @@ function openCustomerDetailsModal(id: string) {
 
     document.body.appendChild(modal);
     modal.querySelector('#close-details-modal')?.addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
 }
 
 function setupAdminUI() {
@@ -305,6 +311,9 @@ function openCustomerModal(id?: string) {
     }
 
     modal.querySelector('#close-modal')?.addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
     
     modal.querySelector('#modal-customer-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -320,8 +329,13 @@ function openCustomerModal(id?: string) {
             }
             modal.remove();
             await loadData();
+            const msg = customer 
+                ? (lang === 'ar' ? 'تم تحديث بيانات العميل بنجاح' : 'Müşteri bilgileri güncellendi')
+                : (lang === 'ar' ? 'تم إضافة العميل بنجاح' : 'Yeni müşteri eklendi');
+            (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
         } catch (err: any) {
-            alert('Error: ' + err.message);
+            const errMsg = 'Error: ' + (err?.message || err);
+            (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
         }
     });
 }

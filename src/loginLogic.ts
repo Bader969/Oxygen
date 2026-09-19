@@ -18,32 +18,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMsg.classList.add('hidden');
+        const lang = localStorage.getItem('appLang') || 'tr';
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = 'Authenticating...';
+        submitBtn.innerHTML = lang === 'ar' ? 'جارٍ التحقق...' : 'Doğrulanıyor...';
         submitBtn.disabled = true;
 
         try {
             await signInWithPassword(emailInput.value, passwordInput.value);
             window.location.href = '/index.html';
         } catch (err: any) {
-            // Auto-signup logic for testing
-            if (err.message.includes('Invalid login credentials')) {
-                try {
-                    submitBtn.innerHTML = 'Creating Test Account...';
-                    const { error: signUpErr } = await supabase.auth.signUp({
-                        email: emailInput.value,
-                        password: passwordInput.value
-                    });
-                    if (signUpErr) throw signUpErr;
-                    window.location.href = '/index.html';
-                } catch (signUpErr2: any) {
-                    errorMsg.textContent = signUpErr2.message;
-                    errorMsg.classList.remove('hidden');
-                }
-            } else {
-                errorMsg.textContent = err.message || 'Failed to login';
-                errorMsg.classList.remove('hidden');
+            let userFriendlyMsg = err.message || (lang === 'ar' ? 'فشل تسجيل الدخول' : 'Giriş yapılamadı');
+            if (err.message && err.message.includes('Invalid login credentials')) {
+                userFriendlyMsg = lang === 'ar' 
+                    ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' 
+                    : 'E-posta veya şifre hatalı.';
             }
+            errorMsg.textContent = userFriendlyMsg;
+            errorMsg.classList.remove('hidden');
+            (window as any).showToast ? (window as any).showToast(userFriendlyMsg, 'error') : null;
         } finally {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
