@@ -247,9 +247,9 @@
 </div>
 </nav>
 <!-- Main Content Area -->
-<main class="flex-1 flex flex-col h-full md:ms-64 relative z-10 w-full overflow-hidden">
+<main class="flex-1 flex flex-col h-full md:ps-[19.5rem] relative z-10 w-full overflow-hidden">
 <!-- TopNavBar -->
-<header class="fixed top-0 start-0 w-full z-40 flex justify-between items-center px-container-margin py-stack-sm md:ps-[calc(16rem+1.25rem)] border-b border-primary/10 shadow-[0_0_20px_-5px_rgba(227,30,36,0.2)] bg-black/10 backdrop-blur-[2px]">
+<header class="fixed top-0 start-0 w-full z-40 flex justify-between items-center px-container-margin py-stack-sm md:ps-[19.5rem] border-b border-primary/10 shadow-[0_0_20px_-5px_rgba(227,30,36,0.2)] bg-black/20 backdrop-blur-xl">
 <!-- Mobile Logo / Breadcrumb Context -->
 <div class="flex items-center gap-3">
 <span class="font-headline-md text-headline-md font-bold text-primary md:hidden">Oxygen</span>
@@ -265,13 +265,9 @@
 </div>
 </div>
 <!-- Trailing Actions -->
-<div class="flex items-center gap-4">
-<button class="text-on-surface-variant hover:bg-primary/10 transition-colors p-2 rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined">language</span>
-</button>
-<button class="text-on-surface-variant hover:bg-primary/10 transition-colors p-2 rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined">account_circle</span>
-</button>
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="language">language</span>
+<a href="/src/profile.html" class="flex"><span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="account_circle">account_circle</span></a>
 </div>
 </header>
 <!-- Mobile Pipeline Status Tabs (mobile only) -->

@@ -378,7 +378,7 @@ function renderTicketsList() {
                         <span class="material-symbols-outlined text-sm">receipt_long</span>
                     </button>
                     <button type="button" class="p-1 text-on-surface-variant hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                        <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
                     </button>
                 </div>
             </div>

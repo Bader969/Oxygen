@@ -72,6 +72,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 background-attachment: fixed !important;
                 color: #e2e2e2 !important;
                 -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            /* Smooth selection & tap highlight */
+            ::selection {
+                background: rgba(227, 30, 36, 0.35) !important;
+                color: #ffffff !important;
+            }
+            * {
+                -webkit-tap-highlight-color: transparent;
+            }
+            button, a, input, select, textarea {
+                touch-action: manipulation;
             }
 
             /* Consistent Glass Panel styling with high readability */
@@ -94,6 +107,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 outline: none !important;
                 border-color: rgba(227, 30, 36, 0.6) !important;
                 box-shadow: 0 0 0 1px rgba(227, 30, 36, 0.3) !important;
+            }
+
+            /* Slim high-contrast scrollbars */
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.16);
+                border-radius: 9999px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(227, 30, 36, 0.5);
+            }
+
+            /* RTL directional icons */
+            html[dir="rtl"] .flip-rtl,
+            html[dir="rtl"] [data-icon="arrow_forward"],
+            html[dir="rtl"] [data-icon="arrow_back"],
+            html[dir="rtl"] [data-icon="chevron_right"],
+            html[dir="rtl"] [data-icon="chevron_left"] {
+                transform: scaleX(-1);
             }
         `;
         document.head.appendChild(themeStyle);
@@ -323,11 +361,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 transform: translateY(-2px);
             }
             .mob-nav-item .mob-label {
-                font-size: 9px;
+                font-size: 10.5px;
                 font-weight: 700;
-                letter-spacing: 0.04em;
-                text-transform: uppercase;
-                line-height: 1;
+                letter-spacing: 0.02em;
+                line-height: 1.1;
+                margin-top: 1px;
             }
 
             #more-sheet-overlay {

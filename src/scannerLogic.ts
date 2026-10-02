@@ -55,6 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('html5-qrcode failed to load:', e);
     }
 
+    // ── Torch / Flashlight Toggle ──────────────────────────────────────────
+    let isTorchOn = false;
+    const torchBtn = document.getElementById('toggle-torch-btn');
+    torchBtn?.addEventListener('click', async () => {
+        try {
+            isTorchOn = !isTorchOn;
+            await html5QrCode?.applyVideoConstraints({
+                advanced: [{ torch: isTorchOn }]
+            });
+            torchBtn.classList.toggle('text-amber-400', isTorchOn);
+            torchBtn.classList.toggle('bg-amber-400/20', isTorchOn);
+        } catch (_) {
+            console.warn('Torch not supported on this device/camera.');
+        }
+    });
+
     // ── Handle Scan ────────────────────────────────────────────────────────
     async function handleScan(hashValue?: string) {
         if (isScanning) return;

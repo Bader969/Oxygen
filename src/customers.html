@@ -239,21 +239,19 @@
 </header>
 <!-- Main Content Canvas -->
 
-<main class="flex-1 flex flex-col h-[100dvh] pt-[5rem] md:pt-[5rem] md:ps-[19.5rem] relative z-10 w-full overflow-hidden">
-    <!-- Header -->
-    <header class="w-full flex-none pt-safe pb-stack-sm px-container-margin z-40 bg-black/20 backdrop-blur-xl border-b border-primary/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] md:hidden">
-        <div class="flex items-center gap-4 h-16 pt-8 md:pt-0">
-            <button class="md:hidden text-on-surface-variant hover:text-primary transition-colors sidebar-open">
-                <span class="material-symbols-outlined text-[24px]">menu</span>
-            </button>
-            <h1 class="font-headline-md text-headline-md font-medium" data-i18n="dir.customers">Customers Directory</h1>
+<main class="flex-1 flex flex-col min-h-screen pt-[5rem] pb-[6.5rem] md:pb-stack-lg px-container-margin md:ps-[19.5rem] relative z-10 w-full">
+    <!-- Header Area -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-stack-md">
+        <div>
+            <h2 data-i18n="dir.customers" class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-gradient-primary">Müşteri Rehberi</h2>
+            <p data-i18n="dir.customersSubtitle" class="font-body-md text-on-surface-variant mt-0.5">Kayıtlı müşteriler, iletişim bilgileri ve servis geçmişi.</p>
         </div>
-    </header>
+    </div>
 
     <!-- Content Area -->
-    <div class="flex-1 overflow-y-auto px-container-margin py-stack-lg custom-scrollbar">
+    <div class="flex-1 flex flex-col">
         <!-- List Container -->
-        <div class="glass-panel rounded-2xl border border-primary/10 overflow-hidden flex flex-col h-full max-h-[800px]">
+        <div class="glass-panel rounded-2xl border border-primary/10 overflow-hidden flex flex-col shadow-2xl">
             <!-- List Header (Search & Filters) -->
             <div class="p-stack-md border-b border-primary/10 bg-black/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center gap-2 overflow-x-auto no-scrollbar filter-pills">

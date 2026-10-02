@@ -334,8 +334,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             tab.addEventListener('click', () => {
                 const idx = parseInt(tab.getAttribute('data-col') || '0', 10);
                 const target = colEls[idx] as HTMLElement;
-                if (target && boardEl) {
-                    boardEl.scrollTo({ left: target.offsetLeft - boardEl.offsetLeft, behavior: 'smooth' });
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
                 }
                 pipeTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');

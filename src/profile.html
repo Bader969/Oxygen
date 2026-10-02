@@ -116,22 +116,77 @@
         <div class="absolute bottom-[-10%] end-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]"></div>
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-full md:ms-64 relative z-10 overflow-y-auto no-scrollbar">
-        <!-- Mobile Header -->
-        <header class="sticky top-0 start-0 w-full z-40 flex justify-between items-center px-container-margin py-stack-sm bg-black/20 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_20px_-5px_rgba(227,30,36,0.2)]">
-            <div class="flex items-center gap-stack-sm">
-                <a href="/index.html" class="w-8 h-8 flex items-center justify-center rounded-full glass-panel text-on-surface-variant hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-sm">arrow_back</span>
-                </a>
-                <span data-i18n="profile.title" class="font-headline-sm text-headline-sm text-on-surface">My Profile</span>
-            </div>
-            <div class="flex items-center gap-stack-md">
-                <span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="language">language</span>
-            </div>
-        </header>
+<!-- SideNavBar (Web) -->
+<nav class="hidden md:flex flex-col h-full w-72 fixed start-0 top-0 bg-black/40 backdrop-blur-2xl border-e border-primary/20 shadow-2xl shadow-primary/5 py-stack-lg z-50">
+<!-- Floating Toggle -->
+<button class="sidebar-toggle absolute top-10 end-[-14px] w-7 h-7 rounded-full bg-primary/20 backdrop-blur-md border border-primary text-primary flex items-center justify-center shadow-[0_0_10px_rgba(255,180,171,0.3)] hover:bg-primary hover:text-black hover:scale-110 transition-all z-[60]">
+    <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<!-- Brand -->
+<div class="brand-container relative px-glass-padding mb-stack-lg flex items-center justify-between">
+    <div class="flex items-center gap-stack-md overflow-hidden">
+        <img alt="Oxygen Logo" class="w-12 h-12 min-w-[3rem] rounded-full object-cover border border-primary/30 shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLFZrha7fL9vSiwCCcD4Dnbc4NlfqkvIYvJtkkdPA3gCQCtrfefOjh5QQz8sL75YuFYLlmGbbeOj6rgRJXl1VSEN1SyiLUQSQFOVzKGAypvzhKQJhEmEWlK-FbJgcHZodVM5NEZQSftAelcrnP862JO6w7BnzunB3AwAxO6JjLOpHHFNt7y6Wfcsq05l1SMQOjpPPJqa0VTCdd0mBOkvOrpEXz3FANm0jWCOIjWfuMeQSzZtl3GV__tEIGL9qcoO_qWgg" />
+        <div class="sidebar-text whitespace-normal transition-opacity duration-300">
+            <h1 data-i18n="app.title" class="font-headline-sm text-headline-sm font-bold text-primary">Oxygen</h1>
+            <p data-i18n="app.subtitle" class="font-label-caps text-label-caps text-on-surface-variant whitespace-normal">Repair Management</p>
+        </div>
+    </div>
+</div>
+<div class="flex-1 flex flex-col gap-stack-sm">
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/index.html">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.dashboard">Dashboard</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/new-ticket.html">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.tickets">Tickets</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/qr-scanner.html">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.scanner">QR Scanner</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/kanban.html">
+<span class="material-symbols-outlined" data-icon="view_kanban">view_kanban</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.kanban">Kanban</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/customers.html">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span data-i18n="nav.customers" class="font-label-caps text-label-caps">Customers</span></span>
+</a>
+<a class="flex items-center gap-stack-md text-on-surface-variant px-glass-padding py-stack-md hover:bg-white/5 transition-all" href="/src/devices.html">
+<span class="material-symbols-outlined" data-icon="devices">devices</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span data-i18n="nav.devices" class="font-label-caps text-label-caps">Devices</span></span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-stack-sm border-t border-primary/10 pt-stack-md mx-glass-padding">
+<a class="flex items-center gap-stack-md text-on-surface-variant py-stack-sm hover:text-primary transition-all admin-only" href="/src/settings.html" style="display: none;">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.settings">Settings</span></span>
+</a>
+<a class="btn-logout flex items-center gap-stack-md text-on-surface-variant py-stack-sm hover:text-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="sidebar-text whitespace-nowrap transition-opacity duration-300"><span class="font-label-caps text-label-caps" data-i18n="nav.logout">Logout</span></span>
+</a>
+</div>
+</nav>
 
-        <div class="p-container-margin pt-6 pb-36 max-w-4xl mx-auto w-full flex flex-col">
+<!-- TopNavBar -->
+<header class="fixed top-0 start-0 w-full z-40 flex justify-between items-center px-container-margin py-stack-sm bg-black/20 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_20px_-5px_rgba(227,30,36,0.2)] md:ps-[19.5rem]">
+    <div class="flex items-center gap-stack-sm">
+        <a href="/index.html" class="w-8 h-8 flex items-center justify-center rounded-full glass-panel text-on-surface-variant hover:text-primary transition-colors md:hidden">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+        </a>
+        <span data-i18n="profile.title" class="font-headline-sm text-headline-sm text-on-surface">My Profile</span>
+    </div>
+    <div class="flex items-center gap-stack-md">
+        <span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="language">language</span>
+        <a href="/src/profile.html" class="flex"><span class="material-symbols-outlined text-primary hover:bg-primary/10 transition-colors cursor-pointer p-2 rounded-full" data-icon="account_circle">account_circle</span></a>
+    </div>
+</header>
+
+<!-- Main Content Canvas -->
+<main class="pt-[5rem] pb-[6.5rem] md:pb-stack-lg px-container-margin md:ps-[19.5rem] w-full min-h-screen relative z-10 flex flex-col max-w-5xl">
+    <div class="pt-2 pb-6 max-w-4xl w-full flex flex-col">
             
             <!-- Bento Grid Container -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto">
