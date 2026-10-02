@@ -192,13 +192,13 @@
                             <span data-i18n="profile.admin" class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">Add New User</span>
                         </div>
                         <p data-i18n="profile.adminDesc" class="text-xs text-on-surface-variant leading-relaxed">
-                            As an Admin, you can create restricted technician accounts. Technicians can create and edit tickets, but cannot access Settings or user management.
+                            As an Admin, you can create restricted expert accounts. Experts can create and edit tickets, but cannot access Settings or user management.
                         </p>
                         <form id="create-user-form" class="flex flex-col gap-3 mt-2">
                             <input type="email" id="new-user-email" data-i18n="profile.emailPlaceholder" placeholder="Employee Email" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
                             <input type="password" id="new-user-password" data-i18n="profile.passwordPlaceholder" placeholder="Temporary Password" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
                             <select id="new-user-role" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-on-surface focus:border-primary/50 focus:outline-none transition-colors appearance-none">
-                                <option value="technician" data-i18n="profile.roleTech">Technician (Restricted)</option>
+                                <option value="technician" data-i18n="profile.roleTech">Expert (Restricted)</option>
                                 <option value="admin" data-i18n="profile.roleAdmin">Administrator (Full Access)</option>
                             </select>
                             <button type="submit" id="create-user-btn" data-i18n="profile.createUserBtn" class="bg-primary/10 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-2.5 px-4 rounded-lg transition-all duration-300 shadow-[0_0_15px_-5px_rgba(227,30,36,0.2)] hover:shadow-[0_0_20px_-5px_rgba(227,30,36,0.6)] text-xs">

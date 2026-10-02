@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadUserDirectory(user);
     } else {
         const lang = localStorage.getItem('appLang') || 'tr';
-        roleBadge.textContent = lang === 'ar' ? 'فني' : (lang === 'tr' ? 'Teknisyen' : 'Technician');
+        roleBadge.textContent = lang === 'ar' ? 'خبير' : (lang === 'tr' ? 'Uzman' : 'Expert');
         roleBadge.setAttribute('data-i18n', 'profile.techText');
         roleBadge.className = 'inline-block bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider';
     }
@@ -132,11 +132,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 const lang = localStorage.getItem('appLang') || 'tr';
                 if (lang === 'ar') {
-                    statusDiv.textContent = `تم إنشاء المستخدم ${email} بنجاح كـ ${newRole === 'admin' ? 'مسؤول' : 'فني'}!`;
+                    statusDiv.textContent = `تم إنشاء المستخدم ${email} بنجاح كـ ${newRole === 'admin' ? 'مسؤول' : 'خبير'}!`;
                 } else if (lang === 'tr') {
-                    statusDiv.textContent = `Kullanıcı ${email}, başarıyla ${newRole === 'admin' ? 'Yönetici' : 'Teknisyen'} olarak oluşturuldu!`;
+                    statusDiv.textContent = `Kullanıcı ${email}, başarıyla ${newRole === 'admin' ? 'Yönetici' : 'Uzman'} olarak oluşturuldu!`;
                 } else {
-                    statusDiv.textContent = `User ${email} created successfully as ${newRole}!`;
+                    statusDiv.textContent = `User ${email} created successfully as ${newRole === 'admin' ? 'Admin' : 'Expert'}!`;
                 }
                 statusDiv.classList.add('text-emerald-400');
                 (createForm as HTMLFormElement).reset();
@@ -186,7 +186,7 @@ async function loadUserDirectory(currentUser: any) {
                 </div>
                 <div class="flex items-center gap-2">
                     <select class="role-select bg-surface-container/50 border border-primary/20 rounded px-2 py-1 text-xs text-on-surface" data-id="${uId}" ${disabledAttr}>
-                        <option value="technician" ${u.role === 'technician' ? 'selected' : ''}>${currentLang === 'ar' ? 'فني' : 'Teknisyen'}</option>
+                        <option value="technician" ${u.role === 'technician' ? 'selected' : ''}>${currentLang === 'ar' ? 'خبير' : 'Uzman'}</option>
                         <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>${currentLang === 'ar' ? 'مسؤول' : 'Yönetici'}</option>
                     </select>
                     <button class="delete-user-btn bg-error/10 hover:bg-error/30 text-error px-3 py-1 rounded text-xs" data-id="${uId}" ${disabledAttr}>

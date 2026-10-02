@@ -239,129 +239,233 @@
 </header>
 <!-- Main Content Canvas -->
 <main class="pt-[5rem] pb-[6rem] md:pb-stack-lg px-container-margin md:ps-[19.5rem] w-full min-h-screen">
-<!-- Welcome Header -->
-<div class="mb-stack-lg">
-<h2 id="welcome-greeting" data-i18n="dash.welcome" class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-gradient-primary">Günaydın, Technician</h2>
-<p data-i18n="dash.subtitle" class="font-body-md text-body-md text-on-surface-variant mt-1">Here is the current status of the repair floor.</p>
-</div>
-<!-- Bento Grid Metrics -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter mb-stack-lg">
-<!-- Metric 1 -->
-<div class="glass-panel glass-panel-hover rounded-xl p-glass-padding flex flex-col justify-between h-32 relative overflow-hidden transition-all duration-300">
-<div class="absolute -right-4 -bottom-4 opacity-5 text-9xl pointer-events-none select-none">
-<span class="material-symbols-outlined">build</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-sm" data-icon="build_circle">build_circle</span>
-<span data-i18n="dash.openRepairs" class="font-label-caps text-label-caps">Açık Onarımlar</span>
-</div>
-<div>
-<span class="font-headline-lg text-headline-lg text-surface-tint">24</span>
-</div>
-</div>
-<!-- Metric 2 -->
-<div class="glass-panel glass-panel-hover rounded-xl p-glass-padding flex flex-col justify-between h-32 relative overflow-hidden transition-all duration-300 border-primary/30">
-<div class="absolute -right-4 -bottom-4 opacity-5 text-9xl pointer-events-none select-none text-primary">
-<span class="material-symbols-outlined">inventory_2</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-sm text-primary" data-icon="inventory_2">inventory_2</span>
-<span data-i18n="dash.ready" class="font-label-caps text-label-caps">Teslimata Hazır</span>
-</div>
-<div>
-<span class="font-headline-lg text-headline-lg text-primary">12</span>
-</div>
-</div>
-<!-- Metric 3 -->
-<div class="glass-panel glass-panel-hover rounded-xl p-glass-padding flex flex-col justify-between h-32 relative overflow-hidden transition-all duration-300">
-<div class="absolute -right-4 -bottom-4 opacity-5 text-9xl pointer-events-none select-none text-yellow-500">
-<span class="material-symbols-outlined">verified_user</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-sm" data-icon="verified_user">verified_user</span>
-<span data-i18n="dash.warranty" class="font-label-caps text-label-caps">Garanti Talepleri</span>
-</div>
-<div>
-<span class="font-headline-lg text-headline-lg text-on-surface">5</span>
-</div>
-</div>
-<!-- Metric 4 -->
-<div id="metric-income-card" class="glass-panel glass-panel-hover rounded-xl p-glass-padding flex flex-col justify-between h-32 relative overflow-hidden transition-all duration-300" style="display: none;">
-<div class="absolute -right-4 -bottom-4 opacity-5 text-9xl pointer-events-none select-none text-green-500">
-<span class="material-symbols-outlined">payments</span>
-</div>
-<div class="flex items-center gap-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-sm" data-icon="payments">payments</span>
-<span data-i18n="dash.income" class="font-label-caps text-label-caps">Günlük Gelir</span>
-</div>
-<div>
-<span class="font-headline-lg text-headline-lg text-on-surface">₺4.250</span>
-</div>
-</div>
-</div>
-<!-- Recent Tickets List -->
-<div class="glass-panel rounded-xl p-glass-padding relative overflow-hidden">
-<!-- Subtle Watermark -->
-<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none flex flex-col items-center justify-center">
-<svg class="w-72 h-64 text-white" fill="currentColor" viewbox="0 0 24 24">
-<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13.12 4.23c-.73.94-1.73 1.58-2.83 1.49-.15-1.12.35-2.26 1.05-3.14.73-.91 1.83-1.55 2.88-1.5.18 1.15-.31 2.22-1.1 3.15z"></path>
-</svg>
-</div>
-<div class="flex justify-between items-center mb-stack-md relative z-10">
-<h3 data-i18n="dash.recent" class="font-headline-sm text-headline-sm text-on-surface">Recent Tickets / Son Talepler</h3>
-<button data-i18n="dash.seeAll" class="font-label-caps text-label-caps text-primary border border-primary/30 rounded-full px-4 py-2 hover:bg-primary/10 transition-colors">Tümünü Gör</button>
-</div>
-<div class="flex flex-col gap-4 relative z-10">
-<!-- Ticket Row 1 -->
-<div class="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-primary/5 hover:border-primary/20 transition-colors">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-sm" data-icon="smartphone">smartphone</span>
-</div>
-<div>
-<p class="font-headline-sm text-body-lg text-on-surface">iPhone 13 Pro Max - Screen Repair</p>
-<p class="font-label-caps text-label-caps text-on-surface-variant">TKT-00124 • 2 hours ago</p>
-</div>
-</div>
-<div class="hidden md:flex items-center gap-4">
-<span data-i18n="status.pending" class="px-3 py-1 bg-yellow-500/20 text-yellow-300 font-label-caps text-label-caps rounded-full backdrop-blur-md border border-yellow-500/30">Bekliyor</span>
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
-</div>
-</div>
-<!-- Ticket Row 2 -->
-<div class="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-primary/5 hover:border-primary/20 transition-colors">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-sm" data-icon="laptop_mac">laptop_mac</span>
-</div>
-<div>
-<p class="font-headline-sm text-body-lg text-on-surface">MacBook Pro M1 - Battery Replace</p>
-<p class="font-label-caps text-label-caps text-on-surface-variant">TKT-00123 • 4 hours ago</p>
-</div>
-</div>
-<div class="hidden md:flex items-center gap-4">
-<span data-i18n="status.in_progress" class="px-3 py-1 bg-primary/20 text-primary font-label-caps text-label-caps rounded-full backdrop-blur-md border border-primary/30 animate-pulse">Onarımda</span>
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
-</div>
-</div>
-<!-- Ticket Row 3 -->
-<div class="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-primary/5 hover:border-primary/20 transition-colors">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-sm" data-icon="tablet_mac">tablet_mac</span>
-</div>
-<div>
-<p class="font-headline-sm text-body-lg text-on-surface">iPad Air - Charging Port</p>
-<p class="font-label-caps text-label-caps text-on-surface-variant">TKT-00122 • Yesterday</p>
-</div>
-</div>
-<div class="hidden md:flex items-center gap-4">
-<span data-i18n="status.completed" class="px-3 py-1 bg-green-500/20 text-green-400 font-label-caps text-label-caps rounded-full backdrop-blur-md border border-green-500/30">Tamamlandı</span>
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
-</div>
-</div>
-</div>
-</div>
+    
+    <!-- Top Bar: Welcome + Quick Action Shortcuts -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-stack-lg">
+        <div>
+            <h2 id="welcome-greeting" data-i18n="dash.welcome" class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-gradient-primary">Günaydın, Uzman</h2>
+            <p data-i18n="dash.subtitle" class="font-body-md text-body-md text-on-surface-variant mt-1">İşte onarım alanının mevcut durumu.</p>
+        </div>
+        
+        <!-- Quick Action Shortcuts -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <a href="/src/new-ticket.html" class="flex items-center gap-2 bg-primary text-black font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(255,180,171,0.3)] hover:scale-105 transition-all shrink-0">
+                <span class="material-symbols-outlined text-base">add_circle</span>
+                <span data-i18n="dash.newTicket">Yeni Talep Aç</span>
+            </a>
+            <a href="/src/qr-scanner.html" class="flex items-center gap-2 bg-surface-container/70 hover:bg-white/10 text-on-surface border border-white/10 text-xs px-3 py-2.5 rounded-xl transition-all shrink-0">
+                <span class="material-symbols-outlined text-base text-primary">qr_code_scanner</span>
+                <span data-i18n="dash.scanQr">QR Tara</span>
+            </a>
+            <a href="/src/kanban.html" class="flex items-center gap-2 bg-surface-container/70 hover:bg-white/10 text-on-surface border border-white/10 text-xs px-3 py-2.5 rounded-xl transition-all shrink-0">
+                <span class="material-symbols-outlined text-base text-primary">view_kanban</span>
+                <span data-i18n="dash.kanbanView">Kanban</span>
+            </a>
+            <a href="/src/customers.html" class="flex items-center gap-2 bg-surface-container/70 hover:bg-white/10 text-on-surface border border-white/10 text-xs px-3 py-2.5 rounded-xl transition-all shrink-0">
+                <span class="material-symbols-outlined text-base text-primary">groups</span>
+                <span data-i18n="dash.customerDir">Müşteriler</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Bento Grid Metrics (5 Dynamic Cards) -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-stack-lg">
+        
+        <!-- Metric 1: Aktif Onarımlar (In-Shop Active) -->
+        <div class="glass-panel glass-panel-hover rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group cursor-pointer" id="card-filter-active">
+            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none select-none text-cyan-400">
+                <span class="material-symbols-outlined">build</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-cyan-400 text-xl" data-icon="build_circle">build_circle</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400/80 bg-cyan-400/10 px-2 py-0.5 rounded-full">Aktif</span>
+            </div>
+            <div class="mt-2">
+                <span data-i18n="dash.openRepairs" class="font-label-caps text-xs text-on-surface-variant block">Aktif Onarımlar</span>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span id="metric-open" class="font-headline-lg text-3xl font-bold text-white">0</span>
+                    <span class="text-[11px] text-on-surface-variant">cihaz</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 2: Acil & Gecikmiş (Urgent & Overdue) -->
+        <div class="glass-panel glass-panel-hover rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group border-amber-500/20 cursor-pointer" id="card-filter-urgent">
+            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none select-none text-amber-400">
+                <span class="material-symbols-outlined">bolt</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-amber-400 text-xl" data-icon="bolt">bolt</span>
+                <span id="metric-urgent-badge" class="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full">Acil</span>
+            </div>
+            <div class="mt-2">
+                <span data-i18n="dash.urgentAlert" class="font-label-caps text-xs text-amber-400/90 block">Acil & Gecikmiş</span>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span id="metric-urgent" class="font-headline-lg text-3xl font-bold text-amber-400">0</span>
+                    <span id="metric-urgent-sub" class="text-[10px] text-amber-300/80 truncate">0 ekspres • 0 gecikmiş</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 3: Teslimata Hazır (Ready for Pickup) -->
+        <div class="glass-panel glass-panel-hover rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group border-emerald-500/20 cursor-pointer" id="card-filter-ready">
+            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none select-none text-emerald-400">
+                <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-emerald-400 text-xl" data-icon="inventory_2">inventory_2</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400/80 bg-emerald-400/10 px-2 py-0.5 rounded-full">Hazır</span>
+            </div>
+            <div class="mt-2">
+                <span data-i18n="dash.ready" class="font-label-caps text-xs text-on-surface-variant block">Teslimata Hazır</span>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span id="metric-ready" class="font-headline-lg text-3xl font-bold text-emerald-400">0</span>
+                    <span id="metric-ready-val" class="text-[10px] text-emerald-300/80 truncate">₺0 tahsilat</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 4: Aktif Garanti (Active Warranty) -->
+        <div class="glass-panel glass-panel-hover rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group cursor-pointer" id="card-filter-warranty">
+            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none select-none text-sky-400">
+                <span class="material-symbols-outlined">verified_user</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-sky-400 text-xl" data-icon="verified_user">verified_user</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400/80 bg-sky-400/10 px-2 py-0.5 rounded-full">Garanti</span>
+            </div>
+            <div class="mt-2">
+                <span data-i18n="dash.warranty" class="font-label-caps text-xs text-on-surface-variant block">Aktif Garantiler</span>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span id="metric-warranty" class="font-headline-lg text-3xl font-bold text-sky-400">0</span>
+                    <span class="text-[11px] text-on-surface-variant">cihaz</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric 5: Kasa & Gelir (Admin Only / Financials) -->
+        <div id="metric-income-card" class="glass-panel glass-panel-hover rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group col-span-2 lg:col-span-1" style="display: none;">
+            <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none select-none text-primary">
+                <span class="material-symbols-outlined">payments</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="material-symbols-outlined text-primary text-xl" data-icon="payments">payments</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full">Finans</span>
+            </div>
+            <div class="mt-2">
+                <span data-i18n="dash.income" class="font-label-caps text-xs text-on-surface-variant block">Bugünkü Kasa</span>
+                <div class="flex flex-col gap-0.5 mt-1">
+                    <span id="metric-income" class="font-headline-lg text-2xl sm:text-3xl font-bold text-white">₺0</span>
+                    <span id="metric-pipeline" class="text-[10px] text-on-surface-variant truncate">İş Hacmi: ₺0</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Workshop Operations Grid (2 Columns: Pipeline Visualizer + Device Breakdown) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-stack-lg">
+        
+        <!-- Live Pipeline Bar (2 Columns Wide on Desktop) -->
+        <div class="glass-panel rounded-2xl p-5 lg:col-span-2 flex flex-col justify-between relative overflow-hidden border border-white/5">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-lg">alt_route</span>
+                    <h3 data-i18n="dash.pipelineTitle" class="font-headline-sm text-sm font-bold text-on-surface">Onarım Akış Durumu</h3>
+                </div>
+                <span class="text-xs text-on-surface-variant" id="pipeline-total-label">Toplam 0 Cihaz</span>
+            </div>
+            
+            <!-- Stacked Color Bar -->
+            <div class="w-full h-3 bg-black/40 rounded-full overflow-hidden flex gap-0.5 p-0.5 mb-4">
+                <div id="pipe-bar-pending" class="h-full bg-yellow-500 rounded-s transition-all duration-500" style="width: 25%" title="Bekliyor"></div>
+                <div id="pipe-bar-in_progress" class="h-full bg-primary transition-all duration-500" style="width: 25%" title="Onarımda"></div>
+                <div id="pipe-bar-quality_check" class="h-full bg-blue-500 transition-all duration-500" style="width: 25%" title="Kalite Kontrol"></div>
+                <div id="pipe-bar-ready_for_pickup" class="h-full bg-emerald-500 rounded-e transition-all duration-500" style="width: 25%" title="Teslimata Hazır"></div>
+            </div>
+
+            <!-- Stage Pills with Interactive Click Filter -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div class="pipeline-step-btn flex items-center justify-between p-2.5 rounded-xl bg-black/30 border border-yellow-500/20 hover:border-yellow-500/50 cursor-pointer transition-all" data-status="pending">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                        <span class="text-xs text-on-surface-variant" data-i18n="status.pending">Bekliyor</span>
+                    </div>
+                    <span id="pipe-count-pending" class="font-bold text-xs text-yellow-300">0</span>
+                </div>
+                <div class="pipeline-step-btn flex items-center justify-between p-2.5 rounded-xl bg-black/30 border border-primary/20 hover:border-primary/50 cursor-pointer transition-all" data-status="in_progress">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+                        <span class="text-xs text-on-surface-variant" data-i18n="status.in_progress">Onarımda</span>
+                    </div>
+                    <span id="pipe-count-in_progress" class="font-bold text-xs text-primary">0</span>
+                </div>
+                <div class="pipeline-step-btn flex items-center justify-between p-2.5 rounded-xl bg-black/30 border border-blue-500/20 hover:border-blue-500/50 cursor-pointer transition-all" data-status="quality_check">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                        <span class="text-xs text-on-surface-variant" data-i18n="kanban.quality">Kalite Kontrol</span>
+                    </div>
+                    <span id="pipe-count-quality_check" class="font-bold text-xs text-blue-300">0</span>
+                </div>
+                <div class="pipeline-step-btn flex items-center justify-between p-2.5 rounded-xl bg-black/30 border border-emerald-500/20 hover:border-emerald-500/50 cursor-pointer transition-all" data-status="ready_for_pickup">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <span class="text-xs text-on-surface-variant" data-i18n="dash.ready">Teslimata Hazır</span>
+                    </div>
+                    <span id="pipe-count-ready_for_pickup" class="font-bold text-xs text-emerald-300">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brand Distribution Widget (1 Column Wide) -->
+        <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden border border-white/5">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-lg">pie_chart</span>
+                    <h3 data-i18n="dash.brandDistribution" class="font-headline-sm text-sm font-bold text-on-surface">Marka Dağılımı</h3>
+                </div>
+            </div>
+            
+            <div id="brand-distribution-list" class="flex flex-col gap-2.5 my-auto">
+                <div class="text-xs text-on-surface-variant text-center py-2">Yükleniyor...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Live Ticket Center & Quick Search -->
+    <div class="glass-panel rounded-2xl p-glass-padding relative overflow-hidden border border-white/5 shadow-2xl">
+        
+        <!-- Header + Live Search Bar + Filter Pills -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 relative z-10">
+            <div>
+                <h3 data-i18n="dash.recent" class="font-headline-sm text-lg font-bold text-on-surface">Son Talepler</h3>
+                <p class="text-xs text-on-surface-variant" id="tickets-count-sub">Görüntülenen: 0 talep</p>
+            </div>
+
+            <!-- Search and Action -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <div class="relative min-w-[220px] sm:min-w-[280px]">
+                    <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">search</span>
+                    <input type="text" id="dashboard-search-input" data-i18n="dash.searchPlaceholder" placeholder="Talep no, müşteri veya model ara..." class="w-full bg-black/40 border border-white/10 rounded-xl ps-9 pe-3 py-2 text-xs text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/50 focus:outline-none transition-colors">
+                </div>
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="dashboard-status-filters">
+                    <button class="dash-filter-pill active px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-black transition-all" data-filter="all">Tümü</button>
+                    <button class="dash-filter-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container/60 hover:bg-white/10 text-on-surface-variant transition-all text-amber-400" data-filter="urgent">⚡ Acil</button>
+                    <button class="dash-filter-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container/60 hover:bg-white/10 text-on-surface-variant transition-all" data-filter="in_progress">Onarımda</button>
+                    <button class="dash-filter-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container/60 hover:bg-white/10 text-on-surface-variant transition-all" data-filter="ready_for_pickup">Hazır</button>
+                </div>
+                <a href="/src/kanban.html" data-i18n="dash.seeAll" class="font-label-caps text-xs text-primary border border-primary/30 rounded-xl px-3.5 py-2 hover:bg-primary/10 transition-colors text-center shrink-0">Tümünü Gör</a>
+            </div>
+        </div>
+
+        <!-- Dynamic Tickets List Container -->
+        <div id="recent-tickets-list" class="flex flex-col gap-3 relative z-10 min-h-[160px]">
+            <div class="text-center py-10 text-on-surface-variant text-xs">Yükleniyor...</div>
+        </div>
+
+    </div>
+
 </main>
 <!-- Mobile Bottom Nav injected centrally by nav.ts -->
 <script>

@@ -35,7 +35,7 @@ export function buildWhatsAppMessage(payload: WhatsAppNotificationPayload): stri
       return `مرحباً ${payload.customerName}، نود إعلامك بأن جهازك (${payload.deviceModel}) قد اكتمل إصلاحه وهو جاهز للاستلام الآن.\nالمبلغ المستحق: ${costStr}\nرقم التذكرة: #TKT-${shortId}\nشكراً لاختياركم Oxygen Technology.`;
     }
     if (status === 'in_progress') {
-      return `مرحباً ${payload.customerName}، جهازك (${payload.deviceModel}) قيد الإصلاح حالياً بواسطة فنيي Oxygen Technology.\nرقم التذكرة: #TKT-${shortId}\nسنبلغكم فور الانتهاء.`;
+      return `مرحباً ${payload.customerName}، جهازك (${payload.deviceModel}) قيد الإصلاح حالياً بواسطة خبراء Oxygen Technology.\nرقم التذكرة: #TKT-${shortId}\nسنبلغكم فور الانتهاء.`;
     }
     return `مرحباً ${payload.customerName}، بخصوص جهازك (${payload.deviceModel}) لدى Oxygen Technology - رقم التذكرة: #TKT-${shortId}.`;
   }

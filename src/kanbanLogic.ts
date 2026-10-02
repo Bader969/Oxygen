@@ -751,8 +751,8 @@ async function openTicketModal(ticketId: string) {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'ملاحظات الفني (داخلية)' : 'Teknisyen Notları (Dahili)'}</label>
-                    <textarea id="ticket-technician-notes" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-primary/50 focus:outline-none h-14 resize-none" placeholder="${isAr ? 'ملاحظات الفحص، الأجزاء المستبدلة...' : 'Yapılan işlemler, değişen parça seri no vb.'}">${repair.technician_notes || ''}</textarea>
+                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'ملاحظات الخبير (داخلية)' : 'Uzman Notları (Dahili)'}</label>
+                    <textarea id="ticket-technician-notes" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-primary/50 focus:outline-none h-14 resize-none" placeholder="${isAr ? 'تشخيص الخبير، قطع الغيار، الرقم التسلسلي...' : 'Uzman teşhisleri, yapılan işlemler, değişen parça seri no vb.'}">${repair.technician_notes || ''}</textarea>
                 </div>
                 
                 ${handoverBtnHtml}
