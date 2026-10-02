@@ -20,18 +20,39 @@ export interface ReceiptData {
   lang?: string;
 }
 
+import { getSettings } from './settingsManager';
+
 export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
   const lang = data.lang || localStorage.getItem('appLang') || 'tr';
   const isAr = lang === 'ar';
+  const settings = getSettings();
   const qrDataUrl = await generateQrCodeDataUrl(data.qrHash);
   const shortId = data.ticketId.split('-')[0].toUpperCase();
   const createdDate = data.createdAt ? new Date(data.createdAt).toLocaleString(isAr ? 'ar-SA' : 'tr-TR') : new Date().toLocaleString(isAr ? 'ar-SA' : 'tr-TR');
   const estDate = data.estimatedCompletion ? new Date(data.estimatedCompletion).toLocaleString(isAr ? 'ar-SA' : 'tr-TR') : null;
   const isExpress = data.priority === 'express';
 
+  const shopName = settings.shopName || 'OXYGEN TECHNOLOGY';
+  const shopSub = settings.shopSubtitle || (isAr ? 'مركز صيانة الهواتف الذكية والأجهزة الإلكترونية' : 'Akıllı Telefon & Elektronik Servis Merkezi');
+  const shopPhone = settings.shopPhone;
+  const shopAddress = settings.shopAddress;
+  const shopTax = settings.shopTaxNumber;
+  const paperWidth = settings.printerPaperWidth || '80mm';
+  const showQr = settings.printShowQr !== false;
+  const disclaimerRaw = isAr ? settings.receiptDisclaimerAr : settings.receiptDisclaimerTr;
+  const disclaimerLines = disclaimerRaw ? disclaimerRaw.split('\n').filter(l => l.trim().length > 0) : [];
+
+  let passcodeDisplay = data.devicePasscode ? data.devicePasscode : (isAr ? 'بدون رمز' : 'Şifresiz');
+  if (settings.maskPasscodeOnReceipt && data.devicePasscode && data.devicePasscode.trim() !== '') {
+    passcodeDisplay = '••••••••';
+  }
+
   const t = {
-    shopName: 'OXYGEN TECHNOLOGY',
-    shopSub: isAr ? 'مركز صيانة الهواتف الذكية والأجهزة الإلكترونية' : 'Akıllı Telefon & Elektronik Servis Merkezi',
+    shopName,
+    shopSub,
+    shopPhone,
+    shopAddress,
+    shopTax,
     voucherTitle: isAr ? 'إيصال استلام جهاز / سند صيانة' : 'CİHAZ KABUL & ONARIM FİŞİ',
     ticketNo: isAr ? 'رقم التذكرة:' : 'Talep No:',
     date: isAr ? 'تاريخ الاستلام:' : 'Kabul Tarihi:',
@@ -50,22 +71,9 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     cost: isAr ? 'المبلغ التقديري / المتفق عليه:' : 'Tahmini / Onaylanan Ücret:',
     warranty: isAr ? 'فترة الضمان على القطع المستبدلة:' : 'Değişen Parça Garanti Süresi:',
     months: isAr ? 'أشهر' : 'Ay',
-    noPasscode: isAr ? 'بدون رمز' : 'Şifresiz',
     none: isAr ? 'لا يوجد' : 'Yok',
     standardCondition: isAr ? 'سليم، خدوش استعمال عادية' : 'Normal kullanım izleri',
     disclaimerTitle: isAr ? 'شروط وأحكام الخدمة والضمان:' : 'Servis & Garanti Şartları:',
-    disclaimer1: isAr 
-      ? '1. يجب إبراز هذا الإيصال أو رمزه الإلكتروني عند استلام الجهاز.'
-      : '1. Cihaz tesliminde bu servis fişinin ibraz edilmesi zorunludur.',
-    disclaimer2: isAr 
-      ? '2. المتجر غير مسؤول عن الأجهزة التي لا تُستلم خلال 90 يوماً من إشعار الجاهزية.'
-      : '2. Hazır bildirimi yapıldıktan sonra 90 gün içinde teslim alınmayan cihazlardan firmamız sorumlu değildir.',
-    disclaimer3: isAr 
-      ? '3. الأجهزة المتعرضة للسوائل لا تشملها الكفالة بسبب قابلية تآكل الدوائر لاحقاً.'
-      : '3. Sıvı temaslı cihazlar korozyon riski nedeniyle garanti kapsamı dışındadır.',
-    disclaimer4: isAr 
-      ? '4. الضمان ساري فقط على القطع التي تم استبدالها والمثبتة في الفاتورة.'
-      : '4. Verilen garanti sadece servisimizde değiştirilen yedek parçalar için geçerlidir.',
     custSignature: isAr ? 'توقيع العميل' : 'Müşteri İmzası',
     shopSignature: isAr ? 'ختم وتوقيع المركز' : 'Yetkili Servis Kaşe / İmza'
   };
@@ -78,7 +86,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
   <title>Receipt #TKT-${shortId}</title>
   <style>
     @page {
-      size: 80mm auto;
+      size: ${paperWidth} auto;
       margin: 4mm;
     }
     @media print {
@@ -100,7 +108,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       font-size: 11px;
       line-height: 1.35;
       margin: 0 auto;
-      max-width: 80mm;
+      max-width: ${paperWidth};
       padding: 10px 4px;
     }
     .receipt-box {
@@ -236,6 +244,9 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     <div class="header">
       <h1 class="shop-title">${t.shopName}</h1>
       <p class="shop-subtitle">${t.shopSub}</p>
+      ${t.shopAddress ? `<p style="font-size:8.5px; color:#475569; margin:2px 0;">📍 ${t.shopAddress}</p>` : ''}
+      ${t.shopPhone ? `<p style="font-size:8.5px; color:#475569; margin:2px 0;">📞 ${t.shopPhone}</p>` : ''}
+      ${t.shopTax ? `<p style="font-size:8px; color:#64748b; margin:1px 0;">${t.shopTax}</p>` : ''}
       <div class="voucher-title">${t.voucherTitle}</div>
     </div>
 
@@ -280,7 +291,7 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     </div>` : ''}
     <div class="row">
       <span class="label">${t.passcode}</span>
-      <span class="val">${data.devicePasscode ? data.devicePasscode : t.noPasscode}</span>
+      <span class="val">${passcodeDisplay}</span>
     </div>
 
     <!-- Condition & Accessories -->
@@ -299,13 +310,14 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     </div>
     <div class="row" style="border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top:4px;">
       <span class="label" style="font-size:11px; color:#0f172a;">${t.cost}</span>
-      <span class="val" style="font-size:14px; color:#059669;">${data.cost ? `₺${data.cost}` : '—'}</span>
+      <span class="val" style="font-size:14px; color:#059669;">${data.cost ? `${settings.defaultCurrency}${data.cost}` : '—'}</span>
     </div>
     <div class="row">
       <span class="label">${t.warranty}</span>
-      <span class="val">${data.warrantyMonths || 3} ${t.months}</span>
+      <span class="val">${data.warrantyMonths || settings.defaultWarrantyMonths} ${t.months}</span>
     </div>
 
+    ${showQr ? `
     <!-- QR Tracking Code -->
     <div class="qr-container">
       <img src="${qrDataUrl}" alt="QR Tracking Code">
@@ -313,15 +325,12 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       <div style="font-size:9px; font-weight:600; color:#475569; margin-top:2px;">
         ${isAr ? 'امسح الرمز للاستعلام عن حالة الجهاز فوراً' : 'Cihaz durumunu sorgulamak için QR kodu taratın'}
       </div>
-    </div>
+    </div>` : ''}
 
     <!-- Terms -->
     <div class="terms">
       <div style="font-weight:700; margin-bottom:2px;">${t.disclaimerTitle}</div>
-      <p>${t.disclaimer1}</p>
-      <p>${t.disclaimer2}</p>
-      <p>${t.disclaimer3}</p>
-      <p>${t.disclaimer4}</p>
+      ${disclaimerLines.map(line => `<p>${line}</p>`).join('')}
     </div>
 
     <!-- Signatures -->

@@ -24,30 +24,43 @@ export function cleanPhoneNumber(phone: string): string {
   return cleaned;
 }
 
+import { getSettings } from './settingsManager';
+
 export function buildWhatsAppMessage(payload: WhatsAppNotificationPayload): string {
   const lang = payload.lang || localStorage.getItem('appLang') || 'tr';
   const shortId = payload.ticketId.split('-')[0].toUpperCase();
-  const costStr = payload.cost !== undefined ? `₺${payload.cost}` : '0 ₺';
+  const settings = getSettings();
+  const costStr = payload.cost !== undefined ? `${payload.cost} ${settings.defaultCurrency}` : `0 ${settings.defaultCurrency}`;
   const status = payload.status || 'ready_for_pickup';
+
+  const replaceVars = (tmpl: string) => {
+    return tmpl
+      .replace(/{customer}/g, payload.customerName || '')
+      .replace(/{device}/g, payload.deviceModel || '')
+      .replace(/{ticketId}/g, shortId)
+      .replace(/{cost}/g, costStr)
+      .replace(/{shopName}/g, settings.shopName)
+      .replace(/{shopPhone}/g, settings.shopPhone);
+  };
 
   if (lang === 'ar') {
     if (status === 'ready_for_pickup' || status === 'completed') {
-      return `مرحباً ${payload.customerName}، نود إعلامك بأن جهازك (${payload.deviceModel}) قد اكتمل إصلاحه وهو جاهز للاستلام الآن.\nالمبلغ المستحق: ${costStr}\nرقم التذكرة: #TKT-${shortId}\nشكراً لاختياركم Oxygen Technology.`;
+      return replaceVars(settings.whatsappReadyTemplateAr);
     }
     if (status === 'in_progress') {
-      return `مرحباً ${payload.customerName}، جهازك (${payload.deviceModel}) قيد الإصلاح حالياً بواسطة خبراء Oxygen Technology.\nرقم التذكرة: #TKT-${shortId}\nسنبلغكم فور الانتهاء.`;
+      return replaceVars(settings.whatsappProgressTemplateAr);
     }
-    return `مرحباً ${payload.customerName}، بخصوص جهازك (${payload.deviceModel}) لدى Oxygen Technology - رقم التذكرة: #TKT-${shortId}.`;
+    return `مرحباً ${payload.customerName}، بخصوص جهازك (${payload.deviceModel}) لدى ${settings.shopName} - رقم التذكرة: #TKT-${shortId}.`;
   }
 
   // Default: Turkish
   if (status === 'ready_for_pickup' || status === 'completed') {
-    return `Merhaba ${payload.customerName}, ${payload.deviceModel} cihazınızın onarımı tamamlanmış olup servisimizden teslime hazırdır.\nÖdenecek Tutar: ${costStr}\nTakip No: #TKT-${shortId}\nOxygen Technology'yi tercih ettiğiniz için teşekkür ederiz.`;
+    return replaceVars(settings.whatsappReadyTemplateTr);
   }
   if (status === 'in_progress') {
-    return `Merhaba ${payload.customerName}, ${payload.deviceModel} cihazınızın atölyemizde onarım işlemine başlanmıştır.\nTakip No: #TKT-${shortId}\nİşlem tamamlandığında tarafınıza bilgi verilecektir. Oxygen Technology.`;
+    return replaceVars(settings.whatsappProgressTemplateTr);
   }
-  return `Merhaba ${payload.customerName}, ${payload.deviceModel} cihazınızın servis durumu hk. Takip No: #TKT-${shortId}. Oxygen Technology.`;
+  return `Merhaba ${payload.customerName}, ${payload.deviceModel} cihazınızın servis durumu hk. Takip No: #TKT-${shortId}. ${settings.shopName}`;
 }
 
 export function sendWhatsAppNotification(payload: WhatsAppNotificationPayload): boolean {

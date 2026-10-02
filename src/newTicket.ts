@@ -1,6 +1,7 @@
 import { createCustomer, createRepairTicket, getCustomers, getDevices, createDevice } from './lib/repairService';
 import { generateQrCodeDataUrl } from './lib/qrUtils';
 import { openReceiptPreviewModal } from './lib/receiptPrinter';
+import { getSettings, playBeepSound } from './lib/settingsManager';
 
 // Curated Device Catalog for Brand and Model suggestions
 const deviceCatalog: Record<string, Record<string, string[]>> = {
@@ -456,12 +457,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // Apply defaults from settings
+  const settings = getSettings();
+  const warrantySelect = document.getElementById('ticket-warranty') as HTMLSelectElement;
+  if (warrantySelect && settings.defaultWarrantyMonths !== undefined) {
+    warrantySelect.value = settings.defaultWarrantyMonths.toString();
+  }
+
   // Deadline presets
   const deadlineInput = document.getElementById('ticket-deadline') as HTMLInputElement;
   const formatLocalIso = (d: Date) => {
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
+
+  if (deadlineInput && !deadlineInput.value) {
+    const d = new Date();
+    d.setHours(d.getHours() + (settings.defaultSlaHoursNormal || 24));
+    deadlineInput.value = formatLocalIso(d);
+  }
 
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -553,6 +567,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           warrantyMonths: warrantyVal,
           technicianNotes: techNotesVal
         });
+
+        playBeepSound('success');
 
         const qrDataUrl = await generateQrCodeDataUrl(ticket.qr_hash);
         

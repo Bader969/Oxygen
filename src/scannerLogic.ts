@@ -3,6 +3,7 @@ import { checkAuthSession } from './lib/authService';
 import { generateQrCodeDataUrl } from './lib/qrUtils';
 import { sendWhatsAppNotification } from './lib/whatsappUtils';
 import { openReceiptPreviewModal } from './lib/receiptPrinter';
+import { playBeepSound } from './lib/settingsManager';
 
 declare const Html5Qrcode: any;
 
@@ -83,11 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const ticket = await getRepairByQrHash(hash);
             if (ticket) {
+                playBeepSound('scan');
                 await openTicketModal(ticket);
             } else {
+                playBeepSound('warn');
                 showScanError(lang === 'ar' ? 'رمز QR غير صالح أو التذكرة غير موجودة.' : 'Geçersiz QR kodu veya talep bulunamadı.');
             }
         } catch (err: any) {
+            playBeepSound('warn');
             showScanError((lang === 'ar' ? 'خطأ: ' : 'Hata: ') + err.message);
         } finally {
             isScanning = false;
