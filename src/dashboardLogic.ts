@@ -1,7 +1,9 @@
-import { getRepairs, deleteRepair, updateRepair } from './lib/repairService';
+import { getRepairs, deleteRepair, updateRepair, markRepairDelivered } from './lib/repairService';
 import { checkAuthSession } from './lib/authService';
 import { generateQrCodeDataUrl } from './lib/qrUtils';
 import { dictionary, applyTranslation } from './lib/i18n';
+import { sendWhatsAppNotification } from './lib/whatsappUtils';
+import { openReceiptPreviewModal } from './lib/receiptPrinter';
 
 let repairsList: any[] = [];
 
@@ -53,10 +55,18 @@ function renderMetricsAndTickets() {
                 statusClass = 'bg-primary/20 text-primary border-primary/30 animate-pulse';
             } else if (ticket.status === 'quality_check') {
                 statusClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-            } else {
+            } else if (ticket.status === 'ready_for_pickup') {
                 statusClass = 'bg-green-500/20 text-green-400 border-green-500/30';
+            } else {
+                statusClass = 'bg-slate-500/20 text-slate-400 border-slate-500/30';
             }
             const statusText = statusLabels[lang]?.[ticket.status] || ticket.status;
+
+            const isExpress = ticket.priority === 'express';
+            const isOverdue = ticket.estimated_completion && new Date(ticket.estimated_completion).getTime() < Date.now() && ticket.status !== 'ready_for_pickup' && ticket.status !== 'completed';
+            let extraBadges = '';
+            if (isExpress) extraBadges += `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[9px] font-bold px-1.5 py-0.5 rounded-full">⚡</span>`;
+            if (isOverdue) extraBadges += `<span class="bg-red-500/20 text-red-400 border border-red-500/40 text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">⚠️</span>`;
 
             const row = `
             <div class="recent-ticket-row flex items-center justify-between p-4 bg-black/20 rounded-lg border border-primary/5 hover:border-primary/20 transition-colors cursor-pointer" data-id="${ticket.id}">
@@ -65,7 +75,10 @@ function renderMetricsAndTickets() {
                         <span class="material-symbols-outlined text-sm" data-icon="${icon}">${icon}</span>
                     </div>
                     <div class="min-w-0">
-                        <p class="font-headline-sm text-body-lg text-on-surface truncate">${ticket.device_model} - ${ticket.issue_description}</p>
+                        <p class="font-headline-sm text-body-lg text-on-surface truncate flex items-center gap-1.5">
+                            <span>${ticket.device_model} - ${ticket.issue_description}</span>
+                            ${extraBadges}
+                        </p>
                         <p class="font-label-caps text-label-caps text-on-surface-variant uppercase">TKT-${ticket.id.substring(0,6)} • Just now</p>
                     </div>
                 </div>
@@ -153,57 +166,158 @@ async function openTicketModal(ticketId: string) {
         const isAdmin = isHardcodedAdmin || user?.user_metadata?.role === 'admin' || localStorage.getItem('userRole') === 'admin';
 
         const lang = localStorage.getItem('appLang') || 'tr';
+        const isAr = lang === 'ar';
+        const shortId = repair.id.split('-')[0].toUpperCase();
+
+        const formatIsoForInput = (iso?: string | null) => {
+            if (!iso) return '';
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return '';
+            const pad = (n: number) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+
         const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-6';
+        modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6';
 
         const statusOptions = `
-            <option value="pending" ${repair.status === 'pending' ? 'selected' : ''}>${lang === 'ar' ? 'قيد الانتظار' : 'Bekliyor'}</option>
-            <option value="in_progress" ${repair.status === 'in_progress' ? 'selected' : ''}>${lang === 'ar' ? 'قيد الإصلاح' : 'Onarımda'}</option>
-            <option value="quality_check" ${repair.status === 'quality_check' ? 'selected' : ''}>${lang === 'ar' ? 'فحص الجودة' : 'Kalite Kontrol'}</option>
-            <option value="ready_for_pickup" ${repair.status === 'ready_for_pickup' ? 'selected' : ''}>${lang === 'ar' ? 'جاهز للتسليم' : 'Teslimata Hazır'}</option>
+            <option value="pending" ${repair.status === 'pending' ? 'selected' : ''}>${isAr ? 'قيد الانتظار' : 'Bekliyor'}</option>
+            <option value="in_progress" ${repair.status === 'in_progress' ? 'selected' : ''}>${isAr ? 'قيد الإصلاح' : 'Onarımda'}</option>
+            <option value="quality_check" ${repair.status === 'quality_check' ? 'selected' : ''}>${isAr ? 'فحص الجودة' : 'Kalite Kontrol'}</option>
+            <option value="ready_for_pickup" ${repair.status === 'ready_for_pickup' ? 'selected' : ''}>${isAr ? 'جاهز للتسليم' : 'Teslimata Hazır'}</option>
+            <option value="completed" ${repair.status === 'completed' ? 'selected' : ''}>${isAr ? 'تم التسليم (الأرشيف)' : 'Teslim Edildi'}</option>
         `;
 
         const deleteBtnHtml = isAdmin ? `
-            <button type="button" id="delete-ticket-btn" class="w-full bg-error/10 hover:bg-error text-error hover:text-black border border-error/30 font-bold py-3 px-4 rounded-lg transition-all duration-300 mt-2">
-                ${lang === 'ar' ? 'حذف التذكرة' : 'Talebi Sil'}
+            <button type="button" id="delete-ticket-btn" class="w-full bg-error/10 hover:bg-error text-error hover:text-black border border-error/30 font-bold py-2.5 px-4 rounded-lg transition-all duration-300 mt-1 text-xs">
+                ${isAr ? 'حذف التذكرة' : 'Talebi Sil'}
+            </button>
+        ` : '';
+
+        const handoverBtnHtml = (repair.status === 'ready_for_pickup') ? `
+            <button type="button" id="modal-handover-btn" class="w-full bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 border border-emerald-500/40 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">verified</span>
+                ${isAr ? 'تسليم الجهاز للعميل (أرشفة التذكرة)' : 'Müşteriye Teslim Et & Arşivle'}
             </button>
         ` : '';
 
         modal.innerHTML = `
-          <div class="glass-panel p-8 rounded-2xl flex flex-col gap-4 text-start max-w-sm w-full relative max-h-[90vh] overflow-y-auto no-scrollbar">
-            <h2 class="text-2xl font-bold text-primary mb-2">${lang === 'ar' ? 'تفاصيل التذكرة' : 'Talep Detayları'}</h2>
-            
-            <form id="modal-ticket-form" class="flex flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'العميل' : 'Müşteri'}</label>
-                    <div class="font-body-md text-on-surface py-1">${repair.customers?.name || 'Unknown'}</div>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'الجهاز' : 'Cihaz'}</label>
-                    <input type="text" id="ticket-device" required value="${repair.device_model}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-3 text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'وصف المشكلة' : 'Sorun Açıklaması'}</label>
-                    <textarea id="ticket-issue" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-3 text-on-surface focus:border-primary/50 focus:outline-none transition-colors h-24 resize-none">${repair.issue_description}</textarea>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'الحالة' : 'Durum'}</label>
-                    <select id="ticket-status" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-3 text-on-surface focus:border-primary/50 focus:outline-none transition-colors appearance-none">
-                        ${statusOptions}
-                    </select>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'التكلفة (₺)' : 'Maliyet (₺)'}</label>
-                    <input type="number" id="ticket-cost" step="0.01" value="${repair.cost || ''}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-3 text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
-                </div>
-                
-                <div class="flex gap-2 mt-4">
-                    <button type="button" id="close-modal" class="w-1/2 bg-black/40 border border-white/10 text-on-surface py-3 rounded-lg font-bold hover:bg-white/5 transition-colors">${lang === 'ar' ? 'إلغاء' : 'İptal'}</button>
-                    <button type="submit" class="w-1/2 btn-primary py-3 rounded-lg font-bold">${lang === 'ar' ? 'حفظ' : 'Kaydet'}</button>
-                </div>
-                <button type="button" id="view-qr-btn" class="w-full bg-primary/20 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-3 px-4 rounded-lg transition-all duration-300 mt-2">
-                    ${lang === 'ar' ? 'عرض رمز QR' : 'QR Kodunu Göster'}
+          <div class="glass-panel p-5 sm:p-7 rounded-2xl flex flex-col gap-3 text-start max-w-lg w-full relative max-h-[92vh] overflow-y-auto no-scrollbar">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-2 border-b border-primary/20">
+                <h2 class="text-xl font-bold text-primary">#TKT-${shortId}</h2>
+                <button type="button" id="close-modal-x" class="text-on-surface-variant hover:text-primary p-1">
+                    <span class="material-symbols-outlined">close</span>
                 </button>
+            </div>
+
+            <!-- Customer Bar -->
+            <div class="bg-black/40 rounded-xl p-3 border border-white/10 flex items-center justify-between">
+                <div>
+                    <div class="text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'العميل' : 'Müşteri'}</div>
+                    <div class="font-bold text-on-surface text-sm">${repair.customers?.name || 'Unknown'}</div>
+                    <div class="text-xs text-on-surface-variant">${repair.customers?.phone || '—'}</div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    ${repair.customers?.phone ? `
+                    <a href="tel:${repair.customers.phone}" class="p-2 rounded-lg bg-surface-container hover:bg-primary/20 text-primary transition-colors" title="Ara">
+                        <span class="material-symbols-outlined text-[18px]">call</span>
+                    </a>
+                    <button type="button" id="modal-wa-btn" class="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 transition-colors" title="WhatsApp">
+                        <span class="material-symbols-outlined text-[18px]">chat</span>
+                    </button>` : ''}
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="modal-ticket-form" class="flex flex-col gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الجهاز' : 'Cihaz'}</label>
+                        <input type="text" id="ticket-device" required value="${repair.device_model || ''}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'رمز القفل / PIN' : 'Ekran Kilidi / PIN'}</label>
+                        <input type="text" id="ticket-passcode" value="${repair.device_passcode || ''}" placeholder="${isAr ? 'بدون رمز' : 'Şifresiz'}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الأولوية' : 'Öncelik'}</label>
+                        <select id="ticket-priority" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                            <option value="normal" ${repair.priority === 'normal' || !repair.priority ? 'selected' : ''}>Normal</option>
+                            <option value="express" ${repair.priority === 'express' ? 'selected' : ''}>⚡ Ekspres (Acil)</option>
+                            <option value="low" ${repair.priority === 'low' ? 'selected' : ''}>Düşük (Low)</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'موعد التسليم المتوقع' : 'Teslimat Hedefi'}</label>
+                        <input type="datetime-local" id="ticket-deadline" value="${formatIsoForInput(repair.estimated_completion)}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'وصف المشكلة' : 'Sorun Açıklaması'}</label>
+                    <textarea id="ticket-issue" required class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none h-16 resize-none">${repair.issue_description || ''}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'حالة الجهاز عند الاستلام' : 'Mevcut Hasar / Durum'}</label>
+                        <input type="text" id="ticket-condition" value="${repair.intake_condition || ''}" placeholder="${isAr ? 'خدوش، صدمات...' : 'Çizik, darbe vb.'}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الملحقات' : 'Alınan Aksesuarlar'}</label>
+                        <input type="text" id="ticket-accessories" value="${repair.accessories || ''}" placeholder="${isAr ? 'شريحة، شاحن...' : 'SIM, kılıf vb.'}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="flex flex-col gap-1 sm:col-span-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الحالة' : 'Durum'}</label>
+                        <select id="ticket-status" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                            ${statusOptions}
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'المبلغ (₺)' : 'Ücret (₺)'}</label>
+                        <input type="number" id="ticket-cost" step="0.01" value="${repair.cost || ''}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                    </div>
+                    <div class="flex flex-col gap-1 sm:col-span-1">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الضمان' : 'Garanti'}</label>
+                        <select id="ticket-warranty" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
+                            <option value="0" ${repair.warranty_months === 0 ? 'selected' : ''}>0 Ay</option>
+                            <option value="1" ${repair.warranty_months === 1 ? 'selected' : ''}>1 Ay</option>
+                            <option value="3" ${repair.warranty_months === 3 || !repair.warranty_months ? 'selected' : ''}>3 Ay</option>
+                            <option value="6" ${repair.warranty_months === 6 ? 'selected' : ''}>6 Ay</option>
+                            <option value="12" ${repair.warranty_months === 12 ? 'selected' : ''}>12 Ay</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'ملاحظات الفني (داخلية)' : 'Teknisyen Notları (Dahili)'}</label>
+                    <textarea id="ticket-tech-notes" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-primary/50 focus:outline-none h-14 resize-none">${repair.technician_notes || ''}</textarea>
+                </div>
+
+                ${handoverBtnHtml}
+
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button type="button" id="modal-print-receipt-btn" class="bg-primary/20 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs">
+                        <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                        ${isAr ? 'طباعة الإيصال' : 'Makbuz Yazdır'}
+                    </button>
+                    <button type="button" id="view-qr-btn" class="bg-surface-container hover:bg-white/10 text-on-surface border border-white/10 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs">
+                        <span class="material-symbols-outlined text-[16px]">qr_code_2</span>
+                        ${isAr ? 'عرض QR' : 'QR Göster'}
+                    </button>
+                </div>
+
+                <div class="flex gap-2 mt-1">
+                    <button type="button" id="close-modal" class="w-1/2 bg-black/40 border border-white/10 text-on-surface py-3 rounded-xl font-bold hover:bg-white/5 transition-colors">${isAr ? 'إلغاء' : 'İptal'}</button>
+                    <button type="submit" class="w-1/2 btn-primary py-3 rounded-xl font-bold">${isAr ? 'حفظ التعديلات' : 'Kaydet'}</button>
+                </div>
                 ${deleteBtnHtml}
             </form>
           </div>
@@ -211,20 +325,77 @@ async function openTicketModal(ticketId: string) {
 
         document.body.appendChild(modal);
 
-        modal.querySelector('#close-modal')?.addEventListener('click', () => modal.remove());
+        const closeModalFn = () => modal.remove();
+        modal.querySelector('#close-modal')?.addEventListener('click', closeModalFn);
+        modal.querySelector('#close-modal-x')?.addEventListener('click', closeModalFn);
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove();
+            if (e.target === modal) closeModalFn();
+        });
+
+        // WhatsApp button
+        modal.querySelector('#modal-wa-btn')?.addEventListener('click', () => {
+            sendWhatsAppNotification({
+                customerName: repair.customers?.name || 'Customer',
+                customerPhone: repair.customers?.phone,
+                deviceModel: repair.device_model,
+                cost: repair.cost,
+                ticketId: repair.id,
+                status: repair.status,
+                lang
+            });
+        });
+
+        // Handover button
+        modal.querySelector('#modal-handover-btn')?.addEventListener('click', async () => {
+            const confirmMsg = isAr 
+                ? `هل تؤكد تسليم الجهاز (${repair.device_model}) للعميل وأرشفة التذكرة؟` 
+                : `${repair.device_model} cihazını müşteriye teslim etmek ve talebi arşivlemek istiyor musunuz?`;
+            if (confirm(confirmMsg)) {
+                try {
+                    await markRepairDelivered(ticketId);
+                    modal.remove();
+                    repair.status = 'completed';
+                    repair.completed_at = new Date().toISOString();
+                    renderMetricsAndTickets();
+                    const msg = isAr ? 'تم تسليم الجهاز وأرشفة التذكرة بنجاح' : 'Cihaz teslim edildi ve talep arşivlendi';
+                    (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
+                } catch (err: any) {
+                    const errMsg = 'Error completing repair: ' + (err?.message || err);
+                    (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
+                }
+            }
+        });
+
+        // Print receipt
+        modal.querySelector('#modal-print-receipt-btn')?.addEventListener('click', async () => {
+            await openReceiptPreviewModal({
+                ticketId: repair.id,
+                qrHash: repair.qr_hash,
+                customerName: repair.customers?.name || 'Customer',
+                customerPhone: repair.customers?.phone,
+                deviceModel: repair.device_model,
+                issueDescription: repair.issue_description,
+                cost: repair.cost,
+                priority: repair.priority,
+                createdAt: repair.created_at,
+                estimatedCompletion: repair.estimated_completion,
+                devicePasscode: repair.device_passcode,
+                intakeCondition: repair.intake_condition,
+                accessories: repair.accessories,
+                warrantyMonths: repair.warranty_months,
+                lang
+            });
         });
 
         modal.querySelector('#delete-ticket-btn')?.addEventListener('click', async () => {
-            const confirmMsg = lang === 'ar' ? 'هل أنت متأكد من حذف هذه التذكرة؟' : 'Bu talebi silmek istediğinize emin misiniz?';
+            const confirmMsg = isAr ? 'هل أنت متأكد من حذف هذه التذكرة؟' : 'Bu talebi silmek istediğinize emin misiniz?';
             if (confirm(confirmMsg)) {
                 try {
                     await deleteRepair(ticketId);
                     modal.remove();
                     repairsList = repairsList.filter(r => r.id !== ticketId);
                     renderMetricsAndTickets();
-                    const msg = lang === 'ar' ? 'تم حذف التذكرة' : 'Talep başarıyla silindi';
+                    const msg = isAr ? 'تم حذف التذكرة' : 'Talep başarıyla silindi';
                     (window as any).showToast ? (window as any).showToast(msg, 'info') : null;
                 } catch (err: any) {
                     const errMsg = 'Error deleting ticket: ' + (err?.message || err);
@@ -239,13 +410,13 @@ async function openTicketModal(ticketId: string) {
                 const qrOverlay = document.createElement('div');
                 qrOverlay.className = 'fixed inset-0 z-[110] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md p-6';
                 qrOverlay.innerHTML = `
-                  <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 text-center max-w-sm w-full">
-                    <h2 class="text-2xl font-bold text-primary">TKT-${repair.id.split('-')[0].toUpperCase()}</h2>
+                  <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 text-center max-w-sm w-full animate-in fade-in zoom-in duration-200">
+                    <h2 class="text-2xl font-bold text-primary">#TKT-${shortId}</h2>
                     <div class="bg-white p-4 rounded-xl shadow-lg">
                         <img src="${qrUrl}" alt="QR Code" class="w-48 h-48 rounded" />
                     </div>
                     <p class="font-mono text-xs text-on-surface-variant mt-2 break-all">${repair.qr_hash}</p>
-                    <button id="close-qr-overlay" class="mt-4 btn-primary w-full py-3 rounded-xl font-bold">${lang === 'ar' ? 'إغلاق' : 'Kapat'}</button>
+                    <button id="close-qr-overlay" class="mt-4 btn-primary w-full py-3 rounded-xl font-bold">${isAr ? 'إغلاق' : 'Kapat'}</button>
                   </div>
                 `;
                 document.body.appendChild(qrOverlay);
@@ -266,9 +437,29 @@ async function openTicketModal(ticketId: string) {
             const status = (modal.querySelector('#ticket-status') as HTMLSelectElement).value;
             const costVal = (modal.querySelector('#ticket-cost') as HTMLInputElement).value;
             const cost = costVal ? parseFloat(costVal) : undefined;
+            const priority = (modal.querySelector('#ticket-priority') as HTMLSelectElement).value as any;
+            const deadlineVal = (modal.querySelector('#ticket-deadline') as HTMLInputElement).value;
+            const estimatedCompletion = deadlineVal ? new Date(deadlineVal).toISOString() : null;
+            const devicePasscode = (modal.querySelector('#ticket-passcode') as HTMLInputElement).value.trim();
+            const intakeCondition = (modal.querySelector('#ticket-condition') as HTMLInputElement).value.trim();
+            const accessories = (modal.querySelector('#ticket-accessories') as HTMLInputElement).value.trim();
+            const warrantyMonths = parseInt((modal.querySelector('#ticket-warranty') as HTMLSelectElement).value, 10);
+            const technicianNotes = (modal.querySelector('#ticket-tech-notes') as HTMLTextAreaElement).value.trim();
 
             try {
-                await updateRepair(ticketId, { deviceModel, issueDescription, status, cost });
+                await updateRepair(ticketId, { 
+                    deviceModel, 
+                    issueDescription, 
+                    status, 
+                    cost,
+                    priority,
+                    estimatedCompletion,
+                    devicePasscode,
+                    intakeCondition,
+                    accessories,
+                    warrantyMonths,
+                    technicianNotes
+                });
                 modal.remove();
                 const existing = repairsList.find(r => r.id === ticketId);
                 if (existing) {
@@ -276,9 +467,16 @@ async function openTicketModal(ticketId: string) {
                     existing.issue_description = issueDescription;
                     existing.status = status;
                     if (cost !== undefined) existing.cost = cost;
+                    existing.priority = priority;
+                    existing.estimated_completion = estimatedCompletion;
+                    existing.device_passcode = devicePasscode;
+                    existing.intake_condition = intakeCondition;
+                    existing.accessories = accessories;
+                    existing.warranty_months = warrantyMonths;
+                    existing.technician_notes = technicianNotes;
                 }
                 renderMetricsAndTickets();
-                const msg = lang === 'ar' ? 'تم حفظ التعديلات بنجاح' : 'Değişiklikler başarıyla kaydedildi';
+                const msg = isAr ? 'تم حفظ التعديلات بنجاح' : 'Değişiklikler başarıyla kaydedildi';
                 (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
             } catch (err: any) {
                 const errMsg = 'Error updating ticket: ' + (err?.message || err);
@@ -289,3 +487,4 @@ async function openTicketModal(ticketId: string) {
         console.error('Modal launch failed', err);
     }
 }
+

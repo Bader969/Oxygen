@@ -1,5 +1,6 @@
 import { createCustomer, createRepairTicket, getCustomers, getDevices, createDevice } from './lib/repairService';
 import { generateQrCodeDataUrl } from './lib/qrUtils';
+import { openReceiptPreviewModal } from './lib/receiptPrinter';
 
 // Curated Device Catalog for Brand and Model suggestions
 const deviceCatalog: Record<string, Record<string, string[]>> = {
@@ -398,7 +399,95 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // 5. Submit Handler
+  // 5. Workshop Fields Interactivity
+  // Passcode toggle
+  const noPasscodeCheckbox = document.getElementById('ticket-no-passcode') as HTMLInputElement;
+  const passcodeField = document.getElementById('ticket-passcode') as HTMLInputElement;
+  if (noPasscodeCheckbox && passcodeField) {
+    noPasscodeCheckbox.addEventListener('change', () => {
+      if (noPasscodeCheckbox.checked) {
+        passcodeField.value = '';
+        passcodeField.disabled = true;
+        passcodeField.placeholder = (localStorage.getItem('appLang') === 'ar' ? 'بدون رمز قفل' : 'Şifresiz');
+      } else {
+        passcodeField.disabled = false;
+        passcodeField.placeholder = (localStorage.getItem('appLang') === 'ar' ? 'مثال: 1234 أو النمط' : 'Örn. 1234 veya Desen');
+      }
+    });
+  }
+
+  // Pre-existing condition chips
+  const conditionInput = document.getElementById('ticket-condition') as HTMLTextAreaElement;
+  document.querySelectorAll('.cond-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.getAttribute('data-val') || chip.textContent || '';
+      if (!conditionInput) return;
+      const current = conditionInput.value.trim();
+      conditionInput.value = current ? `${current}, ${val}` : val;
+    });
+  });
+
+  // Accessory chips
+  const accInput = document.getElementById('ticket-accessories') as HTMLInputElement;
+  document.querySelectorAll('.acc-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.getAttribute('data-val') || chip.textContent || '';
+      if (!accInput) return;
+      const current = accInput.value.trim();
+      accInput.value = current ? `${current}, ${val}` : val;
+    });
+  });
+
+  // Priority selector buttons
+  const priorityInput = document.getElementById('ticket-priority') as HTMLInputElement;
+  const priorityBtns = document.querySelectorAll('.priority-btn');
+  priorityBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prio = btn.getAttribute('data-priority') || 'normal';
+      if (priorityInput) priorityInput.value = prio;
+      priorityBtns.forEach(b => {
+        b.className = 'priority-btn py-2.5 px-3 rounded-lg border border-white/10 bg-black/40 text-on-surface-variant font-bold text-xs flex items-center justify-center gap-1 transition-all';
+      });
+      if (prio === 'express') {
+        btn.className = 'priority-btn py-2.5 px-3 rounded-lg border border-amber-500/50 bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center gap-1 transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)]';
+      } else {
+        btn.className = 'priority-btn py-2.5 px-3 rounded-lg border border-primary/40 bg-primary/20 text-primary font-bold text-xs flex items-center justify-center gap-1 transition-all';
+      }
+    });
+  });
+
+  // Deadline presets
+  const deadlineInput = document.getElementById('ticket-deadline') as HTMLInputElement;
+  const formatLocalIso = (d: Date) => {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const hours = btn.getAttribute('data-hours');
+      const target = btn.getAttribute('data-target');
+      const days = btn.getAttribute('data-days');
+      const d = new Date();
+
+      if (hours) {
+        d.setHours(d.getHours() + parseInt(hours, 10));
+        // Auto-select Express priority
+        const expressBtn = document.querySelector('[data-priority="express"]') as HTMLElement;
+        expressBtn?.click();
+      } else if (target === 'today-18') {
+        d.setHours(18, 0, 0, 0);
+      } else if (target === 'tomorrow-12') {
+        d.setDate(d.getDate() + 1);
+        d.setHours(12, 0, 0, 0);
+      } else if (days) {
+        d.setDate(d.getDate() + parseInt(days, 10));
+      }
+      if (deadlineInput) deadlineInput.value = formatLocalIso(d);
+    });
+  });
+
+  // 6. Submit Handler
   if (submitBtn) {
     submitBtn.addEventListener('click', async (e) => {
       e.preventDefault();
@@ -414,9 +503,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         let custId = selectedCustomerId;
+        let customerRecord: any = null;
         if (!custId) {
           const newCust = await createCustomer(nameInput.value.trim(), phoneInput.value.trim(), lang);
           custId = newCust.id;
+          customerRecord = newCust;
+        } else {
+          customerRecord = { id: custId, name: nameInput.value.trim(), phone: phoneInput.value.trim() };
         }
 
         let deviceId: string | undefined = undefined;
@@ -438,12 +531,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const costVal = costInput.value ? parseFloat(costInput.value) : undefined;
+        const priorityVal = (priorityInput?.value as 'normal' | 'express' | 'low') || 'normal';
+        const deadlineVal = deadlineInput?.value ? new Date(deadlineInput.value).toISOString() : null;
+        const passcodeVal = noPasscodeCheckbox?.checked ? '' : (passcodeField?.value.trim() || '');
+        const conditionVal = conditionInput?.value.trim() || '';
+        const accessoriesVal = accInput?.value.trim() || '';
+        const warrantyVal = parseInt((document.getElementById('ticket-warranty') as HTMLSelectElement)?.value || '3', 10);
+        const techNotesVal = (document.getElementById('ticket-technician-notes') as HTMLTextAreaElement)?.value.trim() || '';
+
         const ticket = await createRepairTicket({
           customerId: custId,
           deviceModel,
           issueDescription: issueInput.value || (lang === 'ar' ? 'بدون وصف' : 'Açıklama yok'),
           cost: costVal,
-          deviceId
+          deviceId,
+          priority: priorityVal,
+          estimatedCompletion: deadlineVal,
+          devicePasscode: passcodeVal,
+          intakeCondition: conditionVal,
+          accessories: accessoriesVal,
+          warrantyMonths: warrantyVal,
+          technicianNotes: techNotesVal
         });
 
         const qrDataUrl = await generateQrCodeDataUrl(ticket.qr_hash);
@@ -451,8 +559,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-6';
         const titleText = lang === 'ar' ? 'تم إنشاء التذكرة بنجاح!' : 'Talep Başarıyla Oluşturuldu!';
-        const descText = lang === 'ar' ? 'امسح أو اطبع رمز التتبع للصقه خلف الجهاز.' : 'Cihazın arkasına yapıştırmak için bu takip kodunu tarayın veya yazdırın.';
-        const doneText = lang === 'ar' ? 'تم' : 'Tamam';
+        const descText = lang === 'ar' ? 'امسح أو اطبع إيصال الاستلام للصقه خلف الجهاز أو تسليمه للعميل.' : 'Cihazın arkasına yapıştırmak veya müşteriye teslim etmek için makbuzu yazdırın.';
+        const doneText = lang === 'ar' ? 'تم / العودة' : 'Tamam / Geri';
+        const printText = lang === 'ar' ? 'طباعة الإيصال' : 'Makbuz Yazdır';
 
         modal.innerHTML = `
           <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 text-center max-w-sm w-full animate-in fade-in zoom-in duration-300">
@@ -462,10 +571,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             <h2 class="text-2xl font-bold text-primary">${titleText}</h2>
             <p class="text-on-surface-variant text-sm">${descText}</p>
             <div class="bg-white p-4 rounded-xl shadow-[0_0_20px_rgba(255,180,171,0.2)]">
-                <img src="${qrDataUrl}" alt="QR Code" class="w-48 h-48 rounded" />
+                <img src="${qrDataUrl}" alt="QR Code" class="w-44 h-44 rounded" />
             </div>
-            <p class="font-mono text-xs text-on-surface-variant mt-2 break-all">${ticket.qr_hash}</p>
-            <button id="close-modal" class="mt-4 btn-primary w-full py-3 rounded-xl font-bold">${doneText}</button>
+            <p class="font-mono text-xs text-on-surface-variant mt-1 break-all">${ticket.qr_hash}</p>
+            
+            <div class="flex flex-col gap-2 w-full mt-3">
+              <button id="print-receipt-btn" class="w-full bg-primary/20 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all">
+                <span class="material-symbols-outlined">print</span>
+                ${printText}
+              </button>
+              <button id="close-modal" class="btn-primary w-full py-3 rounded-xl font-bold">${doneText}</button>
+            </div>
           </div>
         `;
         document.body.appendChild(modal);
@@ -474,6 +590,27 @@ document.addEventListener('DOMContentLoaded', async () => {
           modal.remove();
           window.location.href = '/index.html';
         };
+
+        modal.querySelector('#print-receipt-btn')?.addEventListener('click', async () => {
+          await openReceiptPreviewModal({
+            ticketId: ticket.id,
+            qrHash: ticket.qr_hash,
+            customerName: customerRecord?.name || nameInput.value.trim(),
+            customerPhone: customerRecord?.phone || phoneInput.value.trim(),
+            deviceModel,
+            imei: imeiInput?.value.trim(),
+            issueDescription: issueInput.value,
+            cost: costVal,
+            priority: priorityVal,
+            createdAt: ticket.created_at,
+            estimatedCompletion: deadlineVal,
+            devicePasscode: passcodeVal,
+            intakeCondition: conditionVal,
+            accessories: accessoriesVal,
+            warrantyMonths: warrantyVal,
+            lang
+          });
+        });
 
         document.getElementById('close-modal')?.addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => {
@@ -489,3 +626,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
+
