@@ -187,6 +187,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const typeSuggestionsBox = document.getElementById('type-suggestions') as HTMLDivElement;
   const imeiInput = document.getElementById('ticket-imei') as HTMLInputElement;
 
+  const currentLang = localStorage.getItem('appLang') || 'tr';
+  if (typeSelect) {
+    typeSelect.value = currentLang === 'ar' ? 'هاتف' : 'Telefon';
+    typeSelect.setAttribute('data-value', 'phone');
+  }
+
   const issueInput = document.getElementById('ticket-issue') as HTMLTextAreaElement;
   const costInput = document.getElementById('ticket-cost') as HTMLInputElement;
   const submitBtn = document.querySelector('button.btn-primary') as HTMLButtonElement;
@@ -239,8 +245,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function loadSavedDevicesForCustomer(custId: string) {
     const custDevices = devicesList.filter(d => d.customer_id === custId);
+    const newDevLabel = currentLang === 'ar' ? '+ إضافة جهاز جديد' : '+ Yeni Cihaz Ekle';
     
-    deviceSelect.innerHTML = `<option value="new">+ Add New Device</option>`;
+    deviceSelect.innerHTML = `<option value="new">${newDevLabel}</option>`;
     
     if (custDevices.length > 0) {
       custDevices.forEach(d => {
@@ -272,12 +279,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeSelect && typeSuggestionsBox) {
     const showTypeSuggestions = () => {
       const lang = localStorage.getItem('appLang') || 'tr';
-      const options = [
-        { value: 'phone', label: lang === 'ar' ? 'هاتف / Phone' : 'Phone / Telefon' },
-        { value: 'laptop', label: lang === 'ar' ? 'حاسب محمول / Laptop' : 'Laptop / Dizüstü' },
-        { value: 'tablet', label: lang === 'ar' ? 'تابلت / Tablet' : 'Tablet' },
-        { value: 'watch', label: lang === 'ar' ? 'ساعة ذكية / Watch' : 'Smart Watch / Akıllı Saat' },
-        { value: 'other', label: lang === 'ar' ? 'آخر / Other' : 'Other / Diğer' }
+      const options = lang === 'ar' ? [
+        { value: 'phone', label: 'هاتف' },
+        { value: 'laptop', label: 'حاسوب محمول' },
+        { value: 'tablet', label: 'جهاز لوحي' },
+        { value: 'watch', label: 'ساعة ذكية' },
+        { value: 'other', label: 'جهاز آخر' }
+      ] : [
+        { value: 'phone', label: 'Telefon' },
+        { value: 'laptop', label: 'Dizüstü Bilgisayar' },
+        { value: 'tablet', label: 'Tablet' },
+        { value: 'watch', label: 'Akıllı Saat' },
+        { value: 'other', label: 'Diğer' }
       ];
 
       typeSuggestionsBox.innerHTML = '';
@@ -421,8 +434,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const conditionInput = document.getElementById('ticket-condition') as HTMLTextAreaElement;
   document.querySelectorAll('.cond-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      const val = chip.getAttribute('data-val') || chip.textContent || '';
-      if (!conditionInput) return;
+      const val = chip.textContent?.trim() || '';
+      if (!conditionInput || !val) return;
       const current = conditionInput.value.trim();
       conditionInput.value = current ? `${current}, ${val}` : val;
     });
@@ -432,8 +445,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const accInput = document.getElementById('ticket-accessories') as HTMLInputElement;
   document.querySelectorAll('.acc-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      const val = chip.getAttribute('data-val') || chip.textContent || '';
-      if (!accInput) return;
+      const val = chip.textContent?.trim() || '';
+      if (!accInput || !val) return;
       const current = accInput.value.trim();
       accInput.value = current ? `${current}, ${val}` : val;
     });
@@ -576,7 +589,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-6';
         const titleText = lang === 'ar' ? 'تم إنشاء التذكرة بنجاح!' : 'Talep Başarıyla Oluşturuldu!';
         const descText = lang === 'ar' ? 'امسح أو اطبع إيصال الاستلام للصقه خلف الجهاز أو تسليمه للعميل.' : 'Cihazın arkasına yapıştırmak veya müşteriye teslim etmek için makbuzu yazdırın.';
-        const doneText = lang === 'ar' ? 'تم / العودة' : 'Tamam / Geri';
+        const doneText = lang === 'ar' ? 'تم' : 'Tamam';
         const printText = lang === 'ar' ? 'طباعة الإيصال' : 'Makbuz Yazdır';
 
         modal.innerHTML = `

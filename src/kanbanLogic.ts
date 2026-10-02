@@ -686,7 +686,7 @@ async function openTicketModal(ticketId: string) {
                         <input type="text" id="ticket-device" required value="${repair.device_model || ''}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'رمز القفل / النمط' : 'Ekran Kilidi / PIN'}</label>
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'رمز قفل الشاشة' : 'Ekran Kilidi (PIN)'}</label>
                         <input type="text" id="ticket-passcode" value="${repair.device_passcode || ''}" placeholder="${isAr ? 'بدون رمز' : 'Şifresiz'}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
                     </div>
                 </div>
@@ -695,9 +695,9 @@ async function openTicketModal(ticketId: string) {
                     <div class="flex flex-col gap-1">
                         <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الأولوية' : 'Öncelik'}</label>
                         <select id="ticket-priority" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
-                            <option value="normal" ${repair.priority === 'normal' || !repair.priority ? 'selected' : ''}>Normal</option>
-                            <option value="express" ${repair.priority === 'express' ? 'selected' : ''}>⚡ Ekspres (Acil)</option>
-                            <option value="low" ${repair.priority === 'low' ? 'selected' : ''}>Düşük (Low)</option>
+                            <option value="normal" ${repair.priority === 'normal' || !repair.priority ? 'selected' : ''}>${isAr ? 'عادي' : 'Normal'}</option>
+                            <option value="express" ${repair.priority === 'express' ? 'selected' : ''}>${isAr ? '⚡ سريع (عاجل)' : '⚡ Ekspres (Acil)'}</option>
+                            <option value="low" ${repair.priority === 'low' ? 'selected' : ''}>${isAr ? 'منخفض' : 'Düşük'}</option>
                         </select>
                     </div>
                     <div class="flex flex-col gap-1">
@@ -713,11 +713,11 @@ async function openTicketModal(ticketId: string) {
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'حالة الجهاز عند الاستلام' : 'Mevcut Hasar / Durum'}</label>
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'حالة الجهاز عند الاستلام' : 'Cihaz Kabul Durumu'}</label>
                         <input type="text" id="ticket-condition" value="${repair.intake_condition || ''}" placeholder="${isAr ? 'خدوش، صدمات...' : 'Çizik, darbe vb.'}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الملحقات' : 'Alınan Aksesuarlar'}</label>
+                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الملحقات المستلمة' : 'Alınan Aksesuarlar'}</label>
                         <input type="text" id="ticket-accessories" value="${repair.accessories || ''}" placeholder="${isAr ? 'شريحة، شاحن...' : 'SIM, kılıf vb.'}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
                     </div>
                 </div>
@@ -741,11 +741,11 @@ async function openTicketModal(ticketId: string) {
                     <div class="flex flex-col gap-1 sm:col-span-1">
                         <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الضمان' : 'Garanti'}</label>
                         <select id="ticket-warranty" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-3 py-2 text-sm text-on-surface focus:border-primary/50 focus:outline-none">
-                            <option value="0" ${repair.warranty_months === 0 ? 'selected' : ''}>0 Ay</option>
-                            <option value="1" ${repair.warranty_months === 1 ? 'selected' : ''}>1 Ay</option>
-                            <option value="3" ${repair.warranty_months === 3 || !repair.warranty_months ? 'selected' : ''}>3 Ay</option>
-                            <option value="6" ${repair.warranty_months === 6 ? 'selected' : ''}>6 Ay</option>
-                            <option value="12" ${repair.warranty_months === 12 ? 'selected' : ''}>12 Ay</option>
+                            <option value="0" ${repair.warranty_months === 0 ? 'selected' : ''}>${isAr ? 'بدون ضمان' : 'Garanti Yok'}</option>
+                            <option value="1" ${repair.warranty_months === 1 ? 'selected' : ''}>${isAr ? 'شهر واحد' : '1 Ay'}</option>
+                            <option value="3" ${repair.warranty_months === 3 || !repair.warranty_months ? 'selected' : ''}>${isAr ? '3 أشهر' : '3 Ay'}</option>
+                            <option value="6" ${repair.warranty_months === 6 ? 'selected' : ''}>${isAr ? '6 أشهر' : '6 Ay'}</option>
+                            <option value="12" ${repair.warranty_months === 12 ? 'selected' : ''}>${isAr ? '12 شهر' : '12 Ay'}</option>
                         </select>
                     </div>
                 </div>

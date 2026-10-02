@@ -224,13 +224,27 @@ function openDeviceDetailsModal(id: string) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-6';
 
+    const statusMap: Record<string, string> = lang === 'ar' ? {
+        pending: 'قيد الانتظار',
+        in_progress: 'قيد الإصلاح',
+        quality_check: 'فحص الجودة',
+        ready_for_pickup: 'جاهز للتسليم',
+        completed: 'تم التسليم'
+    } : {
+        pending: 'Bekliyor',
+        in_progress: 'Onarımda',
+        quality_check: 'Kalite Kontrol',
+        ready_for_pickup: 'Teslimata Hazır',
+        completed: 'Teslim Edildi'
+    };
+
     const repairsListHtml = devRepairs.length > 0 ? devRepairs.map(r => {
         const shortTkt = r.id.split('-')[0].toUpperCase();
         return `
         <div class="p-3 bg-black/20 rounded border border-white/5 flex flex-col gap-1 text-sm text-start">
             <div class="flex justify-between items-center">
                 <span class="font-bold text-primary">#TKT-${shortTkt}</span>
-                <span class="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">${r.status}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">${statusMap[r.status] || r.status}</span>
             </div>
             <div class="text-xs text-on-surface-variant font-body-md mt-1 border-t border-white/5 pt-1">${r.issue_description}</div>
             ${r.cost ? `<div class="text-xs text-primary font-bold mt-1">₺${r.cost}</div>` : ''}
@@ -243,7 +257,7 @@ function openDeviceDetailsModal(id: string) {
 
     modal.innerHTML = `
       <div class="glass-panel p-8 rounded-2xl flex flex-col gap-4 text-start max-w-md w-full relative max-h-[90vh] overflow-y-auto no-scrollbar">
-        <h2 class="text-2xl font-bold text-primary mb-2">${lang === 'ar' ? 'تفاصيل Cihaz' : 'Cihaz Detayları'}</h2>
+        <h2 class="text-2xl font-bold text-primary mb-2">${lang === 'ar' ? 'تفاصيل الجهاز' : 'Cihaz Detayları'}</h2>
         
         <div class="flex flex-col gap-3">
             <div>
@@ -255,14 +269,14 @@ function openDeviceDetailsModal(id: string) {
                 <div class="font-body-md text-on-surface capitalize">${d.type}</div>
             </div>
             <div>
-                <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">IMEI / Serial</label>
+                <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'الرقم التسلسلي (IMEI)' : 'IMEI / Seri No'}</label>
                 <div class="font-body-md text-on-surface font-mono">${d.imei || '-'}</div>
             </div>
             
             <div class="border-t border-white/5 my-2"></div>
             
             <div>
-                <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'العميل المالك' : 'Sahibi (Müşteri)'}</label>
+                <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'العميل المالك' : 'Cihaz Sahibi'}</label>
                 <div class="p-3 bg-black/20 rounded border border-white/5 mt-1 flex flex-col gap-1 text-sm">
                     <div class="font-bold text-on-surface">${owner ? owner.name : '-'}</div>
                     <div class="text-xs text-on-surface-variant">${owner ? owner.phone : '-'}</div>
@@ -359,7 +373,7 @@ function openDeviceModal(id?: string) {
                 </select>
             </div>
             <div class="flex flex-col gap-1">
-                <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">IMEI / Serial</label>
+                <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${lang === 'ar' ? 'الرقم التسلسلي (IMEI)' : 'IMEI / Seri No'}</label>
                 <input type="text" id="dev-imei" value="${device ? device.imei : ''}" class="w-full bg-surface-container/50 border border-primary/20 rounded-lg px-4 py-3 text-on-surface focus:border-primary/50 focus:outline-none transition-colors">
             </div>
             

@@ -200,6 +200,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const next = current === 'tr' ? 'ar' : 'tr';
             setLang(next);
             showToast(next === 'ar' ? 'تم تحويل اللغة إلى العربية' : 'Türkçe diline geçildi', 'info');
+            setTimeout(() => {
+                window.location.reload();
+            }, 200);
             return;
         }
 

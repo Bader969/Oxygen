@@ -163,13 +163,27 @@ function openCustomerDetailsModal(id: string) {
         </div>
     `).join('') : `<p class="text-xs text-on-surface-variant italic">${lang === 'ar' ? 'لا توجد أجهزة مسجلة' : 'Kayıtlı cihaz yok'}</p>`;
 
+    const statusMap: Record<string, string> = lang === 'ar' ? {
+        pending: 'قيد الانتظار',
+        in_progress: 'قيد الإصلاح',
+        quality_check: 'فحص الجودة',
+        ready_for_pickup: 'جاهز للتسليم',
+        completed: 'تم التسليم'
+    } : {
+        pending: 'Bekliyor',
+        in_progress: 'Onarımda',
+        quality_check: 'Kalite Kontrol',
+        ready_for_pickup: 'Teslimata Hazır',
+        completed: 'Teslim Edildi'
+    };
+
     const repairsListHtml = custRepairs.length > 0 ? custRepairs.map(r => {
         const shortTkt = r.id.split('-')[0].toUpperCase();
         return `
         <div class="p-3 bg-black/20 rounded border border-white/5 flex flex-col gap-1 text-sm text-start">
             <div class="flex justify-between items-center">
                 <span class="font-bold text-primary">#TKT-${shortTkt}</span>
-                <span class="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">${r.status}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">${statusMap[r.status] || r.status}</span>
             </div>
             <div class="text-xs text-on-surface-variant">${r.device_model}</div>
             <div class="text-xs text-on-surface font-body-md mt-1 border-t border-white/5 pt-1">${r.issue_description}</div>

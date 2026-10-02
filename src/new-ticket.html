@@ -321,9 +321,9 @@
 <span data-i18n="ticket.deviceInfo">Device Info</span></h2>
 <!-- Saved Device Selection Dropdown -->
 <div id="device-selection-wrapper" class="flex flex-col gap-2 hidden">
-    <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Select Saved Device</label>
+    <label data-i18n="ticket.selectSavedDevice" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Kayıtlı Cihaz Seçin</label>
     <select id="ticket-device-select" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg focus:outline-none appearance-none bg-surface-container/50 border border-primary/20">
-        <option value="new">+ Add New Device</option>
+        <option value="new" data-i18n="ticket.addNewDevice">+ Yeni Cihaz Ekle</option>
     </select>
 </div>
 
@@ -342,8 +342,8 @@
         </div>
     </div>
     <div class="flex flex-col gap-2 relative">
-        <label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Device Type</label>
-        <input id="ticket-device-type" readonly class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20" placeholder="Select type..." type="text" autocomplete="off" value="Phone / Telefon" data-value="phone"/>
+        <label data-i18n="ticket.deviceType" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Cihaz Tipi</label>
+        <input id="ticket-device-type" readonly class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20" placeholder="Cihaz tipi seçin..." type="text" autocomplete="off" value="Telefon" data-value="phone"/>
         <div id="type-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
     </div>
     <div class="flex flex-col gap-2">
@@ -363,12 +363,12 @@
             <label data-i18n="ticket.passcode" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Device Passcode / PIN</label>
             <label class="flex items-center gap-1.5 cursor-pointer text-xs text-on-surface-variant hover:text-primary">
                 <input type="checkbox" id="ticket-no-passcode" class="rounded bg-black/40 border-primary/30 text-primary focus:ring-0">
-                <span id="label-no-passcode">No Passcode</span>
+                <span id="label-no-passcode" data-i18n="ticket.noPasscodeLabel">Şifresiz Cihaz</span>
             </label>
         </div>
         <div class="relative">
             <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">password</span>
-            <input id="ticket-passcode" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.passcodePlaceholder" placeholder="e.g. 1234 or Pattern / Desen" type="text"/>
+            <input id="ticket-passcode" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.passcodePlaceholder" placeholder="Örn. 1234 veya Desen" type="text"/>
         </div>
     </div>
 
@@ -376,11 +376,11 @@
     <div class="flex flex-col gap-2">
         <label data-i18n="ticket.intakeCondition" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Intake Condition (Pre-existing Damage)</label>
         <div class="flex flex-wrap gap-1.5 mb-1" id="condition-chips">
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Ekran Çizik / خدش شاشة">Ekran Çizik</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Kasa Ezik / صدمة هيكل">Kasa Ezik</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Arka Cam Kırık / زجاج خلفي مكسور">Arka Cam Kırık</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Kamera Lens Çizik / عدسة مخدوشة">Kamera Lens Çizik</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Sıvı Teması / أثر سوائل">Sıvı Teması</button>
+            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condScreenCrack" data-i18n="ticket.condScreenCrack">Ekran Çizik</button>
+            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condFrameDent" data-i18n="ticket.condFrameDent">Kasa Ezik</button>
+            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condBackGlass" data-i18n="ticket.condBackGlass">Arka Cam Kırık</button>
+            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condLensScratch" data-i18n="ticket.condLensScratch">Kamera Lens Çizik</button>
+            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condLiquid" data-i18n="ticket.condLiquid">Sıvı Teması</button>
         </div>
         <textarea id="ticket-condition" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none" data-i18n="ticket.intakeConditionPlaceholder" placeholder="e.g. Scratches on screen, dent on frame..." rows="2"></textarea>
     </div>
@@ -389,10 +389,10 @@
     <div class="flex flex-col gap-2">
         <label data-i18n="ticket.accessories" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Checked-in Accessories</label>
         <div class="flex flex-wrap gap-1.5 mb-1" id="accessory-chips">
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="SIM Kart / شريحة SIM">SIM Kart</button>
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Kılıf / كفر">Kılıf</button>
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Şarj Cihazı / شاحن">Şarj Cihazı</button>
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-val="Kutu / علبة">Kutu</button>
+            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accSim" data-i18n="ticket.accSim">SIM Kart</button>
+            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accCase" data-i18n="ticket.accCase">Kılıf</button>
+            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accCharger" data-i18n="ticket.accCharger">Şarj Cihazı</button>
+            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accBox" data-i18n="ticket.accBox">Kutu</button>
         </div>
         <input id="ticket-accessories" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.accessoriesPlaceholder" placeholder="e.g. SIM card, case, charger..." type="text"/>
     </div>
@@ -436,10 +436,10 @@
     </div>
     <!-- Quick preset deadline buttons -->
     <div class="flex flex-wrap gap-1.5" id="deadline-presets">
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-semibold transition-colors" data-hours="2">⚡ +2 Saat (Acil)</button>
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="today-18">Bugün 18:00</button>
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="tomorrow-12">Yarın 12:00</button>
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-days="3">+3 Gün</button>
+        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-semibold transition-colors" data-hours="2" data-i18n="ticket.presetHours2">⚡ +2 Saat (Acil)</button>
+        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="today-18" data-i18n="ticket.presetToday18">Bugün 18:00</button>
+        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="tomorrow-12" data-i18n="ticket.presetTomorrow12">Yarın 12:00</button>
+        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-days="3" data-i18n="ticket.presetDays3">+3 Gün</button>
     </div>
 </div>
 
@@ -461,11 +461,11 @@
     <div class="flex flex-col gap-2">
         <label data-i18n="ticket.warranty" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Warranty Duration</label>
         <select id="ticket-warranty" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg bg-surface-container/50 border border-primary/20 appearance-none">
-            <option value="0">Garanti Yok / بدون ضمان</option>
-            <option value="1">1 Ay / شهر واحد</option>
-            <option value="3" selected>3 Ay / 3 أشهر (Standard)</option>
-            <option value="6">6 Ay / 6 أشهر</option>
-            <option value="12">12 Ay / 12 شهر</option>
+            <option value="0" data-i18n="ticket.warranty0">Garanti Yok</option>
+            <option value="1" data-i18n="ticket.warranty1">1 Ay</option>
+            <option value="3" selected data-i18n="ticket.warranty3">3 Ay (Standart)</option>
+            <option value="6" data-i18n="ticket.warranty6">6 Ay</option>
+            <option value="12" data-i18n="ticket.warranty12">12 Ay (1 Yıl)</option>
         </select>
     </div>
 </div>
