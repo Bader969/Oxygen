@@ -1,5 +1,8 @@
 import { checkAuthSession, setupAuthListener, signOut } from './lib/authService';
-import { getLang, setLang, dictionary } from './lib/i18n';
+import { getLang, setLang, dictionary, applyTranslation } from './lib/i18n';
+
+// Automatically apply translation on every single page where nav.ts is included
+applyTranslation();
 
 // ── Global Toast System ──────────────────────────────────────────────────
 declare global {
@@ -57,6 +60,7 @@ if (typeof window !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    applyTranslation();
     // ── 1. Eye-Friendly Static Background & Global UI Styles ──────────────
     if (!document.getElementById('oxygen-theme-styles')) {
         const themeStyle = document.createElement('style');

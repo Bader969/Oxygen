@@ -6,6 +6,9 @@
         var lang = localStorage.getItem('appLang') || 'tr';
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.classList.add('i18n-loading');
+        setTimeout(function() {
+            document.documentElement.classList.remove('i18n-loading');
+        }, 150);
     })();
 </script>
 
@@ -19,7 +22,7 @@
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
         }
 
-    html.i18n-loading [data-i18n] { visibility: hidden; }
+    html.i18n-loading [data-i18n]:not(input):not(textarea):not(button) { visibility: hidden; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 

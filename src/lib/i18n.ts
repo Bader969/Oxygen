@@ -602,37 +602,43 @@ if (typeof document !== 'undefined' && !document.getElementById('arabic-fonts'))
 }
 
 export function applyTranslation(lang?: SupportedLang) {
-    const currentLang = lang || getLang();
-    const html = document.documentElement;
+    try {
+        const currentLang = lang || getLang();
+        const html = document.documentElement;
 
-    if (currentLang === 'ar') {
-        html.setAttribute('dir', 'rtl');
-        html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
-        html.style.fontWeight = 'normal';
-    } else {
-        html.setAttribute('dir', 'ltr');
-        html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-        html.style.fontWeight = 'normal';
-    }
-
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (key && dictionary[currentLang][key]) {
-            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                const input = el as HTMLInputElement;
-                if (input.readOnly) {
-                    input.value = dictionary[currentLang][key];
-                } else {
-                    input.placeholder = dictionary[currentLang][key];
-                }
-            } else if (el.tagName === 'OPTION') {
-                (el as HTMLOptionElement).textContent = dictionary[currentLang][key];
-            } else {
-                el.textContent = dictionary[currentLang][key];
-            }
+        if (currentLang === 'ar') {
+            html.setAttribute('dir', 'rtl');
+            html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
+            html.style.fontWeight = 'normal';
+        } else {
+            html.setAttribute('dir', 'ltr');
+            html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+            html.style.fontWeight = 'normal';
         }
-    });
 
-    document.documentElement.classList.remove('i18n-loading');
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (key && dictionary[currentLang] && dictionary[currentLang][key]) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    const input = el as HTMLInputElement;
+                    if (input.readOnly) {
+                        input.value = dictionary[currentLang][key];
+                    } else {
+                        input.placeholder = dictionary[currentLang][key];
+                    }
+                } else if (el.tagName === 'OPTION') {
+                    (el as HTMLOptionElement).textContent = dictionary[currentLang][key];
+                } else {
+                    el.textContent = dictionary[currentLang][key];
+                }
+            }
+        });
+    } catch (err) {
+        console.warn('applyTranslation warning:', err);
+    } finally {
+        if (typeof document !== 'undefined') {
+            document.documentElement.classList.remove('i18n-loading');
+        }
+    }
 }

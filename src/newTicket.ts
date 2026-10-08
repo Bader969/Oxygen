@@ -2,6 +2,7 @@ import { createCustomer, createRepairTicket, getCustomers, getDevices, createDev
 import { generateQrCodeDataUrl } from './lib/qrUtils';
 import { openReceiptPreviewModal } from './lib/receiptPrinter';
 import { getSettings, playBeepSound } from './lib/settingsManager';
+import { applyTranslation } from './lib/i18n';
 
 declare const Html5Qrcode: any;
 
@@ -168,8 +169,11 @@ async function fetchInitialData() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  await fetchInitialData();
+document.addEventListener('DOMContentLoaded', () => {
+  applyTranslation();
+  fetchInitialData().then(() => {
+    applyTranslation();
+  });
 
   const nameInput = document.getElementById('ticket-customer-name') as HTMLInputElement;
   const phoneInput = document.getElementById('ticket-customer-phone') as HTMLInputElement;

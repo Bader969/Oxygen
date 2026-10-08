@@ -6,10 +6,13 @@
         var lang = localStorage.getItem('appLang') || 'tr';
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.classList.add('i18n-loading');
+        setTimeout(function() {
+            document.documentElement.classList.remove('i18n-loading');
+        }, 150);
     })();
 </script>
 <style>
-    html.i18n-loading [data-i18n] { visibility: hidden; }
+    html.i18n-loading [data-i18n]:not(input):not(textarea):not(button) { visibility: hidden; }
 </style>
 <meta name="view-transition" content="same-origin" />
 <meta charset="utf-8"/>

@@ -6,10 +6,13 @@
         var lang = localStorage.getItem('appLang') || 'tr';
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.classList.add('i18n-loading');
+        setTimeout(function() {
+            document.documentElement.classList.remove('i18n-loading');
+        }, 150);
     })();
 </script>
 <style>
-    html.i18n-loading [data-i18n] { visibility: hidden; }
+    html.i18n-loading [data-i18n]:not(input):not(textarea):not(button) { visibility: hidden; }
     /* Hide scrollbar for Chrome, Safari and Opera */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -688,4 +691,8 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script type="module" src="/src/nav.ts"></script>
 <script type="module" src="/src/newTicket.ts"></script>
+<script type="module">
+  import { applyTranslation } from "/src/lib/i18n.ts";
+  applyTranslation();
+</script>
 </body></html>
