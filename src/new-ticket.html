@@ -319,12 +319,17 @@
 <h2 class="font-headline-md text-headline-md text-inverse-surface flex items-center gap-2">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smartphone</span>
 <span data-i18n="ticket.deviceInfo">Device Info</span></h2>
-<!-- Saved Device Selection Dropdown -->
-<div id="device-selection-wrapper" class="flex flex-col gap-2 hidden">
+<!-- Saved Device Selection Dropdown (Modern Glass Dropdown) -->
+<div id="device-selection-wrapper" class="flex flex-col gap-2 relative hidden">
     <label data-i18n="ticket.selectSavedDevice" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Kayıtlı Cihaz Seçin</label>
-    <select id="ticket-device-select" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg focus:outline-none appearance-none bg-surface-container/50 border border-primary/20">
-        <option value="new" data-i18n="ticket.addNewDevice">+ Yeni Cihaz Ekle</option>
-    </select>
+    <div class="relative">
+        <input id="ticket-device-display" readonly class="input-glass w-full rounded-lg py-3 ps-4 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Cihaz seçin..." type="text" autocomplete="off" value="+ Yeni Cihaz Ekle" data-value="new"/>
+        <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform" id="device-select-chevron">expand_more</span>
+        <select id="ticket-device-select" class="hidden">
+            <option value="new" data-i18n="ticket.addNewDevice">+ Yeni Cihaz Ekle</option>
+        </select>
+        <div id="device-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
+    </div>
 </div>
 
 <!-- Add New Device form fields -->
@@ -350,8 +355,8 @@
         <label data-i18n="ticket.imei" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">IMEI / Serial Number</label>
         <div class="relative">
             <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">barcode</span>
-            <input id="ticket-imei" class="input-glass w-full rounded-lg py-3 ps-10 pe-10 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.imeiPlaceholder" placeholder="Scan or type IMEI" type="text"/>
-            <button type="button" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-fixed transition-colors">
+            <input id="ticket-imei" class="input-glass w-full rounded-lg py-3 ps-10 pe-12 text-on-background font-body-lg placeholder-on-surface-variant/50 font-mono" data-i18n="ticket.imeiPlaceholder" placeholder="Scan or type IMEI" type="text"/>
+            <button type="button" id="scan-imei-btn" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-fixed hover:bg-primary/10 p-1.5 rounded-lg transition-all" title="IMEI / Barkod Tara">
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">qr_code_scanner</span>
             </button>
         </div>
@@ -425,21 +430,71 @@
     <input type="hidden" id="ticket-priority" value="normal">
 </div>
 
-<!-- Estimated Completion / Deadline -->
-<div class="flex flex-col gap-2">
+<!-- Estimated Completion / Deadline (Interactive Glass Calendar & Time Picker) -->
+<div class="flex flex-col gap-2 relative">
     <div class="flex items-center justify-between">
         <label data-i18n="ticket.deadline" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Estimated Completion / Deadline</label>
+        <span class="text-[11px] text-primary/80 font-medium cursor-pointer hover:underline" id="toggle-manual-deadline-btn" data-i18n="ticket.manualDateInput">Manuel Tarih Yaz</span>
     </div>
     <div class="relative">
-        <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">event</span>
-        <input id="ticket-deadline" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg focus:outline-none" type="datetime-local"/>
+        <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-primary pointer-events-none" style="font-variation-settings: 'FILL' 0;">event</span>
+        <input id="ticket-deadline-display" readonly class="input-glass w-full rounded-lg py-3 ps-10 pe-12 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Tarih ve Saat Seçin..." type="text"/>
+        <button type="button" id="open-calendar-btn" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:bg-primary/10 p-2 rounded-lg transition-colors" title="Takvimden Seç">
+            <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+        </button>
+        <input type="hidden" id="ticket-deadline" value=""/>
     </div>
+
     <!-- Quick preset deadline buttons -->
     <div class="flex flex-wrap gap-1.5" id="deadline-presets">
         <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-semibold transition-colors" data-hours="2" data-i18n="ticket.presetHours2">⚡ +2 Saat (Acil)</button>
         <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="today-18" data-i18n="ticket.presetToday18">Bugün 18:00</button>
         <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="tomorrow-12" data-i18n="ticket.presetTomorrow12">Yarın 12:00</button>
         <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-days="3" data-i18n="ticket.presetDays3">+3 Gün</button>
+    </div>
+
+    <!-- Custom Glass Calendar & Time Picker Popover -->
+    <div id="calendar-picker-popover" class="absolute inset-x-0 top-full mt-2 bg-surface-container-high/95 backdrop-blur-2xl border border-primary/30 rounded-2xl p-4 hidden z-50 shadow-[0_15px_40px_rgba(0,0,0,0.85)]">
+        <!-- Month / Year Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-white/10">
+            <button type="button" id="cal-prev-month" class="w-8 h-8 rounded-lg bg-surface-container border border-white/10 flex items-center justify-center text-on-surface hover:text-primary hover:border-primary/50 transition-all">
+                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+            <span id="cal-month-year-label" class="font-bold text-sm text-primary tracking-wide">Ekim 2026</span>
+            <button type="button" id="cal-next-month" class="w-8 h-8 rounded-lg bg-surface-container border border-white/10 flex items-center justify-center text-on-surface hover:text-primary hover:border-primary/50 transition-all">
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+        </div>
+        <!-- Weekday Labels -->
+        <div class="grid grid-cols-7 gap-1 text-center py-2 text-[11px] font-bold text-on-surface-variant/70 border-b border-white/5" id="cal-weekdays">
+            <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+        </div>
+        <!-- Calendar Days Grid -->
+        <div class="grid grid-cols-7 gap-1 py-2 text-center text-xs" id="cal-days-grid">
+            <!-- Filled dynamically via JS -->
+        </div>
+        <!-- Time Slots Section -->
+        <div class="pt-3 border-t border-white/10">
+            <label class="block font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-2" data-i18n="ticket.timeSlots">Hazır Saatler</label>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="cal-time-chips">
+                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="10:00">10:00</button>
+                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="12:00">12:00</button>
+                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="14:00">14:00</button>
+                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="16:00">16:00</button>
+                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-primary/20 border border-primary/50 text-primary font-bold transition-colors" data-time="18:00">18:00</button>
+                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="19:30">19:30</button>
+            </div>
+            <!-- Custom Time & Confirm Button -->
+            <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-white/5">
+                <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                    <span data-i18n="ticket.customTime" class="text-[11px]">Özel Saat:</span>
+                    <input type="time" id="cal-custom-time-input" value="18:00" class="bg-black/40 border border-primary/20 rounded px-2 py-1 text-xs text-on-surface focus:outline-none focus:border-primary font-mono"/>
+                </div>
+                <button type="button" id="cal-confirm-btn" class="bg-primary hover:bg-primary/90 text-black font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-[0_0_15px_rgba(227,30,36,0.3)]" data-i18n="ticket.applySelection">
+                    Seçimi Uygula
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -448,25 +503,83 @@
 <textarea id="ticket-issue" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none" data-i18n="ticket.issuePlaceholder" placeholder="Describe the problem..." rows="3"></textarea>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-sm">
-    <div class="flex flex-col gap-2">
-        <label data-i18n="ticket.estCost" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Estimated Price</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">payments</span>
-            <input id="ticket-cost" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.pricePlaceholder" placeholder="0.00" type="number" step="0.01"/>
+<!-- Section: Financials, Pricing & Deposits (Full Workshop Cash Register) -->
+<div class="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-primary/20 flex flex-col gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">payments</span>
+            <h3 class="font-headline-sm text-sm text-primary font-bold" data-i18n="ticket.cashRegisterTitle">Nakit Ödeme & Para Üstü Hesaplayıcı</h3>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-on-surface-variant text-[11px]" data-i18n="ticket.paymentMethod">Ödeme Yöntemi:</span>
+            <div class="flex gap-1" id="payment-method-chips">
+                <button type="button" data-method="cash" class="pay-chip active px-2.5 py-1 rounded text-[11px] font-bold bg-primary/20 border border-primary/40 text-primary">Nakit</button>
+                <button type="button" data-method="card" class="pay-chip px-2.5 py-1 rounded text-[11px] font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white">Kart</button>
+                <button type="button" data-method="transfer" class="pay-chip px-2.5 py-1 rounded text-[11px] font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white">Havale</button>
+            </div>
+            <input type="hidden" id="ticket-payment-method" value="cash"/>
         </div>
     </div>
 
-    <!-- Warranty Months -->
-    <div class="flex flex-col gap-2">
-        <label data-i18n="ticket.warranty" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Warranty Duration</label>
-        <select id="ticket-warranty" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg bg-surface-container/50 border border-primary/20 appearance-none">
-            <option value="0" data-i18n="ticket.warranty0">Garanti Yok</option>
-            <option value="1" data-i18n="ticket.warranty1">1 Ay</option>
-            <option value="3" selected data-i18n="ticket.warranty3">3 Ay (Standart)</option>
-            <option value="6" data-i18n="ticket.warranty6">6 Ay</option>
-            <option value="12" data-i18n="ticket.warranty12">12 Ay (1 Yıl)</option>
-        </select>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- Estimated Total Cost -->
+        <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.estCost" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Tahmini Toplam Tutar (₺)</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">payments</span>
+                <input id="ticket-cost" class="input-glass w-full rounded-lg py-2.5 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50 font-bold font-mono" data-i18n="ticket.pricePlaceholder" placeholder="0.00" type="number" step="0.01"/>
+            </div>
+        </div>
+
+        <!-- Down Payment / Deposit (Kapora) -->
+        <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.deposit" class="font-label-caps text-label-caps text-emerald-400 uppercase tracking-wider">Alınan Kapora (₺)</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-emerald-400 text-[18px]">savings</span>
+                <input id="ticket-deposit" class="input-glass w-full rounded-lg py-2.5 ps-10 pe-4 text-emerald-400 font-body-lg placeholder-on-surface-variant/50 font-bold font-mono border-emerald-500/30 focus:border-emerald-500" data-i18n="ticket.depositPlaceholder" placeholder="0.00" type="number" step="0.01"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remaining Balance Summary Bar -->
+    <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container/60 border border-white/5 text-xs">
+        <span class="text-on-surface-variant flex items-center gap-1.5 font-medium">
+            <span class="material-symbols-outlined text-[16px] text-amber-400">account_balance_wallet</span>
+            <span data-i18n="ticket.remaining">Kalan Tutar</span>:
+        </span>
+        <div class="flex items-center gap-2">
+            <span id="ticket-remaining-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" data-i18n="ticket.paidInFull">Tamamı Ödendi</span>
+            <span id="ticket-remaining-display" class="font-bold text-sm text-primary font-mono">₺ 0.00</span>
+        </div>
+    </div>
+
+    <!-- Cash Handed & Change Calculator (Real-time) -->
+    <div id="cash-change-calculator" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/5">
+        <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.cashGiven" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Müşteriden Alınan Nakit (₺)</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">attach_money</span>
+                <input id="ticket-cash-given" class="input-glass w-full rounded-lg py-2 ps-10 pe-4 text-on-background text-sm placeholder-on-surface-variant/50 font-mono" placeholder="0.00" type="number" step="0.01"/>
+            </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.changeDue" class="font-label-caps text-label-caps text-blue-400 uppercase tracking-wider">Müşteriye Verilecek Para Üstü (₺)</label>
+            <div class="input-glass w-full rounded-lg py-2 px-3 text-blue-400 text-sm font-bold font-mono flex items-center justify-between border-blue-500/30 bg-blue-500/10">
+                <span>₺</span>
+                <span id="ticket-change-due">0.00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Warranty Duration (Custom Modern Glass Dropdown) -->
+<div class="flex flex-col gap-2 relative">
+    <label data-i18n="ticket.warranty" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Warranty Duration</label>
+    <div class="relative">
+        <input id="ticket-warranty-display" readonly class="input-glass w-full rounded-lg py-3 ps-4 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Garanti süresi seçin..." type="text" autocomplete="off" value="3 Ay (Standart)" data-value="3"/>
+        <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform" id="warranty-chevron">expand_more</span>
+        <input type="hidden" id="ticket-warranty" value="3"/>
+        <div id="warranty-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
     </div>
 </div>
 
@@ -517,10 +630,62 @@
             });
         });
     </script>
-    <script type="module">
-      import { applyTranslation } from "/src/lib/i18n.ts";
-      applyTranslation();
-    </script>
+<!-- IMEI / Barcode Camera Scanner Modal -->
+<div id="imei-scanner-modal" class="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-black/85 backdrop-blur-xl p-4 hidden">
+    <div class="glass-panel p-5 sm:p-6 rounded-2xl max-w-md w-full border border-primary/30 shadow-[0_0_50px_rgba(227,30,36,0.3)] relative animate-in fade-in zoom-in duration-200">
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">qr_code_scanner</span>
+                <h3 class="font-headline-sm text-base text-primary font-bold" data-i18n="ticket.scanImeiTitle">IMEI / Barkod Tarayıcı</h3>
+            </div>
+            <button type="button" id="close-imei-scanner-btn" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
+        
+        <p class="text-xs text-on-surface-variant mb-3 text-center" data-i18n="ticket.scanImeiDesc">Kamerayı barkoda veya IMEI etiketine hizalayın</p>
+
+        <!-- Camera Viewport Box -->
+        <div class="relative w-full h-64 sm:h-72 bg-black/60 rounded-xl overflow-hidden border border-primary/30 flex items-center justify-center shadow-inner" id="imei-scanner-container">
+            <div id="imei-reader" class="w-full h-full"></div>
+            <!-- Animated Laser Scan Reticle Overlay -->
+            <div class="absolute inset-0 pointer-events-none flex items-center justify-center p-6">
+                <div class="relative w-full h-full max-w-[240px] max-h-[160px] border border-primary/40 rounded-lg">
+                    <!-- Corners -->
+                    <div class="absolute -top-1 -start-1 w-4 h-4 border-t-2 border-s-2 border-primary"></div>
+                    <div class="absolute -top-1 -end-1 w-4 h-4 border-t-2 border-e-2 border-primary"></div>
+                    <div class="absolute -bottom-1 -start-1 w-4 h-4 border-b-2 border-s-2 border-primary"></div>
+                    <div class="absolute -bottom-1 -end-1 w-4 h-4 border-b-2 border-e-2 border-primary"></div>
+                    <!-- Laser Line -->
+                    <div class="absolute inset-x-0 top-0 h-[2px] bg-primary shadow-[0_0_12px_2px_rgba(227,30,36,0.8)] animate-pulse" id="imei-laser-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Controls (Torch & Switch) -->
+        <div class="flex items-center justify-center gap-3 mt-3">
+            <button type="button" id="imei-torch-btn" class="px-3 py-1.5 rounded-lg bg-surface-container border border-white/10 text-xs text-on-surface flex items-center gap-1.5 hover:border-amber-400 hover:text-amber-400 transition-colors">
+                <span class="material-symbols-outlined text-[16px]">flashlight_on</span>
+                <span>Flaş</span>
+            </button>
+            <button type="button" id="imei-switch-camera-btn" class="px-3 py-1.5 rounded-lg bg-surface-container border border-white/10 text-xs text-on-surface flex items-center gap-1.5 hover:border-primary hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[16px]">flip_camera_ios</span>
+                <span>Kamera Değiştir</span>
+            </button>
+        </div>
+
+        <!-- Manual Fallback Input inside Modal -->
+        <div class="mt-4 pt-3 border-t border-white/10 flex gap-2">
+            <input type="text" id="imei-modal-manual" placeholder="Manuel IMEI yaz..." class="flex-1 bg-surface-container/60 border border-primary/30 rounded-xl px-3 py-2 text-xs text-on-surface font-mono focus:outline-none focus:border-primary"/>
+            <button type="button" id="imei-modal-apply-btn" class="bg-primary hover:bg-primary/90 text-black font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-[0_0_15px_rgba(227,30,36,0.3)] shrink-0" data-i18n="ticket.scanApply">
+                IMEI Ekle
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script type="module" src="/src/nav.ts"></script>
 <script type="module" src="/src/newTicket.ts"></script>
 </body></html>

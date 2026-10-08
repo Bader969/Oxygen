@@ -3,6 +3,8 @@ import { generateQrCodeDataUrl } from './lib/qrUtils';
 import { openReceiptPreviewModal } from './lib/receiptPrinter';
 import { getSettings, playBeepSound } from './lib/settingsManager';
 
+declare const Html5Qrcode: any;
+
 // Curated Device Catalog for Brand and Model suggestions
 const deviceCatalog: Record<string, Record<string, string[]>> = {
   phone: {
@@ -263,6 +265,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     deviceDetailsFields.classList.remove('hidden');
     deviceSelect.value = 'new';
+
+    // Modern Glass Dropdown integration for saved devices
+    const deviceDisplay = document.getElementById('ticket-device-display') as HTMLInputElement;
+    const deviceBox = document.getElementById('device-suggestions') as HTMLElement;
+    const deviceChevron = document.getElementById('device-select-chevron') as HTMLElement;
+    if (deviceDisplay && deviceBox) {
+      deviceDisplay.value = newDevLabel;
+      deviceDisplay.setAttribute('data-value', 'new');
+
+      const renderDeviceOptions = () => {
+        deviceBox.innerHTML = '';
+        const options = [{ value: 'new', label: newDevLabel }];
+        custDevices.forEach(d => {
+          options.push({ value: d.id, label: `${d.brand} ${d.model} (${d.imei || 'No IMEI'})` });
+        });
+
+        options.forEach(opt => {
+          const item = document.createElement('div');
+          item.className = 'px-4 py-2.5 hover:bg-primary/20 text-on-surface cursor-pointer text-sm transition-colors flex items-center justify-between';
+          const isSelected = deviceSelect.value === opt.value;
+          item.innerHTML = `<span>${opt.label}</span>${isSelected ? '<span class="material-symbols-outlined text-primary text-[16px]">check</span>' : ''}`;
+          item.addEventListener('click', () => {
+            deviceSelect.value = opt.value;
+            deviceDisplay.value = opt.label;
+            deviceDisplay.setAttribute('data-value', opt.value);
+            deviceBox.classList.add('hidden');
+            if (deviceChevron) deviceChevron.style.transform = '';
+            deviceSelect.dispatchEvent(new Event('change'));
+          });
+          deviceBox.appendChild(item);
+        });
+        deviceBox.classList.remove('hidden');
+        if (deviceChevron) deviceChevron.style.transform = 'rotate(180deg)';
+      };
+
+      deviceDisplay.onclick = (e) => {
+        e.stopPropagation();
+        if (deviceBox.classList.contains('hidden')) renderDeviceOptions();
+        else {
+          deviceBox.classList.add('hidden');
+          if (deviceChevron) deviceChevron.style.transform = '';
+        }
+      };
+
+      document.addEventListener('click', (e) => {
+        if (!deviceBox.contains(e.target as HTMLElement) && e.target !== deviceDisplay) {
+          deviceBox.classList.add('hidden');
+          if (deviceChevron) deviceChevron.style.transform = '';
+        }
+      });
+    }
   }
 
   if (deviceSelect) {
@@ -472,47 +525,479 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Apply defaults from settings
   const settings = getSettings();
-  const warrantySelect = document.getElementById('ticket-warranty') as HTMLSelectElement;
-  if (warrantySelect && settings.defaultWarrantyMonths !== undefined) {
-    warrantySelect.value = settings.defaultWarrantyMonths.toString();
-  }
 
-  // Deadline presets
-  const deadlineInput = document.getElementById('ticket-deadline') as HTMLInputElement;
-  const formatLocalIso = (d: Date) => {
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
+  // ── Module 1: Live-Camera IMEI & Barcode Scanner ─────────────────────────
+  let imeiScanner: any = null;
+  let imeiCameraFacing: 'environment' | 'user' = 'environment';
+  let isImeiTorchOn = false;
 
-  if (deadlineInput && !deadlineInput.value) {
-    const d = new Date();
-    d.setHours(d.getHours() + (settings.defaultSlaHoursNormal || 24));
-    deadlineInput.value = formatLocalIso(d);
-  }
+  function initImeiScanner() {
+    const scanBtn = document.getElementById('scan-imei-btn');
+    const modal = document.getElementById('imei-scanner-modal');
+    const closeBtn = document.getElementById('close-imei-scanner-btn');
+    const torchBtn = document.getElementById('imei-torch-btn');
+    const switchCamBtn = document.getElementById('imei-switch-camera-btn');
+    const manualInput = document.getElementById('imei-modal-manual') as HTMLInputElement;
+    const manualApplyBtn = document.getElementById('imei-modal-apply-btn');
 
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const hours = btn.getAttribute('data-hours');
-      const target = btn.getAttribute('data-target');
-      const days = btn.getAttribute('data-days');
-      const d = new Date();
+    if (!scanBtn || !modal || !imeiInput) return;
 
-      if (hours) {
-        d.setHours(d.getHours() + parseInt(hours, 10));
-        // Auto-select Express priority
-        const expressBtn = document.querySelector('[data-priority="express"]') as HTMLElement;
-        expressBtn?.click();
-      } else if (target === 'today-18') {
-        d.setHours(18, 0, 0, 0);
-      } else if (target === 'tomorrow-12') {
-        d.setDate(d.getDate() + 1);
-        d.setHours(12, 0, 0, 0);
-      } else if (days) {
-        d.setDate(d.getDate() + parseInt(days, 10));
+    const applyImei = (scannedCode: string) => {
+      if (!scannedCode) return;
+      let cleaned = scannedCode.trim();
+      const imeiMatch = cleaned.match(/(?:IMEI[:\s]*)?([0-9]{14,17})/i);
+      if (imeiMatch && imeiMatch[1]) {
+        cleaned = imeiMatch[1];
+      } else {
+        cleaned = cleaned.replace(/[^A-Za-z0-9\-]/g, '');
       }
-      if (deadlineInput) deadlineInput.value = formatLocalIso(d);
+
+      imeiInput.value = cleaned;
+      playBeepSound('success');
+      if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+
+      imeiInput.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-500/10');
+      setTimeout(() => {
+        imeiInput.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-500/10');
+      }, 1500);
+
+      closeScanner();
+    };
+
+    const startCamera = async () => {
+      try {
+        if (typeof Html5Qrcode === 'undefined') {
+          console.warn('Html5Qrcode not loaded');
+          return;
+        }
+        if (imeiScanner) {
+          try { await imeiScanner.stop(); } catch (_) {}
+        }
+        imeiScanner = new Html5Qrcode('imei-reader');
+        await imeiScanner.start(
+          { facingMode: imeiCameraFacing },
+          { fps: 15, qrbox: { width: 260, height: 160 }, aspectRatio: 1.5 },
+          (decodedText: string) => {
+            applyImei(decodedText);
+          },
+          () => { /* frame ignored */ }
+        );
+      } catch (err) {
+        console.warn('IMEI camera init failed:', err);
+      }
+    };
+
+    const stopCamera = async () => {
+      if (imeiScanner) {
+        try {
+          await imeiScanner.stop();
+          imeiScanner.clear();
+        } catch (_) {}
+        imeiScanner = null;
+      }
+      isImeiTorchOn = false;
+      torchBtn?.classList.remove('text-amber-400', 'border-amber-400');
+    };
+
+    const openScanner = async () => {
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      if (manualInput) manualInput.value = '';
+      await startCamera();
+    };
+
+    const closeScanner = async () => {
+      await stopCamera();
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    };
+
+    scanBtn.addEventListener('click', openScanner);
+    closeBtn?.addEventListener('click', closeScanner);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeScanner();
     });
-  });
+
+    torchBtn?.addEventListener('click', async () => {
+      try {
+        isImeiTorchOn = !isImeiTorchOn;
+        await imeiScanner?.applyVideoConstraints({
+          advanced: [{ torch: isImeiTorchOn }]
+        });
+        torchBtn.classList.toggle('text-amber-400', isImeiTorchOn);
+        torchBtn.classList.toggle('border-amber-400', isImeiTorchOn);
+      } catch (_) {
+        console.warn('Torch not supported on this camera.');
+      }
+    });
+
+    switchCamBtn?.addEventListener('click', async () => {
+      imeiCameraFacing = imeiCameraFacing === 'environment' ? 'user' : 'environment';
+      await startCamera();
+    });
+
+    manualApplyBtn?.addEventListener('click', () => {
+      if (manualInput && manualInput.value.trim()) {
+        applyImei(manualInput.value.trim());
+      }
+    });
+    manualInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && manualInput.value.trim()) {
+        applyImei(manualInput.value.trim());
+      }
+    });
+  }
+
+  // ── Module 2: Workshop Payment, Deposit & Change Calculator ───────────────
+  function initPaymentCalculator() {
+    const depositInput = document.getElementById('ticket-deposit') as HTMLInputElement;
+    const remainingDisplay = document.getElementById('ticket-remaining-display') as HTMLElement;
+    const remainingBadge = document.getElementById('ticket-remaining-badge') as HTMLElement;
+    const cashGivenInput = document.getElementById('ticket-cash-given') as HTMLInputElement;
+    const changeDueDisplay = document.getElementById('ticket-change-due') as HTMLElement;
+    const methodInput = document.getElementById('ticket-payment-method') as HTMLInputElement;
+    const methodChips = document.querySelectorAll('#payment-method-chips .pay-chip');
+
+    if (!costInput) return;
+
+    const recalculate = () => {
+      const lang = localStorage.getItem('appLang') || 'tr';
+      const isAr = lang === 'ar';
+
+      const cost = parseFloat(costInput.value) || 0;
+      const deposit = parseFloat(depositInput?.value || '0') || 0;
+      const remaining = Math.max(0, cost - deposit);
+
+      if (remainingDisplay) {
+        remainingDisplay.textContent = `₺ ${remaining.toFixed(2)}`;
+      }
+
+      if (remainingBadge) {
+        if (cost > 0 && remaining === 0) {
+          remainingBadge.textContent = isAr ? 'مدفوع بالكامل' : 'Tamamı Ödendi';
+          remainingBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        } else if (remaining > 0) {
+          remainingBadge.textContent = isAr ? 'المتبقي' : 'Kalan Bakiye';
+          remainingBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        } else {
+          remainingBadge.textContent = isAr ? '0.00 ₺' : '0.00 ₺';
+          remainingBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface-variant border border-white/5';
+        }
+      }
+
+      if (cashGivenInput && changeDueDisplay) {
+        const cashGiven = parseFloat(cashGivenInput.value) || 0;
+        const targetAmount = deposit > 0 ? deposit : cost;
+        const change = cashGiven > targetAmount ? cashGiven - targetAmount : 0;
+        changeDueDisplay.textContent = change.toFixed(2);
+      }
+    };
+
+    costInput.addEventListener('input', recalculate);
+    depositInput?.addEventListener('input', recalculate);
+    cashGivenInput?.addEventListener('input', recalculate);
+
+    methodChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const method = chip.getAttribute('data-method') || 'cash';
+        if (methodInput) methodInput.value = method;
+        methodChips.forEach(c => {
+          c.className = 'pay-chip px-2.5 py-1 rounded text-[11px] font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white transition-all';
+        });
+        chip.className = 'pay-chip active px-2.5 py-1 rounded text-[11px] font-bold bg-primary/20 border border-primary/40 text-primary transition-all';
+      });
+    });
+  }
+
+  // ── Module 3: Custom Glass Calendar & Time Picker ─────────────────────────
+  function initDateTimePicker() {
+    const trigger = document.getElementById('ticket-deadline-display') as HTMLInputElement;
+    const calendarBtn = document.getElementById('open-calendar-btn');
+    const popover = document.getElementById('calendar-picker-popover') as HTMLElement;
+    const deadlineInput = document.getElementById('ticket-deadline') as HTMLInputElement;
+    const monthYearLabel = document.getElementById('cal-month-year-label');
+    const prevBtn = document.getElementById('cal-prev-month');
+    const nextBtn = document.getElementById('cal-next-month');
+    const daysGrid = document.getElementById('cal-days-grid');
+    const customTimeInput = document.getElementById('cal-custom-time-input') as HTMLInputElement;
+    const confirmBtn = document.getElementById('cal-confirm-btn');
+    const toggleManualBtn = document.getElementById('toggle-manual-deadline-btn');
+
+    if (!trigger || !popover || !deadlineInput) return;
+
+    let viewDate = new Date();
+    let selectedDate = new Date();
+    selectedDate.setDate(selectedDate.getDate() + 1);
+    selectedDate.setHours(18, 0, 0, 0);
+    let selectedTime = '18:00';
+
+    const formatLocalIso = (d: Date) => {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+    const updateDeadlineValues = (d: Date) => {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      deadlineInput.value = formatLocalIso(d);
+
+      const lang = localStorage.getItem('appLang') || 'tr';
+      const dateStr = d.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+      const timeStr = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      trigger.value = `${dateStr}, ${timeStr}`;
+    };
+
+    updateDeadlineValues(selectedDate);
+
+    const renderCalendar = () => {
+      const lang = localStorage.getItem('appLang') || 'tr';
+      const isAr = lang === 'ar';
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+
+      const monthNamesTr = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+      const monthNamesAr = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      if (monthYearLabel) {
+        monthYearLabel.textContent = `${(isAr ? monthNamesAr : monthNamesTr)[month]} ${year}`;
+      }
+
+      if (!daysGrid) return;
+      daysGrid.innerHTML = '';
+
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; // Monday = 0
+      const totalDays = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        daysGrid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const cellDate = new Date(year, month, day);
+        cellDate.setHours(0, 0, 0, 0);
+        const isPast = cellDate < today;
+        const isSelected = selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === day;
+        const isToday = today.getTime() === cellDate.getTime();
+
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.textContent = String(day);
+        cell.className = 'h-8 w-8 mx-auto rounded-lg flex items-center justify-center font-medium transition-all text-xs ';
+
+        if (isPast) {
+          cell.className += 'text-on-surface-variant/30 cursor-not-allowed';
+          cell.disabled = true;
+        } else if (isSelected) {
+          cell.className += 'bg-primary text-black font-bold shadow-[0_0_12px_rgba(227,30,36,0.6)]';
+        } else if (isToday) {
+          cell.className += 'border border-primary/50 text-primary hover:bg-primary/20';
+        } else {
+          cell.className += 'text-on-surface hover:bg-white/10';
+        }
+
+        if (!isPast) {
+          cell.addEventListener('click', () => {
+            selectedDate.setFullYear(year, month, day);
+            renderCalendar();
+          });
+        }
+
+        daysGrid.appendChild(cell);
+      }
+    };
+
+    const togglePopover = () => {
+      const isHidden = popover.classList.contains('hidden');
+      if (isHidden) {
+        popover.classList.remove('hidden');
+        renderCalendar();
+      } else {
+        popover.classList.add('hidden');
+      }
+    };
+
+    trigger.addEventListener('click', togglePopover);
+    calendarBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePopover();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      viewDate.setMonth(viewDate.getMonth() - 1);
+      renderCalendar();
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      viewDate.setMonth(viewDate.getMonth() + 1);
+      renderCalendar();
+    });
+
+    document.querySelectorAll('#cal-time-chips .cal-time-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const time = chip.getAttribute('data-time') || '18:00';
+        selectedTime = time;
+        if (customTimeInput) customTimeInput.value = time;
+        document.querySelectorAll('#cal-time-chips .cal-time-chip').forEach(c => {
+          c.className = 'cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors';
+        });
+        chip.className = 'cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-primary/20 border border-primary/50 text-primary font-bold transition-colors';
+      });
+    });
+
+    customTimeInput?.addEventListener('input', () => {
+      selectedTime = customTimeInput.value;
+    });
+
+    confirmBtn?.addEventListener('click', () => {
+      const [hh, mm] = selectedTime.split(':').map(n => parseInt(n, 10));
+      selectedDate.setHours(hh || 18, mm || 0, 0, 0);
+      updateDeadlineValues(selectedDate);
+      popover.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const hours = btn.getAttribute('data-hours');
+        const target = btn.getAttribute('data-target');
+        const days = btn.getAttribute('data-days');
+        const d = new Date();
+
+        if (hours) {
+          d.setHours(d.getHours() + parseInt(hours, 10));
+          const expressBtn = document.querySelector('[data-priority="express"]') as HTMLElement;
+          expressBtn?.click();
+        } else if (target === 'today-18') {
+          d.setHours(18, 0, 0, 0);
+        } else if (target === 'tomorrow-12') {
+          d.setDate(d.getDate() + 1);
+          d.setHours(12, 0, 0, 0);
+        } else if (days) {
+          d.setDate(d.getDate() + parseInt(days, 10));
+        }
+        selectedDate = new Date(d);
+        updateDeadlineValues(selectedDate);
+      });
+    });
+
+    let isManualMode = false;
+    toggleManualBtn?.addEventListener('click', () => {
+      isManualMode = !isManualMode;
+      if (isManualMode) {
+        trigger.removeAttribute('readonly');
+        trigger.focus();
+      } else {
+        trigger.setAttribute('readonly', 'true');
+      }
+    });
+
+    trigger.addEventListener('input', () => {
+      if (isManualMode && trigger.value) {
+        deadlineInput.value = trigger.value;
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!popover.contains(target) && target !== trigger && target !== calendarBtn && !calendarBtn?.contains(target)) {
+        popover.classList.add('hidden');
+      }
+    });
+  }
+
+  // ── Module 4: Unified Modern Glass Warranty Dropdown ──────────────────────
+  function initCustomWarrantyDropdown() {
+    const display = document.getElementById('ticket-warranty-display') as HTMLInputElement;
+    const hidden = document.getElementById('ticket-warranty') as HTMLInputElement;
+    const box = document.getElementById('warranty-suggestions') as HTMLElement;
+    const chevron = document.getElementById('warranty-chevron') as HTMLElement;
+
+    if (!display || !hidden || !box) return;
+
+    if (settings.defaultWarrantyMonths !== undefined) {
+      hidden.value = settings.defaultWarrantyMonths.toString();
+    }
+
+    const currentMonths = hidden.value || '3';
+    const initLang = localStorage.getItem('appLang') || 'tr';
+    if (initLang === 'ar') {
+      const arMap: Record<string, string> = {
+        '0': 'بدون ضمان',
+        '1': 'ضمان شهر واحد',
+        '3': 'ضمان 3 أشهر (قياسي)',
+        '6': 'ضمان 6 أشهر',
+        '12': 'ضمان 12 شهراً (سنة)'
+      };
+      display.value = arMap[currentMonths] || 'ضمان 3 أشهر (قياسي)';
+    } else {
+      const trMap: Record<string, string> = {
+        '0': 'Garanti Yok',
+        '1': '1 Ay Garanti',
+        '3': '3 Ay (Standart)',
+        '6': '6 Ay Garanti',
+        '12': '12 Ay (1 Yıl)'
+      };
+      display.value = trMap[currentMonths] || '3 Ay (Standart)';
+    }
+
+    const showOptions = () => {
+      const lang = localStorage.getItem('appLang') || 'tr';
+      const isAr = lang === 'ar';
+      const options = isAr ? [
+        { value: '0', label: 'بدون ضمان' },
+        { value: '1', label: 'ضمان شهر واحد' },
+        { value: '3', label: 'ضمان 3 أشهر (قياسي)' },
+        { value: '6', label: 'ضمان 6 أشهر' },
+        { value: '12', label: 'ضمان 12 شهراً (سنة)' }
+      ] : [
+        { value: '0', label: 'Garanti Yok' },
+        { value: '1', label: '1 Ay Garanti' },
+        { value: '3', label: '3 Ay (Standart)' },
+        { value: '6', label: '6 Ay Garanti' },
+        { value: '12', label: '12 Ay (1 Yıl)' }
+      ];
+
+      box.innerHTML = '';
+      options.forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'px-4 py-2.5 hover:bg-primary/20 text-on-surface cursor-pointer text-sm transition-colors flex items-center justify-between';
+        const isSelected = hidden.value === opt.value;
+        item.innerHTML = `<span>${opt.label}</span>${isSelected ? '<span class="material-symbols-outlined text-primary text-[16px]">check</span>' : ''}`;
+        item.addEventListener('click', () => {
+          hidden.value = opt.value;
+          display.value = opt.label;
+          display.setAttribute('data-value', opt.value);
+          box.classList.add('hidden');
+          if (chevron) chevron.style.transform = '';
+        });
+        box.appendChild(item);
+      });
+      box.classList.remove('hidden');
+      if (chevron) chevron.style.transform = 'rotate(180deg)';
+    };
+
+    display.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (box.classList.contains('hidden')) showOptions();
+      else {
+        box.classList.add('hidden');
+        if (chevron) chevron.style.transform = '';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!box.contains(e.target as HTMLElement) && e.target !== display) {
+        box.classList.add('hidden');
+        if (chevron) chevron.style.transform = '';
+      }
+    });
+  }
+
+  // Initialize new modules
+  initImeiScanner();
+  initPaymentCalculator();
+  initDateTimePicker();
+  initCustomWarrantyDropdown();
 
   // 6. Submit Handler
   if (submitBtn) {
@@ -558,12 +1043,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const costVal = costInput.value ? parseFloat(costInput.value) : undefined;
+        const depositVal = parseFloat((document.getElementById('ticket-deposit') as HTMLInputElement)?.value || '0') || 0;
+        const paymentMethodVal = (document.getElementById('ticket-payment-method') as HTMLInputElement)?.value || 'cash';
+        const remainingVal = Math.max(0, (costVal || 0) - depositVal);
+
         const priorityVal = (priorityInput?.value as 'normal' | 'express' | 'low') || 'normal';
-        const deadlineVal = deadlineInput?.value ? new Date(deadlineInput.value).toISOString() : null;
+        const deadlineVal = (document.getElementById('ticket-deadline') as HTMLInputElement)?.value ? new Date((document.getElementById('ticket-deadline') as HTMLInputElement).value).toISOString() : null;
         const passcodeVal = noPasscodeCheckbox?.checked ? '' : (passcodeField?.value.trim() || '');
         const conditionVal = conditionInput?.value.trim() || '';
         const accessoriesVal = accInput?.value.trim() || '';
-        const warrantyVal = parseInt((document.getElementById('ticket-warranty') as HTMLSelectElement)?.value || '3', 10);
+        const warrantyVal = parseInt((document.getElementById('ticket-warranty') as HTMLInputElement)?.value || '3', 10);
         const techNotesVal = (document.getElementById('ticket-technician-notes') as HTMLTextAreaElement)?.value.trim() || '';
 
         const ticket = await createRepairTicket({
@@ -571,6 +1060,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           deviceModel,
           issueDescription: issueInput.value || (lang === 'ar' ? 'بدون وصف' : 'Açıklama yok'),
           cost: costVal,
+          deposit: depositVal,
+          paymentMethod: paymentMethodVal,
           deviceId,
           priority: priorityVal,
           estimatedCompletion: deadlineVal,
@@ -630,6 +1121,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             imei: imeiInput?.value.trim(),
             issueDescription: issueInput.value,
             cost: costVal,
+            deposit: depositVal,
+            remainingCost: remainingVal,
+            paymentMethod: paymentMethodVal,
             priority: priorityVal,
             createdAt: ticket.created_at,
             estimatedCompletion: deadlineVal,

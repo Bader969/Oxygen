@@ -10,6 +10,9 @@ export interface ReceiptData {
   imei?: string;
   issueDescription: string;
   cost?: number;
+  deposit?: number;
+  remainingCost?: number;
+  paymentMethod?: string;
   priority?: string;
   createdAt?: string;
   estimatedCompletion?: string | null;
@@ -69,6 +72,9 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
     condition: isAr ? 'حالة الجهاز عند الاستلام (الأضرار المسبقة):' : 'Teslim Alınma Durumu (Mevcut Hasarlar):',
     accessories: isAr ? 'الملحقات المسلمة مع الجهاز:' : 'Cihazla Alınan Aksesuarlar:',
     cost: isAr ? 'المبلغ التقديري المتفق عليه:' : 'Tahmini Onaylanan Ücret:',
+    deposit: isAr ? 'الدفعة المقدمة (العربون):' : 'Alınan Kapora (Ön Ödeme):',
+    remaining: isAr ? 'المبلغ المتبقي عند التسليم:' : 'Kalan Tutar (Teslimatta):',
+    paidInFull: isAr ? 'مدفوع بالكامل' : 'Tamamı Ödendi',
     warranty: isAr ? 'فترة الضمان على القطع المستبدلة:' : 'Değişen Parça Garanti Süresi:',
     months: isAr ? 'أشهر' : 'Ay',
     none: isAr ? 'لا يوجد' : 'Yok',
@@ -308,10 +314,25 @@ export async function generateReceiptHtml(data: ReceiptData): Promise<string> {
       <span class="label">${t.issue}</span>
       <span class="val">${data.issueDescription}</span>
     </div>
-    <div class="row" style="border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top:4px;">
+    <div class="row" style="margin-top:4px;">
       <span class="label" style="font-size:11px; color:#0f172a;">${t.cost}</span>
-      <span class="val" style="font-size:14px; color:#059669;">${data.cost ? `${settings.defaultCurrency}${data.cost}` : '—'}</span>
+      <span class="val" style="font-size:13px; color:#0f172a;">${data.cost !== undefined && data.cost !== null ? `${settings.defaultCurrency}${data.cost}` : '—'}</span>
     </div>
+    ${data.deposit !== undefined && data.deposit !== null && data.deposit > 0 ? `
+    <div class="row">
+      <span class="label" style="color:#059669;">${t.deposit}</span>
+      <span class="val" style="color:#059669; font-weight:700;">${settings.defaultCurrency}${data.deposit}</span>
+    </div>
+    <div class="row" style="border-bottom: 2px solid #0f172a; padding-bottom: 4px;">
+      <span class="label" style="font-size:11px; color:#e11d48; font-weight:800;">${t.remaining}</span>
+      <span class="val" style="font-size:13px; color:#e11d48; font-weight:800;">${settings.defaultCurrency}${data.remainingCost !== undefined ? data.remainingCost : Math.max(0, (data.cost || 0) - data.deposit)}</span>
+    </div>
+    ` : `
+    <div class="row" style="border-bottom: 2px solid #0f172a; padding-bottom: 4px;">
+      <span class="label" style="font-size:10px; color:#64748b;">${t.remaining}</span>
+      <span class="val" style="font-size:11px; color:#059669; font-weight:700;">${data.cost ? `${settings.defaultCurrency}${data.cost}` : t.paidInFull}</span>
+    </div>
+    `}
     <div class="row">
       <span class="label">${t.warranty}</span>
       <span class="val">${data.warrantyMonths || settings.defaultWarrantyMonths} ${t.months}</span>

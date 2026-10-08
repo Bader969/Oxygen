@@ -5,6 +5,8 @@ export interface RepairTicketPayload {
   deviceModel: string;
   issueDescription: string;
   cost?: number;
+  deposit?: number;
+  paymentMethod?: string;
   deviceId?: string;
   priority?: 'normal' | 'express' | 'low';
   estimatedCompletion?: string | null;
@@ -21,6 +23,16 @@ export interface RepairTicketPayload {
  * Supabase handles generating the UUID and the unique `qr_hash` by default.
  */
 export const createRepairTicket = async (payload: RepairTicketPayload) => {
+  // If deposit is specified, also note it in technician_notes as fallback persistence
+  let techNotes = payload.technicianNotes || '';
+  if (payload.deposit !== undefined && payload.deposit > 0) {
+    const remaining = Math.max(0, (payload.cost || 0) - payload.deposit);
+    const depositNote = `[KAPORA: ₺${payload.deposit} | KALAN: ₺${remaining}${payload.paymentMethod ? ` | ÖDEME: ${payload.paymentMethod}` : ''}]`;
+    if (!techNotes.includes('KAPORA:')) {
+      techNotes = techNotes ? `${depositNote}\n${techNotes}` : depositNote;
+    }
+  }
+
   const insertPayload: any = {
     customer_id: payload.customerId,
     device_model: payload.deviceModel,
@@ -32,9 +44,11 @@ export const createRepairTicket = async (payload: RepairTicketPayload) => {
     device_passcode: payload.devicePasscode || null,
     intake_condition: payload.intakeCondition || null,
     accessories: payload.accessories || null,
-    technician_notes: payload.technicianNotes || null,
+    technician_notes: techNotes || null,
     warranty_months: payload.warrantyMonths ?? 3
   };
+  if (payload.deposit !== undefined) insertPayload.deposit = payload.deposit;
+  if (payload.paymentMethod) insertPayload.payment_method = payload.paymentMethod;
   if (payload.deviceId) {
     insertPayload.device_id = payload.deviceId;
   }

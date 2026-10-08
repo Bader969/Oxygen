@@ -90,11 +90,11 @@ async function seedDataIfEmpty() {
 
 // Map status to visual properties for the beautiful cards
 const statusMeta: Record<string, any> = {
-    'pending': { color: 'text-yellow-400', border: 'border-yellow-500/10', hoverShadow: 'rgba(234,179,8,0.3)', hoverBorder: 'border-yellow-500/40', icon: 'smartphone' },
-    'in_progress': { color: 'text-primary', border: 'border-primary/30', hoverShadow: 'rgba(227,30,36,0.5)', hoverBorder: 'border-primary/70', icon: 'build', pulse: true, progress: '45%' },
-    'quality_check': { color: 'text-blue-400', border: 'border-blue-500/20', hoverShadow: 'rgba(59,130,246,0.3)', hoverBorder: 'border-blue-500/50', icon: 'fact_check' },
-    'ready_for_pickup': { color: 'text-emerald-400', border: 'border-emerald-500/20', hoverShadow: 'rgba(16,185,129,0.3)', hoverBorder: 'border-emerald-500/50', icon: 'done_all' },
-    'completed': { color: 'text-slate-400', border: 'border-slate-500/20', hoverShadow: 'rgba(148,163,184,0.3)', hoverBorder: 'border-slate-500/50', icon: 'verified' }
+    'pending': { color: 'text-yellow-400', dot: 'bg-yellow-400', border: 'border-yellow-500/10', hoverShadow: 'rgba(234,179,8,0.3)', hoverBorder: 'border-yellow-500/40', icon: 'smartphone' },
+    'in_progress': { color: 'text-primary', dot: 'bg-primary', border: 'border-primary/30', hoverShadow: 'rgba(227,30,36,0.5)', hoverBorder: 'border-primary/70', icon: 'build', pulse: true, progress: '45%' },
+    'quality_check': { color: 'text-blue-400', dot: 'bg-blue-400', border: 'border-blue-500/20', hoverShadow: 'rgba(59,130,246,0.3)', hoverBorder: 'border-blue-500/50', icon: 'fact_check' },
+    'ready_for_pickup': { color: 'text-emerald-400', dot: 'bg-emerald-400', border: 'border-emerald-500/20', hoverShadow: 'rgba(16,185,129,0.3)', hoverBorder: 'border-emerald-500/50', icon: 'done_all' },
+    'completed': { color: 'text-slate-400', dot: 'bg-slate-400', border: 'border-slate-500/20', hoverShadow: 'rgba(148,163,184,0.3)', hoverBorder: 'border-slate-500/50', icon: 'verified' }
 };
 
 function updateCounters() {
@@ -394,7 +394,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                     searchInput.addEventListener('input', () => renderTicketsList());
                 }
             });
+
+            // On mobile screens (< 768px), auto-switch to List View by default
+            if (window.innerWidth < 768) {
+                btnList.click();
+            }
         }
+
+        // Mobile Status Filter Pills
+        const mobFilterPills = document.querySelectorAll('#mobile-status-filter-pills .mob-filter-pill');
+        mobFilterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const status = pill.getAttribute('data-filter') || 'all';
+                mobFilterPills.forEach(p => {
+                    p.className = 'mob-filter-pill px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-surface-container border border-white/10 text-on-surface-variant hover:text-white transition-all';
+                });
+                pill.className = 'mob-filter-pill active px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-primary text-black transition-all';
+                
+                const filterInput = document.getElementById('list-filter-status') as HTMLInputElement;
+                if (filterInput) {
+                    filterInput.setAttribute('data-value', status);
+                }
+                renderTicketsList();
+            });
+        });
+
+        // Quick Status Action Sheet Setup
+        setupQuickStatusSheet();
 
         // Modern Suggestion boxes for Status and Sort
         const filterInput = document.getElementById('list-filter-status') as HTMLInputElement;
@@ -492,6 +518,121 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+let sheetActiveTicketId: string | null = null;
+
+function setupQuickStatusSheet() {
+    const sheet = document.getElementById('quick-status-sheet');
+    const closeBtn = document.getElementById('close-quick-status-sheet');
+    if (!sheet) return;
+
+    closeBtn?.addEventListener('click', closeQuickStatusSheet);
+    sheet.addEventListener('click', (e) => {
+        if (e.target === sheet) closeQuickStatusSheet();
+    });
+
+    const statusBtns = sheet.querySelectorAll('.status-option-btn');
+    statusBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const newStatus = btn.getAttribute('data-status');
+            if (!newStatus || !sheetActiveTicketId) return;
+
+            const targetId = sheetActiveTicketId;
+            const lang = localStorage.getItem('appLang') || 'tr';
+            const isAr = lang === 'ar';
+
+            try {
+                await updateRepairStatusAndCost(targetId, newStatus);
+                const existing = repairsList.find(r => r.id === targetId);
+                if (existing) {
+                    existing.status = newStatus;
+                }
+                renderBoard();
+                renderTicketsList();
+                closeQuickStatusSheet();
+
+                const statusLabel = getStatusLabel(newStatus, lang);
+                const msg = isAr ? `تم تحديث الحالة إلى: ${statusLabel}` : `Durum güncellendi: ${statusLabel}`;
+                (window as any).showToast ? (window as any).showToast(msg, 'success') : null;
+
+                // If updated to ready_for_pickup, offer WhatsApp notification
+                if (newStatus === 'ready_for_pickup' && existing && existing.customers?.phone) {
+                    const waPrompt = isAr ? 'هل تود إرسال إشعار للعميل عبر واتساب؟' : 'Müşteriye WhatsApp bildirim mesajı göndermek ister misiniz?';
+                    setTimeout(() => {
+                        if (confirm(waPrompt)) {
+                            sendWhatsAppNotification({
+                                customerName: existing.customers?.name || (isAr ? 'عميلنا العزيز' : 'Değerli Müşterimiz'),
+                                customerPhone: existing.customers?.phone,
+                                deviceModel: existing.device_model,
+                                cost: existing.cost,
+                                ticketId: existing.id,
+                                status: existing.status,
+                                lang
+                            });
+                        }
+                    }, 250);
+                }
+            } catch (err: any) {
+                const errMsg = 'Error updating status: ' + (err?.message || err);
+                (window as any).showToast ? (window as any).showToast(errMsg, 'error') : alert(errMsg);
+            }
+        });
+    });
+}
+
+function openQuickStatusSheet(ticketId: string) {
+    const sheet = document.getElementById('quick-status-sheet');
+    const subtitle = document.getElementById('sheet-ticket-subtitle');
+    if (!sheet) return;
+
+    sheetActiveTicketId = ticketId;
+    const repair = repairsList.find(r => r.id === ticketId);
+    if (repair) {
+        const shortId = repair.id.split('-')[0].toUpperCase();
+        const customerName = repair.customers?.name || '';
+        if (subtitle) {
+            subtitle.textContent = `#TKT-${shortId} • ${repair.device_model || ''} (${customerName})`;
+        }
+
+        const statusBtns = sheet.querySelectorAll('.status-option-btn');
+        statusBtns.forEach(btn => {
+            const st = btn.getAttribute('data-status');
+            const check = btn.querySelector('.status-check');
+            if (st === repair.status) {
+                btn.classList.add('ring-2', 'ring-primary', 'bg-white/10');
+                check?.classList.remove('hidden');
+            } else {
+                btn.classList.remove('ring-2', 'ring-primary', 'bg-white/10');
+                check?.classList.add('hidden');
+            }
+        });
+    }
+
+    sheet.classList.remove('hidden');
+}
+
+function closeQuickStatusSheet() {
+    const sheet = document.getElementById('quick-status-sheet');
+    if (sheet) {
+        sheet.classList.add('hidden');
+    }
+    sheetActiveTicketId = null;
+}
+
+function extractDepositAndRemaining(repair: any) {
+    let deposit = typeof repair.deposit === 'number' ? repair.deposit : 0;
+    const total = typeof repair.cost === 'number' ? repair.cost : 0;
+    
+    // Check technician_notes fallback if deposit not populated in column
+    if (!deposit && repair.technician_notes) {
+        const match = repair.technician_notes.match(/\[KAPORA:\s*₺?([\d.]+)/i);
+        if (match && match[1]) {
+            deposit = parseFloat(match[1]) || 0;
+        }
+    }
+    const remaining = Math.max(0, total - deposit);
+    return { total, deposit, remaining };
+}
+
 function renderTicketsList() {
     const container = document.getElementById('tickets-list-container');
     if (!container) return;
@@ -536,31 +677,95 @@ function renderTicketsList() {
         filtered.sort((a, b) => (a.cost || 0) - (b.cost || 0));
     }
 
+    const lang = localStorage.getItem('appLang') || 'tr';
+    const isAr = lang === 'ar';
+
     if (filtered.length === 0) {
-        const lang = localStorage.getItem('appLang') || 'tr';
-        const msg = lang === 'ar' ? 'لا توجد تذاكر مطابقة.' : 'Eşleşen talep bulunamadı.';
+        const msg = isAr ? 'لا توجد تذاكر مطابقة.' : 'Eşleşen talep bulunamadı.';
         container.innerHTML = `<div class="text-center py-12"><p class="text-xs text-on-surface-variant italic">${msg}</p></div>`;
         return;
     }
 
-    const lang = localStorage.getItem('appLang') || 'tr';
     const nowTime = Date.now();
 
     filtered.forEach((r, index) => {
         const shortId = r.id.split('-')[0].toUpperCase();
-        const customerName = r.customers?.name || 'Unknown';
+        const customerName = r.customers?.name || (isAr ? 'عميل غير مسجل' : 'Kayıtsız Müşteri');
         const meta = statusMeta[r.status] || statusMeta['pending'];
         const localizedStatus = getStatusLabel(r.status, lang);
+        const finances = extractDepositAndRemaining(r);
 
         const isExpress = r.priority === 'express';
         const isOverdue = r.estimated_completion && new Date(r.estimated_completion).getTime() < nowTime && r.status !== 'ready_for_pickup' && r.status !== 'completed';
         
         let badgesHtml = '';
-        if (isExpress) badgesHtml += `<span class="text-amber-400 bg-amber-500/20 border border-amber-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded">⚡ ${lang === 'ar' ? 'عاجل' : 'EKSPRES'}</span>`;
-        if (isOverdue) badgesHtml += `<span class="text-red-400 bg-red-500/20 border border-red-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">⚠️ ${lang === 'ar' ? 'متأخر' : 'GECİKMİŞ'}</span>`;
+        if (isExpress) badgesHtml += `<span class="text-amber-400 bg-amber-500/20 border border-amber-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded">⚡ ${isAr ? 'عاجل' : 'EKSPRES'}</span>`;
+        if (isOverdue) badgesHtml += `<span class="text-red-400 bg-red-500/20 border border-red-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">⚠️ ${isAr ? 'متأخر' : 'GECİKMİŞ'}</span>`;
         
         container.innerHTML += `
-        <div class="list-ticket-row grid grid-cols-1 md:grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${r.id}">
+        <!-- MOBILE CARD VIEW (< md) -->
+        <div class="list-ticket-card md:hidden bg-surface-container/40 backdrop-blur-xl border border-primary/20 rounded-2xl p-4 flex flex-col gap-3 relative transition-all duration-200 active:scale-[0.99] cursor-pointer" data-id="${r.id}">
+            <!-- Header: Ticket ID & Quick Status Sheet Trigger Button -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-headline-sm text-sm font-bold text-on-surface">#TKT-${shortId}</span>
+                    ${badgesHtml}
+                </div>
+                <!-- 1-Tap Quick Status Trigger Button -->
+                <button type="button" class="btn-quick-status-trigger shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${meta.border} bg-black/40 ${meta.color} hover:bg-white/10 transition-all">
+                    <span class="w-2 h-2 rounded-full ${meta.dot || 'bg-primary'} animate-pulse"></span>
+                    <span>${localizedStatus}</span>
+                    <span class="material-symbols-outlined text-[14px]">unfold_more</span>
+                </button>
+            </div>
+
+            <!-- Customer & Device Info -->
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                    <div class="text-sm font-bold text-on-surface truncate">${customerName}</div>
+                    <div class="text-xs text-on-surface-variant flex items-center gap-1 mt-0.5 truncate">
+                        <span class="material-symbols-outlined text-[13px]">smartphone</span>
+                        <span class="truncate">${r.device_model || '-'}</span>
+                    </div>
+                    <div class="text-xs text-on-surface-variant/80 mt-1 line-clamp-1 italic">
+                        ${r.issue_description || ''}
+                    </div>
+                </div>
+
+                <!-- Financial breakdown pill -->
+                <div class="shrink-0 text-end">
+                    <div class="text-base font-extrabold text-primary">${finances.total ? `₺${finances.total}` : '-'}</div>
+                    ${finances.deposit > 0 ? `
+                    <div class="text-[10px] text-emerald-400 font-semibold">${isAr ? 'المقدم: ' : 'Kapora: '}₺${finances.deposit}</div>
+                    <div class="text-[10px] text-amber-400 font-semibold">${isAr ? 'المتبقي: ' : 'Kalan: '}₺${finances.remaining}</div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Quick Actions Toolbar -->
+            <div class="flex items-center gap-2 pt-2 border-t border-white/5">
+                <!-- WhatsApp notification button -->
+                <button type="button" class="btn-wa-notify-row flex-1 py-1.5 px-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-black text-xs font-bold flex items-center justify-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-[15px]">chat</span>
+                    <span>${isAr ? 'واتساب' : 'WhatsApp'}</span>
+                </button>
+
+                <!-- Thermal Receipt Print -->
+                <button type="button" class="btn-print-receipt-row flex-1 py-1.5 px-2 rounded-xl bg-white/5 border border-white/10 text-on-surface hover:bg-white/10 text-xs font-bold flex items-center justify-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-[15px]">receipt_long</span>
+                    <span>${isAr ? 'إيصال' : 'Fiş'}</span>
+                </button>
+
+                <!-- Details / Modal -->
+                <button type="button" class="btn-open-details-row py-1.5 px-3 rounded-xl bg-primary/15 border border-primary/30 text-primary hover:bg-primary hover:text-black text-xs font-bold flex items-center justify-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-[15px]">edit</span>
+                    <span class="hidden sm:inline">${isAr ? 'تفاصيل' : 'Detay'}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- DESKTOP TABLE ROW (>= md) -->
+        <div class="list-ticket-row hidden md:grid grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${r.id}">
             <!-- Row Number -->
             <div class="col-span-1 hidden md:block text-xs font-bold text-primary/70">${index + 1}</div>
             
@@ -579,29 +784,110 @@ function renderTicketsList() {
             </div>
 
             <!-- Customer -->
-            <div class="col-span-3 text-sm text-on-surface font-semibold">${customerName}</div>
+            <div class="col-span-3 text-sm text-on-surface font-semibold truncate">${customerName}</div>
             
             <!-- Device -->
-            <div class="col-span-2 text-sm text-on-surface-variant flex items-center gap-1">
+            <div class="col-span-2 text-sm text-on-surface-variant flex items-center gap-1 truncate">
                 <span class="material-symbols-outlined text-[14px]">smartphone</span> ${r.device_model}
             </div>
 
-            <!-- Cost -->
-            <div class="col-span-2 text-center text-sm font-bold text-primary">${r.cost ? `₺${r.cost}` : '-'}</div>
+            <!-- Cost & Balance -->
+            <div class="col-span-2 text-center text-sm font-bold text-primary">
+                <div>${finances.total ? `₺${finances.total}` : '-'}</div>
+                ${finances.deposit > 0 ? `<div class="text-[10px] text-amber-400 font-normal">${isAr ? 'المتبقي: ' : 'Kalan: '}₺${finances.remaining}</div>` : ''}
+            </div>
             
-            <!-- Status Badge -->
+            <!-- Status Badge (with 1-tap quick sheet trigger) -->
             <div class="col-span-1 flex justify-end">
-                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-surface-container border border-white/5 whitespace-nowrap ${meta.color}">${localizedStatus}</span>
+                <button type="button" class="btn-quick-status-trigger text-[10px] uppercase font-bold px-2 py-1 rounded bg-surface-container border border-white/5 hover:border-primary/40 whitespace-nowrap ${meta.color} flex items-center gap-1 transition-all">
+                    <span class="w-1.5 h-1.5 rounded-full ${meta.dot || 'bg-primary'}"></span>
+                    <span>${localizedStatus}</span>
+                </button>
             </div>
         </div>
         `;
     });
 
-    // Wire clicks for list rows
-    container.querySelectorAll('.list-ticket-row').forEach(row => {
-        row.addEventListener('click', () => {
-            const ticketId = row.getAttribute('data-id')!;
+    // Wire clicks for list rows & cards to open full modal
+    container.querySelectorAll('.list-ticket-row, .list-ticket-card').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).closest('button')) return;
+            const ticketId = item.getAttribute('data-id')!;
             openTicketModal(ticketId);
+        });
+    });
+
+    // Wire quick status trigger buttons
+    container.querySelectorAll('.btn-quick-status-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parent = (btn as HTMLElement).closest('[data-id]');
+            const ticketId = parent?.getAttribute('data-id');
+            if (ticketId) openQuickStatusSheet(ticketId);
+        });
+    });
+
+    // Wire WhatsApp notification button in mobile list
+    container.querySelectorAll('.btn-wa-notify-row').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parent = (btn as HTMLElement).closest('[data-id]');
+            const ticketId = parent?.getAttribute('data-id');
+            const repair = repairsList.find(r => r.id === ticketId);
+            if (repair) {
+                sendWhatsAppNotification({
+                    customerName: repair.customers?.name || (isAr ? 'عميلنا العزيز' : 'Değerli Müşterimiz'),
+                    customerPhone: repair.customers?.phone,
+                    deviceModel: repair.device_model,
+                    cost: repair.cost,
+                    ticketId: repair.id,
+                    status: repair.status,
+                    lang
+                });
+            }
+        });
+    });
+
+    // Wire Print Receipt button in mobile list
+    container.querySelectorAll('.btn-print-receipt-row').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const parent = (btn as HTMLElement).closest('[data-id]');
+            const ticketId = parent?.getAttribute('data-id');
+            const repair = repairsList.find(r => r.id === ticketId);
+            if (repair) {
+                const fin = extractDepositAndRemaining(repair);
+                await openReceiptPreviewModal({
+                    ticketId: repair.id,
+                    qrHash: repair.qr_hash || repair.id,
+                    customerName: repair.customers?.name || 'Customer',
+                    customerPhone: repair.customers?.phone,
+                    deviceModel: repair.device_model,
+                    issueDescription: repair.issue_description,
+                    cost: fin.total,
+                    deposit: fin.deposit,
+                    remainingCost: fin.remaining,
+                    paymentMethod: repair.payment_method,
+                    priority: repair.priority,
+                    createdAt: repair.created_at,
+                    estimatedCompletion: repair.estimated_completion,
+                    devicePasscode: repair.device_passcode,
+                    intakeCondition: repair.intake_condition,
+                    accessories: repair.accessories,
+                    warrantyMonths: repair.warranty_months,
+                    lang
+                });
+            }
+        });
+    });
+
+    // Wire Open Details button in mobile list
+    container.querySelectorAll('.btn-open-details-row').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parent = (btn as HTMLElement).closest('[data-id]');
+            const ticketId = parent?.getAttribute('data-id');
+            if (ticketId) openTicketModal(ticketId);
         });
     });
 }
@@ -850,14 +1136,18 @@ async function openTicketModal(ticketId: string) {
 
         // Print receipt
         modal.querySelector('#modal-print-receipt-btn')?.addEventListener('click', async () => {
+            const fin = extractDepositAndRemaining(repair);
             await openReceiptPreviewModal({
                 ticketId: repair.id,
-                qrHash: repair.qr_hash,
+                qrHash: repair.qr_hash || repair.id,
                 customerName: repair.customers?.name || 'Customer',
                 customerPhone: repair.customers?.phone,
                 deviceModel: repair.device_model,
                 issueDescription: repair.issue_description,
-                cost: repair.cost,
+                cost: fin.total,
+                deposit: fin.deposit,
+                remainingCost: fin.remaining,
+                paymentMethod: repair.payment_method,
                 priority: repair.priority,
                 createdAt: repair.created_at,
                 estimatedCompletion: repair.estimated_completion,
