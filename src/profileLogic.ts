@@ -78,13 +78,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (adminSection) {
             adminSection.classList.remove('hidden');
         }
-        
-        // Show user directory section
-        const userDirSection = document.getElementById('user-directory-section');
-        if (userDirSection) {
-            userDirSection.classList.remove('hidden');
-        }
-        loadUserDirectory(user);
     } else {
         const lang = localStorage.getItem('appLang') || 'tr';
         roleBadge.textContent = lang === 'ar' ? 'خبير' : (lang === 'tr' ? 'Uzman' : 'Expert');

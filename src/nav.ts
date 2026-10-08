@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const role = isHardcodedAdmin ? 'admin' : (user.user_metadata?.role || 'technician');
         isAdmin = role === 'admin';
 
-        if (window.location.pathname.includes('settings.html') && !isAdmin) {
+        if ((window.location.pathname.includes('settings.html') || window.location.pathname.includes('admin.html')) && !isAdmin) {
             window.location.href = '/index.html';
             return;
         }
@@ -173,6 +173,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         'view_column': '/src/kanban.html',
         'groups': '/src/customers.html',
         'devices': '/src/devices.html',
+        'admin_panel_settings': '/src/admin.html',
+        'shield_person': '/src/admin.html',
         'settings': '/src/settings.html',
         'account_circle': '/src/profile.html'
     };
@@ -474,6 +476,7 @@ function injectMobileBottomNav(isAdmin: boolean) {
         customers: ['Müşteriler', 'العملاء'],
         devices:   ['Cihazlar',   'الأجهزة'],
         profile:   ['Profilim',   'ملفي الشخصي'],
+        admin:     ['Yönetici Paneli', 'لوحة المسؤول'],
         settings:  ['Ayarlar',    'الإعدادات'],
         logout:    ['Çıkış Yap',  'تسجيل الخروج'],
     };
@@ -483,7 +486,10 @@ function injectMobileBottomNav(isAdmin: boolean) {
         { icon: 'groups',        label: mt('customers'), href: '/src/customers.html' },
         { icon: 'devices',       label: mt('devices'),   href: '/src/devices.html' },
         { icon: 'account_circle',label: mt('profile'),   href: '/src/profile.html' },
-        ...(isAdmin ? [{ icon: 'settings', label: mt('settings'), href: '/src/settings.html' }] : []),
+        ...(isAdmin ? [
+            { icon: 'admin_panel_settings', label: mt('admin'), href: '/src/admin.html' },
+            { icon: 'settings', label: mt('settings'), href: '/src/settings.html' }
+        ] : []),
         { icon: 'logout',        label: mt('logout'),    href: '#', isLogout: true },
     ];
 

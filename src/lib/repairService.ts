@@ -354,6 +354,30 @@ export const getStaffUsers = async () => {
 };
 
 /**
+ * Fetches extended staff users including name and permissions, with fallback to get_staff_users
+ */
+export const getStaffUsersExtended = async () => {
+  try {
+    const { data, error } = await supabase.rpc('get_staff_users_extended');
+    if (!error && data) {
+      return data;
+    }
+  } catch (e) {
+    console.warn('get_staff_users_extended unavailable, falling back:', e);
+  }
+
+  // Graceful fallback to basic getStaffUsers
+  const basicUsers = await getStaffUsers();
+  return (basicUsers || []).map((u: any) => ({
+    ...u,
+    name: u.name || u.email?.split('@')[0] || 'User',
+    permissions: u.permissions || (u.role === 'admin' 
+      ? ['manage_settings', 'view_finances', 'manage_workshop', 'delete_records', 'manage_staff'] 
+      : ['manage_workshop'])
+  }));
+};
+
+/**
  * Admin updates target user's role via RPC.
  */
 export const adminUpdateUserRole = async (targetUserId: string, newRole: string) => {
@@ -362,6 +386,49 @@ export const adminUpdateUserRole = async (targetUserId: string, newRole: string)
 
   if (error) {
     console.error('Error updating user role:', error);
+    throw error;
+  }
+  return data;
+};
+
+/**
+ * Admin updates target user's detailed metadata (role, name, permissions)
+ */
+export const adminUpdateUserDetails = async (
+  targetUserId: string,
+  details: { role?: string; name?: string; permissions?: string[] }
+) => {
+  try {
+    const { data, error } = await supabase.rpc('admin_update_user_details', {
+      target_user_id: targetUserId,
+      new_role: details.role || null,
+      new_name: details.name || null,
+      new_permissions: details.permissions ? JSON.stringify(details.permissions) : null
+    });
+    if (!error) return data;
+    console.warn('admin_update_user_details RPC returned error, attempting fallback:', error);
+  } catch (e) {
+    console.warn('admin_update_user_details RPC failed, attempting fallback:', e);
+  }
+
+  // Fallback to updating just the role if details RPC is not yet loaded in Supabase
+  if (details.role) {
+    return await adminUpdateUserRole(targetUserId, details.role);
+  }
+  return true;
+};
+
+/**
+ * Admin resets target user's password via RPC
+ */
+export const adminResetUserPassword = async (targetUserId: string, newPassword: string) => {
+  const { data, error } = await supabase.rpc('admin_reset_user_password', {
+    target_user_id: targetUserId,
+    new_password: newPassword
+  });
+
+  if (error) {
+    console.error('Error resetting password:', error);
     throw error;
   }
   return data;

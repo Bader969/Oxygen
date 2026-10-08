@@ -16,6 +16,7 @@ export default defineConfig({
         profile:   resolve(__dirname, 'src/profile.html'),
         qrScanner: resolve(__dirname, 'src/qr-scanner.html'),
         settings:  resolve(__dirname, 'src/settings.html'),
+        admin:     resolve(__dirname, 'src/admin.html'),
       },
     },
   },
