@@ -7,41 +7,6 @@ let customers: any[] = [];
 let repairs: any[] = [];
 let isAdmin = false;
 
-async function seedDevicesIfEmpty() {
-    const devs = await getDevices();
-    if (devs && devs.length > 0) return devs;
-
-    console.log("No devices found in DB. Seeding mock devices...");
-    try {
-        const custs = await getCustomers();
-        if (!custs || custs.length === 0) return [];
-
-        const c1 = custs.find(c => c.name === 'Sarah Jenkins');
-        const c2 = custs.find(c => c.name === 'Marcus Thorne');
-        const c3 = custs.find(c => c.name === 'Elena Rostova');
-        const c4 = custs.find(c => c.name === 'David Kim');
-
-        if (c1) {
-            await createDevice(c1.id, 'Apple', 'iPhone 14 Pro', 'phone', '358911002233445');
-            await createDevice(c1.id, 'Apple', 'Apple Watch Ultra', 'watch', '358911002233999');
-        }
-        if (c2) {
-            await createDevice(c2.id, 'Apple', 'MacBook Air M2', 'laptop', '358911002233555');
-        }
-        if (c3) {
-            await createDevice(c3.id, 'Apple', 'iPad Pro 12.9"', 'tablet', '358911002233666');
-        }
-        if (c4) {
-            await createDevice(c4.id, 'Samsung', 'Galaxy S23', 'phone', '358911002233777');
-        }
-
-        return await getDevices();
-    } catch (e) {
-        console.error("Device seeding failed", e);
-        return [];
-    }
-}
-
 async function loadData() {
     try {
         const user = await checkAuthSession();
@@ -49,7 +14,7 @@ async function loadData() {
         isAdmin = isHardcodedAdmin || user?.user_metadata?.role === 'admin' || localStorage.getItem('userRole') === 'admin';
 
         customers = await getCustomers();
-        devices = await seedDevicesIfEmpty();
+        devices = await getDevices();
         repairs = await getRepairs();
 
         renderDevices();
@@ -62,7 +27,6 @@ async function loadData() {
 function renderDevices(filter = 'all', search = '') {
     const list = document.getElementById('deviceList');
     if (!list) return;
-    list.innerHTML = '';
 
     const lang = localStorage.getItem('appLang') || 'tr';
 
@@ -75,7 +39,12 @@ function renderDevices(filter = 'all', search = '') {
         return matchesFilter && matchesSearch;
     });
 
-    filtered.forEach((d, index) => {
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="p-8 text-center text-on-surface-variant text-sm">${lang === 'ar' ? 'لا توجد أجهزة مطابقة' : 'Eşleşen cihaz bulunamadı'}</div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map((d, index) => {
         const ownerName = d.customers?.name || '-';
         const icon = d.type === 'laptop' ? 'laptop_mac' : (d.type === 'tablet' ? 'tablet_mac' : 'smartphone');
         
@@ -102,7 +71,7 @@ function renderDevices(filter = 'all', search = '') {
             </button>
         `;
 
-        list.innerHTML += `
+        return `
             <div class="device-row grid grid-cols-1 md:grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${d.id}">
                 <!-- Row Number -->
                 <div class="col-span-1 hidden md:block text-xs font-bold text-primary/70">${index + 1}</div>
@@ -136,7 +105,7 @@ function renderDevices(filter = 'all', search = '') {
                 </div>
             </div>
         `;
-    });
+    }).join('');
 
     // Wire up row details clicks
     document.querySelectorAll('.device-row').forEach(row => {

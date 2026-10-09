@@ -5,81 +5,17 @@
     (function() {
         var lang = localStorage.getItem('appLang') || 'tr';
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.classList.add('i18n-loading');
-        setTimeout(function() {
-            document.documentElement.classList.remove('i18n-loading');
-        }, 150);
     })();
 </script>
-<style>
-    html.i18n-loading [data-i18n]:not(input):not(textarea):not(button) { visibility: hidden; }
-</style>
 <meta name="view-transition" content="same-origin" />
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Oxygen Repair Management - Admin Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "surface-dim": "#121414",
-                    "inverse-surface": "#e2e2e2",
-                    "error": "#ffb4ab",
-                    "on-surface-variant": "#c4c6cf",
-                    "surface-container": "#1e2020",
-                    "surface-container-high": "#282a2b",
-                    "background": "#0d0e10",
-                    "on-surface": "#e2e2e2",
-                    "primary": "#ffb4ab",
-                    "primary-container": "#e31e24"
-                },
-                fontFamily: {
-                    "headline-sm": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
-                    "body-md": ["LiraFix", "Inter", "sans-serif"],
-                    "label-caps": ["LiraFix", "JetBrains Mono", "monospace"]
-                }
-            }
-        }
-    }
-</script>
-<style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    .fill-weight {
-        font-variation-settings: 'FILL' 1;
-    }
-    .preload * { transition: none !important; }
-    .glass-panel {
-        background-color: rgba(22, 24, 28, 0.82) !important;
-        backdrop-filter: blur(28px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
-        box-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.55) !important;
-    }
-    .input-glass {
-        background-color: rgba(0, 0, 0, 0.45) !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        border-radius: 0.75rem;
-        color: #fff;
-        padding: 0.75rem 1rem;
-        font-size: 0.925rem;
-        transition: all 0.2s ease;
-    }
-    .input-glass:focus {
-        border-color: rgba(227, 30, 36, 0.6) !important;
-        outline: none;
-        box-shadow: 0 0 16px rgba(227, 30, 36, 0.25);
-    }
-    @keyframes pageFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    main { animation: pageFade 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/src/style.css"/>
 </head>
 <body class="preload min-h-screen flex flex-col font-body-md bg-background text-on-surface pb-[85px] md:pb-8">
 <script>if(localStorage.getItem('sidebarState') === 'collapsed') document.body.classList.add('sidebar-collapsed');</script>
@@ -631,9 +567,5 @@
 
 <script type="module" src="/src/nav.ts"></script>
 <script type="module" src="/src/adminLogic.ts"></script>
-<script type="module">
-    import { applyTranslation } from "/src/lib/i18n.ts";
-    applyTranslation();
-</script>
 </body>
 </html>

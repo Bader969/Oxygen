@@ -42,7 +42,12 @@ function renderCustomers(filter = 'all', search = '') {
         return matchesFilter && matchesSearch;
     });
 
-    filtered.forEach((c, index) => {
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="p-8 text-center text-on-surface-variant text-sm">${lang === 'ar' ? 'لا يوجد عملاء مطابقين' : 'Eşleşen müşteri bulunamadı'}</div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map((c, index) => {
         const tickets = getTicketCount(c.id);
         
         const statusText = tickets > 0 ? (lang === 'ar' ? 'نشط' : 'Aktif') : (lang === 'ar' ? 'غير نشط' : 'Pasif');
@@ -61,7 +66,7 @@ function renderCustomers(filter = 'all', search = '') {
             </button>
         `;
 
-        list.innerHTML += `
+        return `
             <div class="customer-row grid grid-cols-1 md:grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${c.id}">
                 <!-- Row Number -->
                 <div class="col-span-1 hidden md:block text-xs font-bold text-primary/70">${index + 1}</div>
@@ -104,7 +109,7 @@ function renderCustomers(filter = 'all', search = '') {
                 </div>
             </div>
         `;
-    });
+    }).join('');
 
     // Wire up row details clicks
     document.querySelectorAll('.customer-row').forEach(row => {

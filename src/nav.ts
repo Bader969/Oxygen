@@ -1,3 +1,4 @@
+import './style.css';
 import { checkAuthSession, setupAuthListener, signOut } from './lib/authService';
 import { getLang, setLang, dictionary, applyTranslation } from './lib/i18n';
 
@@ -61,85 +62,6 @@ if (typeof window !== 'undefined') {
 
 document.addEventListener('DOMContentLoaded', async () => {
     applyTranslation();
-    // ── 1. Eye-Friendly Static Background & Global UI Styles ──────────────
-    if (!document.getElementById('oxygen-theme-styles')) {
-        const themeStyle = document.createElement('style');
-        themeStyle.id = 'oxygen-theme-styles';
-        themeStyle.textContent = `
-            /* Calming, eye-friendly, static dark background (Zero GPU/battery strain) */
-            body {
-                background-color: #0d0e10 !important;
-                background-image: 
-                    radial-gradient(circle at 15% 15%, rgba(227, 30, 36, 0.06) 0%, transparent 45%),
-                    radial-gradient(circle at 85% 85%, rgba(255, 180, 171, 0.03) 0%, transparent 45%),
-                    radial-gradient(circle at 50% 50%, rgba(18, 20, 22, 0.7) 0%, #0d0e10 100%) !important;
-                background-attachment: fixed !important;
-                color: #e2e2e2 !important;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-            }
-
-            /* Smooth selection & tap highlight */
-            ::selection {
-                background: rgba(227, 30, 36, 0.35) !important;
-                color: #ffffff !important;
-            }
-            * {
-                -webkit-tap-highlight-color: transparent;
-            }
-            button, a, input, select, textarea {
-                touch-action: manipulation;
-            }
-
-            /* Consistent Glass Panel styling with high readability */
-            .glass-panel {
-                background-color: rgba(20, 22, 24, 0.85) !important;
-                backdrop-filter: blur(24px) saturate(140%) !important;
-                -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6) !important;
-            }
-
-            /* Interactive button micro-feedback */
-            button:active:not(:disabled), a:active:not([href="#"]) {
-                transform: scale(0.97);
-                transition: transform 0.1s ease;
-            }
-
-            /* Accessible input focus */
-            input:focus, textarea:focus, select:focus {
-                outline: none !important;
-                border-color: rgba(227, 30, 36, 0.6) !important;
-                box-shadow: 0 0 0 1px rgba(227, 30, 36, 0.3) !important;
-            }
-
-            /* Slim high-contrast scrollbars */
-            ::-webkit-scrollbar {
-                width: 6px;
-                height: 6px;
-            }
-            ::-webkit-scrollbar-track {
-                background: rgba(0, 0, 0, 0.2);
-            }
-            ::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.16);
-                border-radius: 9999px;
-            }
-            ::-webkit-scrollbar-thumb:hover {
-                background: rgba(227, 30, 36, 0.5);
-            }
-
-            /* RTL directional icons */
-            html[dir="rtl"] .flip-rtl,
-            html[dir="rtl"] [data-icon="arrow_forward"],
-            html[dir="rtl"] [data-icon="arrow_back"],
-            html[dir="rtl"] [data-icon="chevron_right"],
-            html[dir="rtl"] [data-icon="chevron_left"] {
-                transform: scaleX(-1);
-            }
-        `;
-        document.head.appendChild(themeStyle);
-    }
 
     // ── 2. Auth Protection ────────────────────────────────────────────────
     setupAuthListener();
@@ -255,37 +177,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // ── 6. Sidebar Collapsible (Desktop) ──────────────────────────────────
-    if (!document.getElementById('sidebar-styles')) {
-        const style = document.createElement('style');
-        style.id = 'sidebar-styles';
-        style.textContent = `
-            nav.fixed { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-            header, main { transition: padding-inline-start 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-            body.sidebar-collapsed nav.fixed { width: 6rem !important; }
-            body.sidebar-collapsed nav.fixed .sidebar-text,
-            body.sidebar-collapsed nav.fixed a span:not(.material-symbols-outlined) {
-                opacity: 0; pointer-events: none; position: absolute; left: -9999px;
-            }
-            body.sidebar-collapsed nav.fixed a,
-            body.sidebar-collapsed nav.fixed .brand-container > div {
-                justify-content: center !important;
-                padding-inline: 0 !important;
-                margin-inline: auto !important;
-            }
-            body.sidebar-collapsed header, body.sidebar-collapsed main {
-                padding-inline-start: 7rem !important;
-            }
-            @media (max-width: 767px) {
-                body.sidebar-collapsed header, body.sidebar-collapsed main {
-                    padding-inline-start: 1.25rem !important;
-                }
-            }
-            html[dir="rtl"] .sidebar-toggle span { transform: scaleX(-1); }
-        `;
-        document.head.appendChild(style);
-    }
-
     const sidebarState = localStorage.getItem('sidebarState') || 'expanded';
     if (sidebarState === 'collapsed') document.body.classList.add('sidebar-collapsed');
 
@@ -301,134 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (icon && document.body.classList.contains('sidebar-collapsed')) icon.textContent = 'chevron_right';
     });
 
-    // ── 7. Global Mobile Responsive CSS ───────────────────────────────────
-    if (!document.getElementById('mobile-responsive-styles')) {
-        const style = document.createElement('style');
-        style.id = 'mobile-responsive-styles';
-        style.textContent = `
-            :root {
-                --safe-bottom: env(safe-area-inset-bottom, 0px);
-                --safe-top: env(safe-area-inset-top, 0px);
-                --bottom-nav-h: 4.5rem;
-            }
-
-            @media (max-width: 767px) {
-                main {
-                    padding-bottom: calc(var(--bottom-nav-h) + 1rem + var(--safe-bottom)) !important;
-                }
-                header.fixed, header.sticky {
-                    padding-top: max(0.5rem, var(--safe-top));
-                }
-            }
-
-            #mobile-bottom-nav {
-                display: none;
-                position: fixed;
-                bottom: 0;
-                inset-inline: 0;
-                z-index: 60;
-                background: rgba(13, 14, 16, 0.92);
-                backdrop-filter: blur(24px) saturate(160%);
-                -webkit-backdrop-filter: blur(24px) saturate(160%);
-                border-top: 1px solid rgba(227, 30, 36, 0.2);
-                padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-                padding-top: 0.5rem;
-                box-shadow: 0 -10px 30px -10px rgba(0,0,0,0.7);
-            }
-            @media (max-width: 767px) {
-                #mobile-bottom-nav { display: flex; }
-            }
-
-            .mob-nav-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 2px;
-                flex: 1;
-                padding: 4px 2px;
-                cursor: pointer;
-                text-decoration: none;
-                color: #9ca3af;
-                transition: color 0.2s, transform 0.15s;
-                -webkit-tap-highlight-color: transparent;
-                border-radius: 12px;
-            }
-            .mob-nav-item:active { transform: scale(0.92); }
-            .mob-nav-item.active {
-                color: #e31e24;
-            }
-            .mob-nav-item .mob-icon {
-                font-size: 24px;
-                line-height: 1;
-                transition: transform 0.2s;
-            }
-            .mob-nav-item.active .mob-icon {
-                background: rgba(227,30,36,0.15);
-                border-radius: 10px;
-                padding: 2px 14px;
-                transform: translateY(-2px);
-            }
-            .mob-nav-item .mob-label {
-                font-size: 10.5px;
-                font-weight: 700;
-                letter-spacing: 0.02em;
-                line-height: 1.1;
-                margin-top: 1px;
-            }
-
-            #more-sheet-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                z-index: 70;
-                background: rgba(0,0,0,0.6);
-                backdrop-filter: blur(6px);
-            }
-            #more-sheet-overlay.open { display: block; }
-            #more-sheet {
-                position: fixed;
-                bottom: 0;
-                inset-inline: 0;
-                z-index: 71;
-                background: #111214;
-                border-top: 1px solid rgba(227,30,36,0.25);
-                border-radius: 20px 20px 0 0;
-                padding: 1rem 1.25rem;
-                padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-                transform: translateY(100%);
-                transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 0 -20px 60px rgba(0,0,0,0.8);
-            }
-            #more-sheet.open { transform: translateY(0); }
-
-            @media (max-width: 767px) {
-                #kanban-board-view {
-                    overflow-x: auto !important;
-                    -webkit-overflow-scrolling: touch;
-                    scroll-snap-type: x mandatory;
-                    gap: 1rem !important;
-                    padding-inline: 1rem;
-                }
-                #kanban-board-view > div {
-                    min-width: 280px !important;
-                    max-width: 85vw !important;
-                    scroll-snap-align: start;
-                    flex-shrink: 0;
-                }
-                .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
-                .glass-panel { max-width: 100%; }
-                table { font-size: 0.75rem; }
-                .fixed.inset-0 > div[class*="max-w"] {
-                    max-width: calc(100vw - 2rem) !important;
-                    margin: 0 !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    // ── 8. Mobile Bottom Navigation Bar Injection ─────────────────────────
+    // ── 7. Mobile Bottom Navigation Bar Injection ─────────────────────────
     injectMobileBottomNav(isAdmin);
 });
 

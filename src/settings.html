@@ -5,141 +5,17 @@
     (function() {
         var lang = localStorage.getItem('appLang') || 'tr';
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.classList.add('i18n-loading');
-        setTimeout(function() {
-            document.documentElement.classList.remove('i18n-loading');
-        }, 150);
     })();
 </script>
-<style>
-    html.i18n-loading [data-i18n]:not(input):not(textarea):not(button) { visibility: hidden; }
-</style>
 <meta name="view-transition" content="same-origin" />
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Oxygen Repair Management - Settings</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "tertiary-fixed-dim": "#c8c6c9",
-                        "surface-dim": "#121414",
-                        "inverse-surface": "#e2e2e2",
-                        "error": "#ffb4ab",
-                        "on-surface-variant": "#e7bdb8",
-                        "surface-container": "#1e2020",
-                        "tertiary-container": "#747377",
-                        "primary-container": "#e31e24",
-                        "background": "#121414",
-                        "on-primary": "#690006",
-                        "on-primary-fixed": "#410002",
-                        "outline-variant": "#5d3f3c",
-                        "inverse-on-surface": "#2f3131",
-                        "on-surface": "#e2e2e2",
-                        "on-error-container": "#ffdad6",
-                        "on-secondary-fixed-variant": "#474649",
-                        "secondary-fixed-dim": "#c8c6c8",
-                        "tertiary": "#c8c6c9",
-                        "surface-container-high": "#282a2b",
-                        "surface-tint": "#ffb4ab",
-                        "on-tertiary-fixed": "#1b1b1e",
-                        "on-primary-fixed-variant": "#93000d",
-                        "secondary": "#c8c6c8",
-                        "on-secondary-fixed": "#1c1b1d",
-                        "surface-bright": "#38393a",
-                        "primary-fixed": "#ffdad6",
-                        "error-container": "#93000a",
-                        "primary-fixed-dim": "#ffb4ab",
-                        "outline": "#ae8883",
-                        "surface-container-low": "#1a1c1c",
-                        "on-primary-container": "#fffafa",
-                        "secondary-container": "#474649",
-                        "surface-container-lowest": "#0c0f0f",
-                        "on-tertiary": "#303033",
-                        "on-secondary": "#313032",
-                        "tertiary-fixed": "#e4e1e5",
-                        "on-secondary-container": "#b7b4b7",
-                        "surface": "#121414",
-                        "surface-container-highest": "#333535",
-                        "on-tertiary-container": "#fdfafe",
-                        "secondary-fixed": "#e5e1e4",
-                        "surface-variant": "#333535",
-                        "on-background": "#e2e2e2",
-                        "inverse-primary": "#c00014",
-                        "on-tertiary-fixed-variant": "#47464a",
-                        "primary": "#ffb4ab",
-                        "on-error": "#690005"
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    spacing: {
-                        "stack-md": "1rem",
-                        "stack-lg": "2rem",
-                        "stack-sm": "0.5rem",
-                        "glass-padding": "1.5rem",
-                        "gutter": "1rem",
-                        "container-margin": "1.25rem"
-                    },
-                    fontFamily: {
-                        "headline-lg": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
-                        "headline-lg-mobile": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
-                        "label-caps": ["LiraFix", "JetBrains Mono", "monospace"],
-                        "headline-sm": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
-                        "body-lg": ["LiraFix", "Inter", "sans-serif"],
-                        "headline-md": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
-                        "body-md": ["LiraFix", "Inter", "sans-serif"]
-                    }
-                }
-            }
-        }
-</script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .fill-weight {
-            font-variation-settings: 'FILL' 1;
-        }
-        .preload * { transition: none !important; }
-        .glass-panel {
-            background-color: rgba(24, 26, 27, 0.85) !important;
-            backdrop-filter: blur(80px) saturate(200%) !important;
-            -webkit-backdrop-filter: blur(80px) saturate(200%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
-        }
-        .text-gradient-primary {
-            background: linear-gradient(to right, #ffb4ab, #fffafa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .input-glass {
-            background-color: rgba(0, 0, 0, 0.45) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 0.75rem;
-            color: #fff;
-            padding: 0.65rem 0.85rem;
-            font-size: 0.825rem;
-            transition: all 0.2s ease;
-        }
-        .input-glass:focus {
-            border-color: rgba(255, 180, 171, 0.6) !important;
-            outline: none;
-            box-shadow: 0 0 15px rgba(255, 180, 171, 0.15);
-        }
-        @keyframes pageFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        main { animation: pageFade 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/src/style.css"/>
 </head>
 <body class="preload min-h-screen flex flex-col font-body-md bg-background text-on-background pb-[80px] md:pb-0">
 <script>if(localStorage.getItem('sidebarState') === 'collapsed') document.body.classList.add('sidebar-collapsed');</script>
@@ -631,9 +507,6 @@
 
 <script type="module" src="/src/nav.ts"></script>
 <script type="module" src="/src/settingsLogic.ts"></script>
-<script type="module">
-  import { applyTranslation } from "/src/lib/i18n.ts";
-  applyTranslation();
-</script>
+
 </body>
 </html>

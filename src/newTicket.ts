@@ -3,6 +3,7 @@ import { generateQrCodeDataUrl } from './lib/qrUtils';
 import { openReceiptPreviewModal } from './lib/receiptPrinter';
 import { getSettings, playBeepSound } from './lib/settingsManager';
 import { applyTranslation } from './lib/i18n';
+import { calculateWorkshopPayment } from './lib/cashRegister';
 
 declare const Html5Qrcode: any;
 
@@ -670,30 +671,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const cost = parseFloat(costInput.value) || 0;
       const deposit = parseFloat(depositInput?.value || '0') || 0;
-      const remaining = Math.max(0, cost - deposit);
+      const cashGiven = cashGivenInput ? (parseFloat(cashGivenInput.value) || 0) : 0;
+      const payment = calculateWorkshopPayment(cost, deposit, cashGiven);
 
       if (remainingDisplay) {
-        remainingDisplay.textContent = `₺ ${remaining.toFixed(2)}`;
+        remainingDisplay.textContent = `₺ ${payment.remaining.toFixed(2)}`;
       }
 
       if (remainingBadge) {
-        if (cost > 0 && remaining === 0) {
+        if (payment.cost > 0 && payment.remaining === 0) {
           remainingBadge.textContent = isAr ? 'مدفوع بالكامل' : 'Tamamı Ödendi';
           remainingBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-        } else if (remaining > 0) {
+        } else if (payment.remaining > 0) {
           remainingBadge.textContent = isAr ? 'المتبقي' : 'Kalan Bakiye';
           remainingBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
         } else {
-          remainingBadge.textContent = isAr ? '0.00 ₺' : '0.00 ₺';
+          remainingBadge.textContent = '0.00 ₺';
           remainingBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface-variant border border-white/5';
         }
       }
 
-      if (cashGivenInput && changeDueDisplay) {
-        const cashGiven = parseFloat(cashGivenInput.value) || 0;
-        const targetAmount = deposit > 0 ? deposit : cost;
-        const change = cashGiven > targetAmount ? cashGiven - targetAmount : 0;
-        changeDueDisplay.textContent = change.toFixed(2);
+      if (changeDueDisplay) {
+        changeDueDisplay.textContent = payment.change.toFixed(2);
       }
     };
 
