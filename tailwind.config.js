@@ -78,6 +78,24 @@ module.exports = {
         "body-lg": ["LiraFix", "Inter", "sans-serif"],
         "headline-md": ["LiraFix", "Hanken Grotesk", "Inter", "sans-serif"],
         "body-md": ["LiraFix", "Inter", "sans-serif"]
+      },
+      fontSize: {
+        "xs": ["0.875rem", { lineHeight: "1.3rem" }],
+        "sm": ["0.975rem", { lineHeight: "1.45rem" }],
+        "base": ["1.075rem", { lineHeight: "1.65rem" }],
+        "lg": ["1.22rem", { lineHeight: "1.8rem" }],
+        "xl": ["1.45rem", { lineHeight: "2rem" }],
+        "2xl": ["1.75rem", { lineHeight: "2.3rem" }],
+        "3xl": ["2.25rem", { lineHeight: "2.75rem" }],
+        "4xl": ["2.75rem", { lineHeight: "3.25rem" }],
+        "label-caps": ["0.875rem", { lineHeight: "1.3rem", letterSpacing: "0.04em", fontWeight: "700" }],
+        "body-sm": ["0.9375rem", { lineHeight: "1.45rem" }],
+        "body-md": ["1.0625rem", { lineHeight: "1.6rem" }],
+        "body-lg": ["1.1875rem", { lineHeight: "1.75rem" }],
+        "headline-sm": ["1.25rem", { lineHeight: "1.75rem", fontWeight: "700" }],
+        "headline-md": ["1.625rem", { lineHeight: "2.1rem", fontWeight: "700" }],
+        "headline-lg": ["2.25rem", { lineHeight: "2.75rem", fontWeight: "800" }],
+        "headline-lg-mobile": ["1.75rem", { lineHeight: "2.25rem", fontWeight: "800" }]
       }
     }
   },

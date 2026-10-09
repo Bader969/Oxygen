@@ -51,22 +51,22 @@ function renderDevices(filter = 'all', search = '') {
         // Find if this device has a repair ticket
         const devRepair = repairs.find(r => r.device_id === d.id);
         const qrButton = devRepair ? `
-            <button class="qr-btn w-8 h-8 rounded-full bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary" data-qr="${devRepair.qr_hash}" data-tkt="TKT-${devRepair.id.split('-')[0].toUpperCase()}" title="${lang === 'ar' ? 'عرض رمز QR' : 'QR Kodunu Göster'}">
-                <span class="material-symbols-outlined text-[16px]">qr_code</span>
+            <button class="qr-btn w-9 h-9 rounded-xl bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary" data-qr="${devRepair.qr_hash}" data-tkt="TKT-${devRepair.id.split('-')[0].toUpperCase()}" title="${lang === 'ar' ? 'عرض رمز QR' : 'QR Kodunu Göster'}">
+                <span class="material-symbols-outlined text-[18px]">qr_code</span>
             </button>
         ` : '';
 
         const actionButtons = isAdmin ? `
             ${qrButton}
-            <button class="edit-btn w-8 h-8 rounded-full bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary" data-id="${d.id}">
-                <span class="material-symbols-outlined text-[16px]">edit</span>
+            <button class="edit-btn w-9 h-9 rounded-xl bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary" data-id="${d.id}">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
             </button>
-            <button class="delete-btn w-8 h-8 rounded-full bg-black/40 border border-error/30 inline-flex items-center justify-center hover:bg-error hover:text-black transition-colors text-error" data-id="${d.id}">
-                <span class="material-symbols-outlined text-[16px]">delete</span>
+            <button class="delete-btn w-9 h-9 rounded-xl bg-black/40 border border-error/30 inline-flex items-center justify-center hover:bg-error hover:text-black transition-colors text-error" data-id="${d.id}">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>
         ` : `
             ${qrButton}
-            <button class="w-8 h-8 rounded-full bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary">
+            <button class="w-9 h-9 rounded-xl bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary">
                 <span class="material-symbols-outlined text-[18px]">build</span>
             </button>
         `;
@@ -74,27 +74,27 @@ function renderDevices(filter = 'all', search = '') {
         return `
             <div class="device-row grid grid-cols-1 md:grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${d.id}">
                 <!-- Row Number -->
-                <div class="col-span-1 hidden md:block text-xs font-bold text-primary/70">${index + 1}</div>
+                <div class="col-span-1 hidden md:block text-sm font-bold text-primary/70">${index + 1}</div>
                 <!-- Device -->
-                <div class="col-span-3 flex items-center gap-3">
-                    <div class="w-10 h-10 shrink-0 rounded-xl bg-black/40 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-[24px]">${icon}</span>
+                <div class="col-span-3 flex items-center gap-3.5">
+                    <div class="w-11 h-11 shrink-0 rounded-xl bg-black/40 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[26px]">${icon}</span>
                     </div>
                     <div class="min-w-0">
-                        <h3 class="font-headline-sm text-on-surface truncate group-hover:text-primary transition-colors text-base">${d.brand} ${d.model}</h3>
-                        <span class="text-xs text-primary/70 truncate block">${d.id.split('-')[0].toUpperCase()}</span>
+                        <h3 class="font-headline-sm text-on-surface truncate group-hover:text-primary transition-colors text-lg font-bold">${d.brand} ${d.model}</h3>
+                        <span class="text-sm font-mono font-semibold text-primary/80 truncate block">${d.id.split('-')[0].toUpperCase()}</span>
                     </div>
                 </div>
                 
                 <!-- Owner -->
-                <div class="col-span-3 flex items-center gap-2 text-sm text-on-surface-variant mt-2 md:mt-0">
-                    <span class="material-symbols-outlined text-[16px] text-primary/70 md:hidden">person</span>
+                <div class="col-span-3 flex items-center gap-2 text-base font-semibold text-on-surface mt-2 md:mt-0">
+                    <span class="material-symbols-outlined text-[18px] text-primary/70 md:hidden">person</span>
                     ${ownerName}
                 </div>
                 
                 <!-- IMEI -->
                 <div class="col-span-3 mt-2 md:mt-0">
-                    <span class="font-mono text-xs text-on-surface-variant px-2 py-1 bg-black/20 rounded border border-white/5">
+                    <span class="font-mono text-sm font-bold text-on-surface-variant px-3 py-1.5 bg-black/30 rounded-lg border border-white/10">
                         ${d.imei || '-'}
                     </span>
                 </div>

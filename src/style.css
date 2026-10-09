@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Global Typography & Ergonomic Scaling (Proposal B: High-Readability & Comfort) ── */
+html {
+  font-size: 17.5px !important;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 16.5px !important;
+  }
+}
+
+/* Optical parity for Arabic: Cairo font requires extra size, balanced weight, and relaxed line-height */
+html[lang="ar"], html[dir="rtl"] {
+  font-size: 18.5px !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0.015em;
+}
+
+@media (max-width: 768px) {
+  html[lang="ar"], html[dir="rtl"] {
+    font-size: 17.5px !important;
+  }
+}
+
+/* Accessibility floor: Lift any legacy micro-labels across cards, tables, badges, and modals */
+.text-\[10px\], .text-\[11px\] {
+  font-size: 0.825rem !important; /* ~14.4px */
+  letter-spacing: 0.035em;
+  font-weight: 600;
+}
+.text-\[12px\] {
+  font-size: 0.875rem !important; /* ~15.3px */
+}
+.text-\[13px\] {
+  font-size: 0.9375rem !important; /* ~16.4px */
+}
+.text-xs {
+  font-size: 0.875rem !important; /* ~15.3px */
+  line-height: 1.35rem !important;
+}
+.text-sm {
+  font-size: 0.975rem !important; /* ~17px */
+  line-height: 1.45rem !important;
+}
+
 /* ── Base Body Styles (Calming, high-performance static dark background) ── */
 body {
   background-color: #0d0e10 !important;
@@ -79,8 +127,9 @@ input:focus, textarea:focus, select:focus {
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 0.75rem;
   color: #fff;
-  padding: 0.65rem 0.85rem;
-  font-size: 0.875rem;
+  padding: 0.75rem 1rem !important;
+  font-size: 1.05rem !important;
+  line-height: 1.5;
   transition: all 0.2s ease;
 }
 .input-glass:focus {
@@ -199,22 +248,22 @@ html[dir="rtl"] .sidebar-toggle span {
 .mob-nav-item:active { transform: scale(0.92); }
 .mob-nav-item.active { color: #e31e24; }
 .mob-nav-item .mob-icon {
-  font-size: 24px;
+  font-size: 26px !important;
   line-height: 1;
   transition: transform 0.2s;
 }
 .mob-nav-item.active .mob-icon {
   background: rgba(227,30,36,0.15);
-  border-radius: 10px;
-  padding: 2px 14px;
+  border-radius: 12px;
+  padding: 3px 16px;
   transform: translateY(-2px);
 }
 .mob-nav-item .mob-label {
-  font-size: 10.5px;
-  font-weight: 700;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
   letter-spacing: 0.02em;
-  line-height: 1.1;
-  margin-top: 1px;
+  line-height: 1.15;
+  margin-top: 2px;
 }
 
 #more-sheet-overlay {

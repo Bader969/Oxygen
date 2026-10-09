@@ -68,50 +68,50 @@ function renderBoard() {
 
         let badgePills = '';
         if (isExpress) {
-            badgePills += `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-[0_0_8px_rgba(245,158,11,0.25)] flex items-center gap-0.5"><span class="material-symbols-outlined text-[12px]">bolt</span>${lang === 'ar' ? 'عاجل' : 'EKSPRES'}</span>`;
+            badgePills += `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-bold px-2 py-0.5 rounded shadow-[0_0_8px_rgba(245,158,11,0.25)] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">bolt</span>${lang === 'ar' ? 'عاجل' : 'EKSPRES'}</span>`;
         }
         if (isOverdue) {
-            badgePills += `<span class="bg-red-500/20 text-red-400 border border-red-500/40 text-[10px] font-bold px-1.5 py-0.5 rounded animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.3)] flex items-center gap-0.5"><span class="material-symbols-outlined text-[12px]">warning</span>${lang === 'ar' ? 'متأخر' : 'GECİKMİŞ'}</span>`;
+            badgePills += `<span class="bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-bold px-2 py-0.5 rounded animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.3)] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span>${lang === 'ar' ? 'متأخر' : 'GECİKMİŞ'}</span>`;
         }
 
         let extraHtml = '';
         if (repair.status === 'in_progress') {
             extraHtml = `
-            <div class="w-full bg-surface-container-high h-1 mt-2.5 rounded-full overflow-hidden pointer-events-none">
+            <div class="w-full bg-surface-container-high h-1.5 mt-3 rounded-full overflow-hidden pointer-events-none">
                 <div class="bg-primary h-full w-[45%] shadow-[0_0_5px_rgba(227,30,36,0.8)]"></div>
             </div>`;
         } else if (repair.status === 'ready_for_pickup') {
             const waText = lang === 'ar' ? 'واتساب' : 'WhatsApp';
             const deliverText = lang === 'ar' ? 'تسليم للعميل' : 'Teslim Et';
             extraHtml = `
-            <div class="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-white/5">
-                <button type="button" class="btn-wa-notify flex-1 bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 border border-emerald-500/30 px-2 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 pointer-events-auto">
-                    <span class="material-symbols-outlined text-[14px]">chat</span>
+            <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-white/10">
+                <button type="button" class="btn-wa-notify flex-1 bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1.5 pointer-events-auto">
+                    <span class="material-symbols-outlined text-[16px]">chat</span>
                     ${waText}
                 </button>
-                <button type="button" class="btn-handover flex-1 bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/30 px-2 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 pointer-events-auto">
-                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                <button type="button" class="btn-handover flex-1 bg-primary/20 hover:bg-primary hover:text-black text-primary border border-primary/30 px-3 py-2 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1.5 pointer-events-auto">
+                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
                     ${deliverText}
                 </button>
             </div>`;
         }
 
         const cardHtml = `
-        <div data-id="${repair.id}" class="kanban-card cursor-grab bg-black/40 backdrop-blur-md p-stack-md rounded-lg border ${meta.border} hover:shadow-[0_0_20px_-5px_${meta.hoverShadow}] hover:${meta.hoverBorder} transition-all duration-300 relative mb-4">
-            <div class="flex justify-between items-start mb-2 pointer-events-none">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-label-caps text-label-caps ${meta.color} uppercase tracking-wider">#TKT-${shortId}</span>
+        <div data-id="${repair.id}" class="kanban-card cursor-grab bg-black/40 backdrop-blur-md p-4 sm:p-5 rounded-xl border ${meta.border} hover:shadow-[0_0_20px_-5px_${meta.hoverShadow}] hover:${meta.hoverBorder} transition-all duration-300 relative mb-4">
+            <div class="flex justify-between items-start mb-2.5 pointer-events-none">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-mono text-xs font-bold ${meta.color} uppercase tracking-wider">#TKT-${shortId}</span>
                     ${badgePills}
                 </div>
-                ${meta.icon !== 'smartphone' ? `<span class="material-symbols-outlined ${meta.color} text-[18px]">${meta.icon}</span>` : ''}
+                ${meta.icon !== 'smartphone' ? `<span class="material-symbols-outlined ${meta.color} text-[20px]">${meta.icon}</span>` : ''}
             </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1 pointer-events-none">${customerName}</h3>
-            <p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 pointer-events-none">
-                <span class="material-symbols-outlined text-[16px]">devices</span> ${repair.device_model}
+            <h3 class="font-headline-sm text-base font-bold text-on-surface mb-1 pointer-events-none">${customerName}</h3>
+            <p class="font-body-md text-sm text-on-surface-variant flex items-center gap-1.5 pointer-events-none">
+                <span class="material-symbols-outlined text-[18px]">devices</span> ${repair.device_model}
             </p>
-            <div class="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between pointer-events-none text-xs text-on-surface-variant">
-                <span class="bg-surface-container px-2 py-0.5 rounded truncate max-w-[70%]">${repair.issue_description}</span>
-                <span class="font-bold text-primary">${repair.cost ? `₺${repair.cost}` : ''}</span>
+            <div class="mt-3.5 pt-2.5 border-t border-white/5 flex items-center justify-between pointer-events-none text-sm text-on-surface-variant">
+                <span class="bg-surface-container px-2.5 py-1 rounded-md truncate max-w-[70%] font-medium">${repair.issue_description}</span>
+                <span class="font-bold text-base text-primary">${repair.cost ? `₺${repair.cost}` : ''}</span>
             </div>
             ${extraHtml}
         </div>
@@ -620,66 +620,66 @@ function renderTicketsList() {
         const isOverdue = r.estimated_completion && new Date(r.estimated_completion).getTime() < nowTime && r.status !== 'ready_for_pickup' && r.status !== 'completed';
         
         let badgesHtml = '';
-        if (isExpress) badgesHtml += `<span class="text-amber-400 bg-amber-500/20 border border-amber-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded">⚡ ${isAr ? 'عاجل' : 'EKSPRES'}</span>`;
-        if (isOverdue) badgesHtml += `<span class="text-red-400 bg-red-500/20 border border-red-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">⚠️ ${isAr ? 'متأخر' : 'GECİKMİŞ'}</span>`;
+        if (isExpress) badgesHtml += `<span class="text-amber-400 bg-amber-500/20 border border-amber-500/30 text-xs font-bold px-2 py-0.5 rounded">⚡ ${isAr ? 'عاجل' : 'EKSPRES'}</span>`;
+        if (isOverdue) badgesHtml += `<span class="text-red-400 bg-red-500/20 border border-red-500/30 text-xs font-bold px-2 py-0.5 rounded animate-pulse">⚠️ ${isAr ? 'متأخر' : 'GECİKMİŞ'}</span>`;
         
         container.innerHTML += `
         <!-- MOBILE CARD VIEW (< md) -->
-        <div class="list-ticket-card md:hidden bg-surface-container/40 backdrop-blur-xl border border-primary/20 rounded-2xl p-4 flex flex-col gap-3 relative transition-all duration-200 active:scale-[0.99] cursor-pointer" data-id="${r.id}">
+        <div class="list-ticket-card md:hidden bg-surface-container/40 backdrop-blur-xl border border-primary/20 rounded-2xl p-4 flex flex-col gap-3.5 relative transition-all duration-200 active:scale-[0.99] cursor-pointer" data-id="${r.id}">
             <!-- Header: Ticket ID & Quick Status Sheet Trigger Button -->
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-headline-sm text-sm font-bold text-on-surface">#TKT-${shortId}</span>
+            <div class="flex items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-headline-sm text-base font-bold text-on-surface">#TKT-${shortId}</span>
                     ${badgesHtml}
                 </div>
                 <!-- 1-Tap Quick Status Trigger Button -->
-                <button type="button" class="btn-quick-status-trigger shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${meta.border} bg-black/40 ${meta.color} hover:bg-white/10 transition-all">
+                <button type="button" class="btn-quick-status-trigger shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${meta.border} bg-black/40 ${meta.color} hover:bg-white/10 transition-all">
                     <span class="w-2 h-2 rounded-full ${meta.dot || 'bg-primary'} animate-pulse"></span>
                     <span>${localizedStatus}</span>
-                    <span class="material-symbols-outlined text-[14px]">unfold_more</span>
+                    <span class="material-symbols-outlined text-[16px]">unfold_more</span>
                 </button>
             </div>
 
             <!-- Customer & Device Info -->
-            <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start justify-between gap-3.5">
                 <div class="min-w-0 flex-1">
-                    <div class="text-sm font-bold text-on-surface truncate">${customerName}</div>
-                    <div class="text-xs text-on-surface-variant flex items-center gap-1 mt-0.5 truncate">
-                        <span class="material-symbols-outlined text-[13px]">smartphone</span>
+                    <div class="text-base font-bold text-on-surface truncate">${customerName}</div>
+                    <div class="text-sm text-on-surface-variant flex items-center gap-1.5 mt-0.5 truncate font-medium">
+                        <span class="material-symbols-outlined text-[16px]">smartphone</span>
                         <span class="truncate">${r.device_model || '-'}</span>
                     </div>
-                    <div class="text-xs text-on-surface-variant/80 mt-1 line-clamp-1 italic">
+                    <div class="text-sm text-on-surface-variant/80 mt-1 line-clamp-1 italic">
                         ${r.issue_description || ''}
                     </div>
                 </div>
 
                 <!-- Financial breakdown pill -->
                 <div class="shrink-0 text-end">
-                    <div class="text-base font-extrabold text-primary">${finances.total ? `₺${finances.total}` : '-'}</div>
+                    <div class="text-lg font-black text-primary">${finances.total ? `₺${finances.total}` : '-'}</div>
                     ${finances.deposit > 0 ? `
-                    <div class="text-[10px] text-emerald-400 font-semibold">${isAr ? 'المقدم: ' : 'Kapora: '}₺${finances.deposit}</div>
-                    <div class="text-[10px] text-amber-400 font-semibold">${isAr ? 'المتبقي: ' : 'Kalan: '}₺${finances.remaining}</div>
+                    <div class="text-xs text-emerald-400 font-bold">${isAr ? 'المقدم: ' : 'Kapora: '}₺${finances.deposit}</div>
+                    <div class="text-xs text-amber-400 font-bold">${isAr ? 'المتبقي: ' : 'Kalan: '}₺${finances.remaining}</div>
                     ` : ''}
                 </div>
             </div>
 
             <!-- Quick Actions Toolbar -->
-            <div class="flex items-center gap-2 pt-2 border-t border-white/5">
+            <div class="flex items-center gap-2 pt-2.5 border-t border-white/5">
                 <!-- WhatsApp notification button -->
-                <button type="button" class="btn-wa-notify-row flex-1 py-1.5 px-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-black text-xs font-bold flex items-center justify-center gap-1 transition-all">
-                    <span class="material-symbols-outlined text-[15px]">chat</span>
+                <button type="button" class="btn-wa-notify-row flex-1 py-2 px-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                    <span class="material-symbols-outlined text-[16px]">chat</span>
                     <span>${isAr ? 'واتساب' : 'WhatsApp'}</span>
                 </button>
 
                 <!-- Thermal Receipt Print -->
-                <button type="button" class="btn-print-receipt-row flex-1 py-1.5 px-2 rounded-xl bg-white/5 border border-white/10 text-on-surface hover:bg-white/10 text-xs font-bold flex items-center justify-center gap-1 transition-all">
-                    <span class="material-symbols-outlined text-[15px]">receipt_long</span>
+                <button type="button" class="btn-print-receipt-row flex-1 py-2 px-2.5 rounded-xl bg-white/5 border border-white/10 text-on-surface hover:bg-white/10 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                    <span class="material-symbols-outlined text-[16px]">receipt_long</span>
                     <span>${isAr ? 'إيصال' : 'Fiş'}</span>
                 </button>
 
                 <!-- Details / Modal -->
-                <button type="button" class="btn-open-details-row py-1.5 px-3 rounded-xl bg-primary/15 border border-primary/30 text-primary hover:bg-primary hover:text-black text-xs font-bold flex items-center justify-center gap-1 transition-all">
-                    <span class="material-symbols-outlined text-[15px]">edit</span>
+                <button type="button" class="btn-open-details-row py-2 px-3 rounded-xl bg-primary/15 border border-primary/30 text-primary hover:bg-primary hover:text-black text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
                     <span class="hidden sm:inline">${isAr ? 'تفاصيل' : 'Detay'}</span>
                 </button>
             </div>
@@ -688,40 +688,40 @@ function renderTicketsList() {
         <!-- DESKTOP TABLE ROW (>= md) -->
         <div class="list-ticket-row hidden md:grid grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${r.id}">
             <!-- Row Number -->
-            <div class="col-span-1 hidden md:block text-xs font-bold text-primary/70">${index + 1}</div>
+            <div class="col-span-1 hidden md:block text-sm font-bold text-primary/70">${index + 1}</div>
             
             <!-- Ticket Info -->
-            <div class="col-span-3 flex items-center gap-3">
-                <div class="w-10 h-10 shrink-0 rounded-xl bg-black/40 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <span class="material-symbols-outlined text-[20px]">${meta.icon}</span>
+            <div class="col-span-3 flex items-center gap-3.5">
+                <div class="w-11 h-11 shrink-0 rounded-xl bg-black/40 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-[22px]">${meta.icon}</span>
                 </div>
                 <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        <h3 class="font-headline-sm text-on-surface truncate group-hover:text-primary transition-colors text-base">#TKT-${shortId}</h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="font-headline-sm text-on-surface truncate group-hover:text-primary transition-colors text-lg font-bold">#TKT-${shortId}</h3>
                         ${badgesHtml}
                     </div>
-                    <span class="text-xs text-on-surface-variant truncate block">${r.issue_description}</span>
+                    <span class="text-sm text-on-surface-variant truncate block mt-0.5">${r.issue_description}</span>
                 </div>
             </div>
 
             <!-- Customer -->
-            <div class="col-span-3 text-sm text-on-surface font-semibold truncate">${customerName}</div>
+            <div class="col-span-3 text-base text-on-surface font-bold truncate">${customerName}</div>
             
             <!-- Device -->
-            <div class="col-span-2 text-sm text-on-surface-variant flex items-center gap-1 truncate">
-                <span class="material-symbols-outlined text-[14px]">smartphone</span> ${r.device_model}
+            <div class="col-span-2 text-base text-on-surface-variant flex items-center gap-1.5 truncate font-medium">
+                <span class="material-symbols-outlined text-[16px]">smartphone</span> ${r.device_model}
             </div>
 
             <!-- Cost & Balance -->
-            <div class="col-span-2 text-center text-sm font-bold text-primary">
+            <div class="col-span-2 text-center text-base font-black text-primary">
                 <div>${finances.total ? `₺${finances.total}` : '-'}</div>
-                ${finances.deposit > 0 ? `<div class="text-[10px] text-amber-400 font-normal">${isAr ? 'المتبقي: ' : 'Kalan: '}₺${finances.remaining}</div>` : ''}
+                ${finances.deposit > 0 ? `<div class="text-xs text-amber-400 font-bold mt-0.5">${isAr ? 'المتبقي: ' : 'Kalan: '}₺${finances.remaining}</div>` : ''}
             </div>
             
             <!-- Status Badge (with 1-tap quick sheet trigger) -->
             <div class="col-span-1 flex justify-end">
-                <button type="button" class="btn-quick-status-trigger text-[10px] uppercase font-bold px-2 py-1 rounded bg-surface-container border border-white/5 hover:border-primary/40 whitespace-nowrap ${meta.color} flex items-center gap-1 transition-all">
-                    <span class="w-1.5 h-1.5 rounded-full ${meta.dot || 'bg-primary'}"></span>
+                <button type="button" class="btn-quick-status-trigger text-xs uppercase font-bold px-3 py-1.5 rounded-lg bg-surface-container border border-white/5 hover:border-primary/40 whitespace-nowrap ${meta.color} flex items-center gap-1.5 transition-all">
+                    <span class="w-2 h-2 rounded-full ${meta.dot || 'bg-primary'}"></span>
                     <span>${localizedStatus}</span>
                 </button>
             </div>

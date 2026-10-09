@@ -326,14 +326,14 @@ function renderTicketsList() {
         
         let deadlineBadge = '';
         if (isExpress) {
-            deadlineBadge += `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">⚡ ${isAr ? 'عاجل' : 'Ekspres'}</span>`;
+            deadlineBadge += `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">⚡ ${isAr ? 'عاجل' : 'Ekspres'}</span>`;
         }
         if (isOverdue) {
-            deadlineBadge += `<span class="bg-error/20 text-error border border-error/40 text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-0.5">⚠️ ${isAr ? 'متأخر' : 'Gecikmiş'}</span>`;
+            deadlineBadge += `<span class="bg-error/20 text-error border border-error/40 text-xs font-bold px-2.5 py-0.5 rounded-full animate-pulse flex items-center gap-1">⚠️ ${isAr ? 'متأخر' : 'Gecikmiş'}</span>`;
         } else if (ticket.estimated_completion && ticket.status !== 'completed' && ticket.status !== 'ready_for_pickup') {
             const diffHours = Math.round((new Date(ticket.estimated_completion).getTime() - now) / (1000 * 60 * 60));
             if (diffHours > 0 && diffHours <= 24) {
-                deadlineBadge += `<span class="bg-yellow-500/10 text-yellow-300/80 border border-yellow-500/20 text-[10px] px-2 py-0.5 rounded-full">⏱️ ${diffHours}s ${isAr ? 'متبقي' : 'kaldı'}</span>`;
+                deadlineBadge += `<span class="bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 text-xs font-semibold px-2.5 py-0.5 rounded-full">⏱️ ${diffHours}s ${isAr ? 'متبقي' : 'kaldı'}</span>`;
             }
         }
 
@@ -342,31 +342,31 @@ function renderTicketsList() {
         const costStr = ticket.cost ? `₺${ticket.cost.toLocaleString('tr-TR')}` : '—';
 
         const row = document.createElement('div');
-        row.className = 'recent-ticket-row flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 bg-black/30 rounded-xl border border-primary/5 hover:border-primary/25 transition-all duration-200 cursor-pointer gap-3';
+        row.className = 'recent-ticket-row flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/30 rounded-xl border border-primary/10 hover:border-primary/40 transition-all duration-200 cursor-pointer gap-3.5';
         row.setAttribute('data-id', ticket.id);
 
         row.innerHTML = `
             <div class="flex items-start sm:items-center gap-3.5 min-w-0">
-                <div class="w-10 h-10 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined text-base" data-icon="${icon}">${icon}</span>
+                <div class="w-11 h-11 shrink-0 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-lg" data-icon="${icon}">${icon}</span>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="font-bold text-on-surface text-sm truncate">${ticket.device_model}</span>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="font-bold text-on-surface text-base truncate">${ticket.device_model}</span>
                         ${deadlineBadge}
                     </div>
-                    <p class="text-xs text-on-surface-variant truncate mt-0.5">${ticket.issue_description || (isAr ? 'لا يوجد وصف للإصلاح' : 'Onarım açıklaması yok')}</p>
-                    <div class="flex items-center gap-2 mt-1 text-[11px] text-on-surface-variant/70">
-                        <span class="font-mono text-primary/80">#TKT-${shortId}</span>
+                    <p class="text-sm text-on-surface-variant truncate mt-1">${ticket.issue_description || (isAr ? 'لا يوجد وصف للإصلاح' : 'Onarım açıklaması yok')}</p>
+                    <div class="flex items-center gap-2 mt-1.5 text-xs text-on-surface-variant/80 font-medium">
+                        <span class="font-mono font-bold text-primary">#TKT-${shortId}</span>
                         <span>•</span>
-                        <span>${customerName}</span>
+                        <span class="font-semibold text-white/90">${customerName}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t border-white/5 sm:border-t-0">
-                <span class="font-mono font-bold text-xs text-white bg-black/40 px-2.5 py-1 rounded-lg border border-white/10">${costStr}</span>
-                <span class="px-2.5 py-1 font-label-caps text-[11px] rounded-full border whitespace-nowrap ${statusClass}">${statusText}</span>
+            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2.5 sm:pt-0 border-t border-white/5 sm:border-t-0">
+                <span class="font-mono font-bold text-sm text-white bg-black/50 px-3 py-1.5 rounded-lg border border-white/10">${costStr}</span>
+                <span class="px-3 py-1 text-xs font-bold rounded-full border whitespace-nowrap ${statusClass}">${statusText}</span>
 
                 <!-- Quick Action Buttons -->
                 <div class="flex items-center gap-1">

@@ -83,96 +83,96 @@ export async function openTicketDetailsModal(
         const curStatusMeta = getStatusMeta(repair.status);
 
         modal.innerHTML = `
-          <div class="glass-panel p-5 sm:p-7 rounded-2xl flex flex-col gap-3.5 text-start max-w-lg w-full relative max-h-[92vh] overflow-y-auto no-scrollbar border border-white/10 shadow-2xl">
+          <div class="glass-panel p-6 sm:p-8 rounded-2xl flex flex-col gap-4 text-start max-w-xl w-full relative max-h-[92vh] overflow-y-auto no-scrollbar border border-white/10 shadow-2xl">
             <!-- Header -->
-            <div class="flex items-center justify-between pb-3 border-b border-primary/20">
-                <div class="flex items-center gap-2.5">
-                    <h2 class="text-xl font-bold text-primary font-mono">#TKT-${shortId}</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${curStatusMeta.badgeClass}">
+            <div class="flex items-center justify-between pb-3.5 border-b border-primary/20">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-bold text-primary font-mono">#TKT-${shortId}</h2>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${curStatusMeta.badgeClass}">
                         ${getStatusLabel(repair.status, lang)}
                     </span>
                 </div>
-                <button type="button" id="close-modal-x" class="text-on-surface-variant hover:text-primary p-1 rounded-lg hover:bg-white/5 transition-colors">
-                    <span class="material-symbols-outlined text-xl">close</span>
+                <button type="button" id="close-modal-x" class="text-on-surface-variant hover:text-primary p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                    <span class="material-symbols-outlined text-2xl">close</span>
                 </button>
             </div>
 
             <!-- Customer Bar -->
-            <div class="bg-black/50 rounded-xl p-3 border border-white/10 flex items-center justify-between">
+            <div class="bg-black/50 rounded-xl p-3.5 border border-white/10 flex items-center justify-between">
                 <div>
-                    <div class="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">${isAr ? 'العميل' : 'Müşteri'}</div>
-                    <div class="font-bold text-on-surface text-sm">${repair.customers?.name || (isAr ? 'عميل غير مسجل' : 'Kayıtsız Müşteri')}</div>
-                    <div class="text-xs text-on-surface-variant font-mono">${repair.customers?.phone || '—'}</div>
+                    <div class="text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'العميل' : 'Müşteri'}</div>
+                    <div class="font-bold text-on-surface text-base mt-0.5">${repair.customers?.name || (isAr ? 'عميل غير مسجل' : 'Kayıtsız Müşteri')}</div>
+                    <div class="text-sm text-on-surface-variant font-mono mt-0.5">${repair.customers?.phone || '—'}</div>
                 </div>
                 <div class="flex items-center gap-2">
                     ${repair.customers?.phone ? `
-                    <a href="tel:${repair.customers.phone}" class="p-2 rounded-xl bg-surface-container hover:bg-primary/20 text-primary transition-colors border border-white/5" title="Ara">
-                        <span class="material-symbols-outlined text-[18px]">call</span>
+                    <a href="tel:${repair.customers.phone}" class="p-2.5 rounded-xl bg-surface-container hover:bg-primary/20 text-primary transition-colors border border-white/5" title="Ara">
+                        <span class="material-symbols-outlined text-[20px]">call</span>
                     </a>
-                    <button type="button" id="modal-wa-btn" class="p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 transition-colors border border-emerald-500/30" title="WhatsApp">
-                        <span class="material-symbols-outlined text-[18px]">chat</span>
+                    <button type="button" id="modal-wa-btn" class="p-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 transition-colors border border-emerald-500/30" title="WhatsApp">
+                        <span class="material-symbols-outlined text-[20px]">chat</span>
                     </button>` : ''}
                 </div>
             </div>
 
             <!-- Form -->
-            <form id="modal-ticket-form" class="flex flex-col gap-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الجهاز' : 'Cihaz'}</label>
-                        <input type="text" id="ticket-device" required value="${repair.device_model || ''}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+            <form id="modal-ticket-form" class="flex flex-col gap-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'الجهاز' : 'Cihaz'}</label>
+                        <input type="text" id="ticket-device" required value="${repair.device_model || ''}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'رمز قفل الشاشة' : 'Ekran Kilidi (PIN)'}</label>
-                        <input type="text" id="ticket-passcode" value="${repair.device_passcode || ''}" placeholder="${isAr ? 'بدون رمز' : 'Şifresiz'}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none font-mono transition-colors">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'رمز قفل الشاشة' : 'Ekran Kilidi (PIN)'}</label>
+                        <input type="text" id="ticket-passcode" value="${repair.device_passcode || ''}" placeholder="${isAr ? 'بدون رمز' : 'Şifresiz'}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none font-mono transition-colors">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الأولوية' : 'Öncelik'}</label>
-                        <select id="ticket-priority" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'الأولوية' : 'Öncelik'}</label>
+                        <select id="ticket-priority" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                             <option value="normal" ${repair.priority === 'normal' || !repair.priority ? 'selected' : ''}>${isAr ? 'عادي' : 'Normal'}</option>
                             <option value="express" ${repair.priority === 'express' ? 'selected' : ''}>${isAr ? '⚡ سريع (عاجل)' : '⚡ Ekspres (Acil)'}</option>
                             <option value="low" ${repair.priority === 'low' ? 'selected' : ''}>${isAr ? 'منخفض' : 'Düşük'}</option>
                         </select>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'موعد التسليم المتوقع' : 'Teslimat Hedefi'}</label>
-                        <input type="datetime-local" id="ticket-deadline" value="${formatIsoForInput(repair.estimated_completion)}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'موعد التسليم المتوقع' : 'Teslimat Hedefi'}</label>
+                        <input type="datetime-local" id="ticket-deadline" value="${formatIsoForInput(repair.estimated_completion)}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'وصف المشكلة' : 'Sorun Açıklaması'}</label>
-                    <textarea id="ticket-issue" required class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none h-16 resize-none transition-colors">${repair.issue_description || ''}</textarea>
+                <div class="flex flex-col gap-1.5">
+                    <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'وصف المشكلة' : 'Sorun Açıklaması'}</label>
+                    <textarea id="ticket-issue" required class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none h-20 resize-none transition-colors">${repair.issue_description || ''}</textarea>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'حالة الجهاز عند الاستلام' : 'Cihaz Kabul Durumu'}</label>
-                        <input type="text" id="ticket-condition" value="${repair.intake_condition || ''}" placeholder="${isAr ? 'خدوش، صدمات...' : 'Çizik, darbe vb.'}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'حالة الجهاز عند الاستلام' : 'Cihaz Kabul Durumu'}</label>
+                        <input type="text" id="ticket-condition" value="${repair.intake_condition || ''}" placeholder="${isAr ? 'خدوش، صدمات...' : 'Çizik, darbe vb.'}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الملحقات المستلمة' : 'Alınan Aksesuarlar'}</label>
-                        <input type="text" id="ticket-accessories" value="${repair.accessories || ''}" placeholder="${isAr ? 'شريحة، كفر...' : 'SIM, kılıf vb.'}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'الملحقات المستلمة' : 'Alınan Aksesuarlar'}</label>
+                        <input type="text" id="ticket-accessories" value="${repair.accessories || ''}" placeholder="${isAr ? 'شريحة، كفر...' : 'SIM, kılıf vb.'}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="flex flex-col gap-1 sm:col-span-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الحالة' : 'Durum'}</label>
-                        <select id="ticket-status" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div class="flex flex-col gap-1.5 sm:col-span-1">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'الحالة' : 'Durum'}</label>
+                        <select id="ticket-status" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                             ${statusOptions}
                         </select>
                     </div>
-                    <div class="flex flex-col gap-1 sm:col-span-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'المبلغ الإجمالي (₺)' : 'Toplam Ücret (₺)'}</label>
-                        <input type="number" id="ticket-cost" step="0.01" value="${repair.cost || ''}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none font-mono transition-colors">
+                    <div class="flex flex-col gap-1.5 sm:col-span-1">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'المبلغ الإجمالي (₺)' : 'Toplam Ücret (₺)'}</label>
+                        <input type="number" id="ticket-cost" step="0.01" value="${repair.cost || ''}" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none font-mono font-bold transition-colors">
                     </div>
-                    <div class="flex flex-col gap-1 sm:col-span-1">
-                        <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'الضمان' : 'Garanti'}</label>
-                        <select id="ticket-warranty" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none transition-colors">
+                    <div class="flex flex-col gap-1.5 sm:col-span-1">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'الضمان' : 'Garanti'}</label>
+                        <select id="ticket-warranty" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-base text-on-surface focus:border-primary focus:outline-none transition-colors">
                             <option value="0" ${repair.warranty_months === 0 ? 'selected' : ''}>${isAr ? 'بدون ضمان' : 'Garanti Yok'}</option>
                             <option value="1" ${repair.warranty_months === 1 ? 'selected' : ''}>${isAr ? 'شهر واحد' : '1 Ay'}</option>
                             <option value="3" ${repair.warranty_months === 3 || !repair.warranty_months ? 'selected' : ''}>${isAr ? '3 أشهر' : '3 Ay'}</option>
@@ -183,38 +183,38 @@ export async function openTicketDetailsModal(
                 </div>
 
                 <!-- Finances Bar: Kapora & Remaining -->
-                <div class="grid grid-cols-2 gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
-                    <div class="flex flex-col gap-1">
-                        <label class="font-label-caps text-[10px] text-emerald-400 uppercase tracking-wider font-bold">${isAr ? 'العربون / المقبوض (₺)' : 'Alınan Kapora (₺)'}</label>
-                        <input type="number" id="ticket-deposit" step="0.01" value="${depositVal || 0}" class="w-full bg-black/40 border border-emerald-500/30 rounded-xl px-3 py-2 text-sm text-emerald-300 font-mono focus:border-emerald-500 focus:outline-none transition-colors">
+                <div class="grid grid-cols-2 gap-3.5 bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="font-label-caps text-xs text-emerald-400 uppercase tracking-wider font-bold">${isAr ? 'العربون / المقبوض (₺)' : 'Alınan Kapora (₺)'}</label>
+                        <input type="number" id="ticket-deposit" step="0.01" value="${depositVal || 0}" class="w-full bg-black/40 border border-emerald-500/30 rounded-xl px-3.5 py-2.5 text-lg text-emerald-300 font-mono font-bold focus:border-emerald-500 focus:outline-none transition-colors">
                     </div>
-                    <div class="flex flex-col gap-1 justify-center">
-                        <div class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'المتبقي عند التسليم' : 'Kalan Bakiye'}</div>
-                        <div id="ticket-remaining-display" class="font-mono text-base font-bold text-amber-400">₺${Math.max(0, (repair.cost || 0) - depositVal).toFixed(2)}</div>
+                    <div class="flex flex-col gap-1.5 justify-center">
+                        <div class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'المتبقي عند التسليم' : 'Kalan Bakiye'}</div>
+                        <div id="ticket-remaining-display" class="font-mono text-2xl font-black text-amber-400">₺${Math.max(0, (repair.cost || 0) - depositVal).toFixed(2)}</div>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-1">
-                    <label class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider">${isAr ? 'ملاحظات الخبير (داخلية)' : 'Uzman Notları (Dahili)'}</label>
-                    <textarea id="ticket-tech-notes" class="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-xs text-on-surface focus:border-primary focus:outline-none h-14 resize-none transition-colors" placeholder="${isAr ? 'تشخيص الخبير، قطع الغيار، الرقم التسلسلي...' : 'Uzman teşhisleri, kullanılan parçalar, iç durum vb.'}">${repair.technician_notes || ''}</textarea>
+                <div class="flex flex-col gap-1.5">
+                    <label class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">${isAr ? 'ملاحظات الخبير (داخلية)' : 'Uzman Notları (Dahili)'}</label>
+                    <textarea id="ticket-tech-notes" class="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-on-surface focus:border-primary focus:outline-none h-16 resize-none transition-colors" placeholder="${isAr ? 'تشخيص الخبير، قطع الغيار، الرقم التسلسلي...' : 'Uzman teşhisleri, kullanılan parçalar, iç durum vb.'}">${repair.technician_notes || ''}</textarea>
                 </div>
 
                 ${handoverBtnHtml}
 
-                <div class="grid grid-cols-2 gap-2 mt-1">
-                    <button type="button" id="modal-print-receipt-btn" class="bg-primary/15 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs">
-                        <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                <div class="grid grid-cols-2 gap-2.5 mt-1">
+                    <button type="button" id="modal-print-receipt-btn" class="bg-primary/15 hover:bg-primary text-primary hover:text-black border border-primary/30 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <span class="material-symbols-outlined text-[18px]">receipt_long</span>
                         ${isAr ? 'طباعة الإيصال' : 'Makbuz Yazdır'}
                     </button>
-                    <button type="button" id="view-qr-btn" class="bg-surface-container hover:bg-white/10 text-on-surface border border-white/10 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs">
-                        <span class="material-symbols-outlined text-[16px]">qr_code_2</span>
+                    <button type="button" id="view-qr-btn" class="bg-surface-container hover:bg-white/10 text-on-surface border border-white/10 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <span class="material-symbols-outlined text-[18px]">qr_code_2</span>
                         ${isAr ? 'عرض QR' : 'QR Göster'}
                     </button>
                 </div>
 
-                <div class="flex gap-2 mt-2">
-                    <button type="button" id="close-modal" class="w-1/2 bg-black/40 border border-white/10 text-on-surface py-3 rounded-xl font-bold hover:bg-white/5 transition-colors text-sm">${isAr ? 'إلغاء' : 'İptal'}</button>
-                    <button type="submit" class="w-1/2 bg-primary hover:bg-primary/90 text-black py-3 rounded-xl font-bold transition-all text-sm shadow-[0_0_15px_rgba(227,30,36,0.3)]">${isAr ? 'حفظ التعديلات' : 'Kaydet'}</button>
+                <div class="flex gap-2.5 mt-2">
+                    <button type="button" id="close-modal" class="w-1/2 bg-black/40 border border-white/10 text-on-surface py-3.5 rounded-xl font-bold hover:bg-white/5 transition-colors text-base">${isAr ? 'إلغاء' : 'İptal'}</button>
+                    <button type="submit" class="w-1/2 bg-primary hover:bg-primary/90 text-black py-3.5 rounded-xl font-bold transition-all text-base shadow-[0_0_15px_rgba(227,30,36,0.3)]">${isAr ? 'حفظ التعديلات' : 'Kaydet'}</button>
                 </div>
                 ${deleteBtnHtml}
             </form>

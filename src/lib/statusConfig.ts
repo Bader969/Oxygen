@@ -93,8 +93,8 @@ export function getNextWorkflowStatus(status: string): string | null {
 export function getStatusBadgeHtml(status: string, lang: string = 'tr'): string {
     const meta = getStatusMeta(status);
     const label = lang === 'ar' ? meta.ar : meta.tr;
-    return `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${meta.badgeClass} inline-flex items-center gap-1">
-        <span class="w-1.5 h-1.5 rounded-full ${meta.badgeClass.split(' ')[0]} bg-current"></span>
+    return `<span class="px-3 py-1 rounded-full text-xs font-bold border ${meta.badgeClass} inline-flex items-center gap-1.5 shadow-sm">
+        <span class="w-2 h-2 rounded-full ${meta.badgeClass.split(' ')[0]} bg-current"></span>
         <span>${label}</span>
     </span>`;
 }

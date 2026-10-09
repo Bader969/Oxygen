@@ -54,14 +54,14 @@ function renderCustomers(filter = 'all', search = '') {
         const statusColor = tickets > 0 ? 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10' : 'text-on-surface-variant border-white/10 bg-black/20';
         
         const actionButtons = isAdmin ? `
-            <button class="edit-btn w-8 h-8 rounded-full bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary" data-id="${c.id}">
-                <span class="material-symbols-outlined text-[16px]">edit</span>
+            <button class="edit-btn w-9 h-9 rounded-xl bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary" data-id="${c.id}">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
             </button>
-            <button class="delete-btn w-8 h-8 rounded-full bg-black/40 border border-error/30 inline-flex items-center justify-center hover:bg-error hover:text-black transition-colors text-error" data-id="${c.id}">
-                <span class="material-symbols-outlined text-[16px]">delete</span>
+            <button class="delete-btn w-9 h-9 rounded-xl bg-black/40 border border-error/30 inline-flex items-center justify-center hover:bg-error hover:text-black transition-colors text-error" data-id="${c.id}">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
             </button>
         ` : `
-            <button class="w-8 h-8 rounded-full bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary">
+            <button class="w-9 h-9 rounded-xl bg-black/40 border border-primary/30 inline-flex items-center justify-center hover:bg-primary hover:text-black transition-colors text-primary">
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </button>
         `;
@@ -69,38 +69,37 @@ function renderCustomers(filter = 'all', search = '') {
         return `
             <div class="customer-row grid grid-cols-1 md:grid-cols-12 gap-4 px-stack-md py-4 hover:bg-white/5 transition-colors items-center group cursor-pointer" data-id="${c.id}">
                 <!-- Row Number -->
-                <div class="col-span-1 hidden md:block text-xs font-bold text-primary/70">${index + 1}</div>
+                <div class="col-span-1 hidden md:block text-sm font-bold text-primary/70">${index + 1}</div>
                 <!-- Customer Name & Avatar -->
-                <div class="col-span-3 flex items-center gap-3">
-                    <div class="w-10 h-10 shrink-0 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border border-primary/30 group-hover:scale-110 transition-transform">
+                <div class="col-span-3 flex items-center gap-3.5">
+                    <div class="w-11 h-11 shrink-0 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-base border border-primary/30 group-hover:scale-110 transition-transform">
                         ${c.name.charAt(0)}
                     </div>
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <h3 class="font-headline-sm text-on-surface truncate group-hover:text-primary transition-colors text-base">${c.name}</h3>
-                            
+                            <h3 class="font-headline-sm text-on-surface truncate group-hover:text-primary transition-colors text-lg font-bold">${c.name}</h3>
                         </div>
-                        <span class="text-xs text-primary/70 truncate block">${c.id.split('-')[0].toUpperCase()}</span>
+                        <span class="text-sm font-mono font-semibold text-primary/80 truncate block">${c.id.split('-')[0].toUpperCase()}</span>
                     </div>
                 </div>
                 
                 <!-- Contact -->
-                <div class="col-span-3 flex items-center gap-2 text-sm text-on-surface-variant mt-2 md:mt-0">
-                    <span class="material-symbols-outlined text-[16px] text-primary/70 md:hidden">call</span>
+                <div class="col-span-3 flex items-center gap-2 text-base font-semibold text-on-surface mt-2 md:mt-0">
+                    <span class="material-symbols-outlined text-[18px] text-primary/70 md:hidden">call</span>
                     ${c.phone || '-'}
                 </div>
                 
                 <!-- Status -->
                 <div class="col-span-2 mt-2 md:mt-0">
-                    <span class="px-2.5 py-1 rounded-full text-xs border ${statusColor} uppercase tracking-wider inline-block">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor} uppercase tracking-wider inline-block">
                         <span>${statusText}</span>
                     </span>
                 </div>
                 
                 <!-- Tickets -->
-                <div class="col-span-2 md:text-center mt-2 md:mt-0 text-sm text-on-surface-variant">
+                <div class="col-span-2 md:text-center mt-2 md:mt-0 text-base text-on-surface font-medium">
                     <span class="md:hidden font-bold">${lang === 'ar' ? 'التذاكر' : 'Talepler'}: </span>
-                    <span class="text-primary font-bold">${tickets}</span>
+                    <span class="text-primary font-black text-lg">${tickets}</span>
                 </div>
                 
                 <!-- Action -->

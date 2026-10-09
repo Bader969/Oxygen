@@ -744,10 +744,12 @@ export function applyTranslation(lang?: SupportedLang) {
 
         if (currentLang === 'ar') {
             html.setAttribute('dir', 'rtl');
-            html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
-            html.style.fontWeight = 'normal';
+            html.setAttribute('lang', 'ar');
+            html.style.fontFamily = "'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif";
+            html.style.fontWeight = '500';
         } else {
             html.setAttribute('dir', 'ltr');
+            html.setAttribute('lang', 'tr');
             html.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
             html.style.fontWeight = 'normal';
         }
