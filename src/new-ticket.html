@@ -113,316 +113,517 @@
 </div>
 </header>
 <!-- Main Form Content -->
-<main class="pt-[5rem] pb-[6rem] md:pb-stack-lg px-container-margin md:ps-[19.5rem] w-full min-h-screen flex flex-col gap-stack-lg max-w-4xl mx-auto">
-<div class="mb-stack-lg flex items-center gap-4">
+<main class="pt-[5rem] pb-[6rem] md:pb-stack-lg px-container-margin md:ps-[19.5rem] w-full min-h-screen max-w-[1650px] mx-auto">
+  <!-- Page Header & Workflow Breadcrumb -->
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-primary/10 pb-5">
     <div>
-        <h1 data-i18n="ticket.title" class="font-headline-sm text-headline-sm text-on-background">New Ticket</h1>
-        <p data-i18n="ticket.subtitle" class="font-label-caps text-label-caps text-on-surface-variant uppercase">Create Repair Entry</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/15 text-primary border border-primary/30">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          <span data-i18n="ticket.liveSummaryDraft">Canlı Taslak</span>
+        </span>
+        <span class="text-xs font-mono text-on-surface-variant/80">#TKT-YENİ</span>
+      </div>
+      <h1 data-i18n="ticket.title" class="font-headline-sm text-headline-sm text-on-background font-bold">Yeni Talep</h1>
+      <p data-i18n="ticket.subtitle" class="font-label-caps text-label-caps text-on-surface-variant uppercase">Sisteme yeni bir onarım talebi ekleyin.</p>
     </div>
-</div>
+    
+    <!-- Quick Workflow Roadmap Badges -->
+    <div class="flex items-center gap-2 text-xs flex-wrap">
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-on-surface-variant font-medium">
+        <span class="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[11px]">1</span>
+        <span data-i18n="ticket.customerInfo">Müşteri</span>
+      </div>
+      <span class="text-white/20">→</span>
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-on-surface-variant font-medium">
+        <span class="w-5 h-5 rounded-full bg-tertiary-fixed-dim/20 text-inverse-surface flex items-center justify-center font-bold text-[11px]">2</span>
+        <span data-i18n="ticket.deviceInfo">Cihaz</span>
+      </div>
+      <span class="text-white/20">→</span>
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-on-surface-variant font-medium">
+        <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[11px]">3</span>
+        <span data-i18n="ticket.repairDetails">Arıza & Randevu</span>
+      </div>
+    </div>
+  </div>
 
-<!-- Section 1: Customer Info -->
-<section class="glass-panel rounded-xl p-glass-padding flex flex-col gap-stack-md relative overflow-hidden">
-<div class="absolute top-0 start-0 w-1 h-full bg-primary/40"></div>
-<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
-<span data-i18n="ticket.customerInfo">Customer Info</span></h2>
-<div class="flex flex-col gap-2">
-<label data-i18n="ticket.fullName" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Name</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">badge</span>
-<input id="ticket-customer-name" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.namePlaceholder" placeholder="Enter customer name" type="text" autocomplete="off"/>
-<div id="customer-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
-</div>
-</div>
-<div class="flex flex-col gap-2">
-<label data-i18n="ticket.phone" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Phone</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">call</span>
-<input id="ticket-customer-phone" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.phonePlaceholder" placeholder="+1 (555) 000-0000" type="tel"/>
-</div>
-</div>
-</section>
-<!-- Section 2: Device Info -->
-<section class="glass-panel rounded-xl p-glass-padding flex flex-col gap-stack-md relative overflow-hidden">
-<div class="absolute top-0 start-0 w-1 h-full bg-tertiary-fixed-dim/40"></div>
-<h2 class="font-headline-md text-headline-md text-inverse-surface flex items-center gap-2">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smartphone</span>
-<span data-i18n="ticket.deviceInfo">Device Info</span></h2>
-<!-- Saved Device Selection Dropdown (Modern Glass Dropdown) -->
-<div id="device-selection-wrapper" class="flex flex-col gap-2 relative hidden">
-    <label data-i18n="ticket.selectSavedDevice" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Kayıtlı Cihaz Seçin</label>
-    <div class="relative">
-        <input id="ticket-device-display" readonly class="input-glass w-full rounded-lg py-3 ps-4 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Cihaz seçin..." type="text" autocomplete="off" value="+ Yeni Cihaz Ekle" data-value="new"/>
-        <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform" id="device-select-chevron">expand_more</span>
-        <select id="ticket-device-select" class="hidden">
-            <option value="new" data-i18n="ticket.addNewDevice">+ Yeni Cihaz Ekle</option>
-        </select>
-        <div id="device-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
-    </div>
-</div>
+  <!-- 2-Column Responsive Workspace Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
+    
+    <!-- LEFT COLUMN (Technician Intake Steps) -->
+    <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
 
-<!-- Add New Device form fields -->
-<div id="device-details-fields" class="flex flex-col gap-stack-md">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-stack-sm">
-        <div class="flex flex-col gap-2 relative">
-            <label data-i18n="ticket.brand" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Brand</label>
-            <input id="ticket-brand" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.brandPlaceholder" placeholder="e.g. Apple" type="text" autocomplete="off"/>
-            <div id="brand-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
-        </div>
-        <div class="flex flex-col gap-2 relative">
-            <label data-i18n="ticket.model" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Model</label>
-            <input id="ticket-model" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.modelPlaceholder" placeholder="e.g. iPhone 13" type="text" autocomplete="off"/>
-            <div id="model-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
-        </div>
-    </div>
-    <div class="flex flex-col gap-2 relative">
-        <label data-i18n="ticket.deviceType" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Cihaz Tipi</label>
-        <input id="ticket-device-type" readonly class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20" placeholder="Cihaz tipi seçin..." type="text" autocomplete="off" value="Telefon" data-value="phone"/>
-        <div id="type-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
-    </div>
-    <div class="flex flex-col gap-2">
-        <label data-i18n="ticket.imei" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">IMEI / Serial Number</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">barcode</span>
-            <input id="ticket-imei" class="input-glass w-full rounded-lg py-3 ps-10 pe-12 text-on-background font-body-lg placeholder-on-surface-variant/50 font-mono" data-i18n="ticket.imeiPlaceholder" placeholder="Scan or type IMEI" type="text"/>
-            <button type="button" id="scan-imei-btn" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-fixed hover:bg-primary/10 p-1.5 rounded-lg transition-all" title="IMEI / Barkod Tara">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">qr_code_scanner</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Passcode / Screen Lock -->
-    <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between">
-            <label data-i18n="ticket.passcode" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Device Passcode / PIN</label>
-            <label class="flex items-center gap-1.5 cursor-pointer text-xs text-on-surface-variant hover:text-primary">
-                <input type="checkbox" id="ticket-no-passcode" class="rounded bg-black/40 border-primary/30 text-primary focus:ring-0">
-                <span id="label-no-passcode" data-i18n="ticket.noPasscodeLabel">Şifresiz Cihaz</span>
-            </label>
-        </div>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">password</span>
-            <input id="ticket-passcode" class="input-glass w-full rounded-lg py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.passcodePlaceholder" placeholder="Örn. 1234 veya Desen" type="text"/>
-        </div>
-    </div>
-
-    <!-- Intake Condition / Pre-existing damages -->
-    <div class="flex flex-col gap-2">
-        <label data-i18n="ticket.intakeCondition" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Intake Condition (Pre-existing Damage)</label>
-        <div class="flex flex-wrap gap-1.5 mb-1" id="condition-chips">
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condScreenCrack" data-i18n="ticket.condScreenCrack">Ekran Çizik</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condFrameDent" data-i18n="ticket.condFrameDent">Kasa Ezik</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condBackGlass" data-i18n="ticket.condBackGlass">Arka Cam Kırık</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condLensScratch" data-i18n="ticket.condLensScratch">Kamera Lens Çizik</button>
-            <button type="button" class="cond-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condLiquid" data-i18n="ticket.condLiquid">Sıvı Teması</button>
-        </div>
-        <textarea id="ticket-condition" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none" data-i18n="ticket.intakeConditionPlaceholder" placeholder="e.g. Scratches on screen, dent on frame..." rows="2"></textarea>
-    </div>
-
-    <!-- Checked-in Accessories -->
-    <div class="flex flex-col gap-2">
-        <label data-i18n="ticket.accessories" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Checked-in Accessories</label>
-        <div class="flex flex-wrap gap-1.5 mb-1" id="accessory-chips">
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accSim" data-i18n="ticket.accSim">SIM Kart</button>
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accCase" data-i18n="ticket.accCase">Kılıf</button>
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accCharger" data-i18n="ticket.accCharger">Şarj Cihazı</button>
-            <button type="button" class="acc-chip px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accBox" data-i18n="ticket.accBox">Kutu</button>
-        </div>
-        <input id="ticket-accessories" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50" data-i18n="ticket.accessoriesPlaceholder" placeholder="e.g. SIM card, case, charger..." type="text"/>
-    </div>
-</div>
-</section>
-<!-- Section 3: Repair Details -->
-<section class="glass-panel rounded-xl p-glass-padding flex flex-col gap-stack-md relative overflow-hidden mb-stack-lg">
-<div class="absolute top-0 start-0 w-1 h-full bg-error/40"></div>
-<h2 class="font-headline-md text-headline-md text-inverse-surface flex items-center gap-2">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">build</span>
-<span data-i18n="ticket.repairDetails">Repair Details</span></h2>
-
-<!-- Priority Selection -->
-<div class="flex flex-col gap-2">
-    <label data-i18n="ticket.priority" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Priority</label>
-    <div class="grid grid-cols-3 gap-2" id="ticket-priority-selector">
-        <button type="button" data-priority="normal" class="priority-btn py-2.5 px-3 rounded-lg border border-primary/40 bg-primary/20 text-primary font-bold text-xs flex items-center justify-center gap-1 transition-all">
-            <span class="material-symbols-outlined text-[16px]">schedule</span>
-            <span data-i18n="ticket.priorityNormal">Normal</span>
-        </button>
-        <button type="button" data-priority="express" class="priority-btn py-2.5 px-3 rounded-lg border border-white/10 bg-black/40 text-on-surface-variant hover:border-amber-500/50 font-bold text-xs flex items-center justify-center gap-1 transition-all">
-            <span class="material-symbols-outlined text-[16px] text-amber-400">bolt</span>
-            <span data-i18n="ticket.priorityExpress" class="text-amber-400">⚡ Ekspres</span>
-        </button>
-        <button type="button" data-priority="low" class="priority-btn py-2.5 px-3 rounded-lg border border-white/10 bg-black/40 text-on-surface-variant hover:border-white/20 font-bold text-xs flex items-center justify-center gap-1 transition-all">
-            <span class="material-symbols-outlined text-[16px]">low_priority</span>
-            <span data-i18n="ticket.priorityLow">Düşük</span>
-        </button>
-    </div>
-    <input type="hidden" id="ticket-priority" value="normal">
-</div>
-
-<!-- Estimated Completion / Deadline (Interactive Glass Calendar & Time Picker) -->
-<div class="flex flex-col gap-2 relative">
-    <div class="flex items-center justify-between">
-        <label data-i18n="ticket.deadline" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Estimated Completion / Deadline</label>
-        <span class="text-[11px] text-primary/80 font-medium cursor-pointer hover:underline" id="toggle-manual-deadline-btn" data-i18n="ticket.manualDateInput">Manuel Tarih Yaz</span>
-    </div>
-    <div class="relative">
-        <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-primary pointer-events-none" style="font-variation-settings: 'FILL' 0;">event</span>
-        <input id="ticket-deadline-display" readonly class="input-glass w-full rounded-lg py-3 ps-10 pe-12 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Tarih ve Saat Seçin..." type="text"/>
-        <button type="button" id="open-calendar-btn" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:bg-primary/10 p-2 rounded-lg transition-colors" title="Takvimden Seç">
-            <span class="material-symbols-outlined text-[20px]">calendar_month</span>
-        </button>
-        <input type="hidden" id="ticket-deadline" value=""/>
-    </div>
-
-    <!-- Quick preset deadline buttons -->
-    <div class="flex flex-wrap gap-1.5" id="deadline-presets">
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-semibold transition-colors" data-hours="2" data-i18n="ticket.presetHours2">⚡ +2 Saat (Acil)</button>
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="today-18" data-i18n="ticket.presetToday18">Bugün 18:00</button>
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="tomorrow-12" data-i18n="ticket.presetTomorrow12">Yarın 12:00</button>
-        <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-days="3" data-i18n="ticket.presetDays3">+3 Gün</button>
-    </div>
-
-    <!-- Custom Glass Calendar & Time Picker Popover -->
-    <div id="calendar-picker-popover" class="absolute inset-x-0 top-full mt-2 bg-surface-container-high/95 backdrop-blur-2xl border border-primary/30 rounded-2xl p-4 hidden z-50 shadow-[0_15px_40px_rgba(0,0,0,0.85)]">
-        <!-- Month / Year Header -->
-        <div class="flex items-center justify-between pb-3 border-b border-white/10">
-            <button type="button" id="cal-prev-month" class="w-8 h-8 rounded-lg bg-surface-container border border-white/10 flex items-center justify-center text-on-surface hover:text-primary hover:border-primary/50 transition-all">
-                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-            </button>
-            <span id="cal-month-year-label" class="font-bold text-sm text-primary tracking-wide">Ekim 2026</span>
-            <button type="button" id="cal-next-month" class="w-8 h-8 rounded-lg bg-surface-container border border-white/10 flex items-center justify-center text-on-surface hover:text-primary hover:border-primary/50 transition-all">
-                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
-            </button>
-        </div>
-        <!-- Weekday Labels -->
-        <div class="grid grid-cols-7 gap-1 text-center py-2 text-[11px] font-bold text-on-surface-variant/70 border-b border-white/5" id="cal-weekdays">
-            <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
-        </div>
-        <!-- Calendar Days Grid -->
-        <div class="grid grid-cols-7 gap-1 py-2 text-center text-xs" id="cal-days-grid">
-            <!-- Filled dynamically via JS -->
-        </div>
-        <!-- Time Slots Section -->
-        <div class="pt-3 border-t border-white/10">
-            <label class="block font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-2" data-i18n="ticket.timeSlots">Hazır Saatler</label>
-            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="cal-time-chips">
-                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="10:00">10:00</button>
-                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="12:00">12:00</button>
-                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="14:00">14:00</button>
-                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="16:00">16:00</button>
-                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-primary/20 border border-primary/50 text-primary font-bold transition-colors" data-time="18:00">18:00</button>
-                <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="19:30">19:30</button>
+      <!-- Step 1: Customer Info -->
+      <section class="glass-panel rounded-2xl p-6 flex flex-col gap-stack-md relative overflow-hidden border border-primary/20 shadow-lg">
+        <div class="absolute top-0 start-0 w-1.5 h-full bg-primary/60"></div>
+        
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-primary/20 border border-primary text-primary font-black flex items-center justify-center text-sm shadow-[0_0_12px_rgba(227,30,36,0.3)] shrink-0">1</span>
+            <div>
+              <h2 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+                <span data-i18n="ticket.step1Title">1. Müşteri Bilgileri</span>
+              </h2>
+              <p class="text-xs text-on-surface-variant mt-0.5" data-i18n="ticket.step1Subtitle">Müşteri adını girin veya kayıtlı rehberden seçin</p>
             </div>
-            <!-- Custom Time & Confirm Button -->
-            <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-white/5">
-                <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                    <span data-i18n="ticket.customTime" class="text-[11px]">Özel Saat:</span>
-                    <input type="time" id="cal-custom-time-input" value="18:00" class="bg-black/40 border border-primary/20 rounded px-2 py-1 text-xs text-on-surface focus:outline-none focus:border-primary font-mono"/>
-                </div>
-                <button type="button" id="cal-confirm-btn" class="bg-primary hover:bg-primary/90 text-black font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-[0_0_15px_rgba(227,30,36,0.3)]" data-i18n="ticket.applySelection">
-                    Seçimi Uygula
+          </div>
+          <span id="customer-history-pill" class="hidden px-2.5 py-1 rounded-full text-xs bg-primary/20 text-primary border border-primary/40 font-semibold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">history</span>
+            <span id="customer-history-text">Kayıtlı Müşteri</span>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+          <!-- Customer Name -->
+          <div class="flex flex-col gap-2">
+            <label data-i18n="ticket.fullName" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Ad Soyad</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">badge</span>
+              <input id="ticket-customer-name" class="input-glass w-full rounded-xl py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50 focus:border-primary transition-all" data-i18n="ticket.namePlaceholder" placeholder="Müşteri adını girin" type="text" autocomplete="off"/>
+              <div id="customer-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-xl hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-2xl no-scrollbar"></div>
+            </div>
+          </div>
+
+          <!-- Customer Phone -->
+          <div class="flex flex-col gap-2">
+            <label data-i18n="ticket.phone" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Telefon Numarası</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">call</span>
+              <input id="ticket-customer-phone" class="input-glass w-full rounded-xl py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50 focus:border-primary transition-all font-mono" data-i18n="ticket.phonePlaceholder" placeholder="+90 555 000 0000" type="tel"/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Device Info -->
+      <section class="glass-panel rounded-2xl p-6 flex flex-col gap-stack-md relative overflow-hidden border border-tertiary-fixed-dim/20 shadow-lg">
+        <div class="absolute top-0 start-0 w-1.5 h-full bg-tertiary-fixed-dim/60"></div>
+
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-xl bg-tertiary-fixed-dim/20 border border-tertiary-fixed-dim text-inverse-surface font-black flex items-center justify-center text-sm shrink-0">2</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-inverse-surface font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smartphone</span>
+              <span data-i18n="ticket.step2Title">2. Cihaz & Tanımlama</span>
+            </h2>
+            <p class="text-xs text-on-surface-variant mt-0.5" data-i18n="ticket.step2Subtitle">Cihaz tipi, marka, model ve IMEI girişi</p>
+          </div>
+        </div>
+
+        <!-- Saved Device Selection Dropdown -->
+        <div id="device-selection-wrapper" class="flex flex-col gap-2 relative hidden">
+          <label data-i18n="ticket.selectSavedDevice" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Kayıtlı Cihaz Seçin</label>
+          <div class="relative">
+            <input id="ticket-device-display" readonly class="input-glass w-full rounded-xl py-3 ps-4 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Cihaz seçin..." type="text" autocomplete="off" value="+ Yeni Cihaz Ekle" data-value="new"/>
+            <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform" id="device-select-chevron">expand_more</span>
+            <select id="ticket-device-select" class="hidden">
+              <option value="new" data-i18n="ticket.addNewDevice">+ Yeni Cihaz Ekle</option>
+            </select>
+            <div id="device-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-xl hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-2xl no-scrollbar"></div>
+          </div>
+        </div>
+
+        <!-- Device Details Fields -->
+        <div id="device-details-fields" class="flex flex-col gap-stack-md">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Device Type -->
+            <div class="flex flex-col gap-2 relative">
+              <label data-i18n="ticket.deviceType" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Cihaz Tipi</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" style="font-variation-settings: 'FILL' 0;">devices</span>
+                <input id="ticket-device-type" readonly class="input-glass w-full rounded-xl py-3 ps-10 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Cihaz tipi seçin..." type="text" autocomplete="off" value="Telefon" data-value="phone"/>
+                <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-base">expand_more</span>
+                <div id="type-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-xl hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-2xl no-scrollbar"></div>
+              </div>
+            </div>
+
+            <!-- Brand -->
+            <div class="flex flex-col gap-2 relative">
+              <label data-i18n="ticket.brand" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Marka</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" style="font-variation-settings: 'FILL' 0;">branding_watermark</span>
+                <input id="ticket-brand" class="input-glass w-full rounded-xl py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50 focus:border-primary transition-all" data-i18n="ticket.brandPlaceholder" placeholder="örn. Apple" type="text" autocomplete="off"/>
+                <div id="brand-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-xl hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-2xl no-scrollbar"></div>
+              </div>
+            </div>
+
+            <!-- Model -->
+            <div class="flex flex-col gap-2 relative">
+              <label data-i18n="ticket.model" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Model</label>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" style="font-variation-settings: 'FILL' 0;">phone_android</span>
+                <input id="ticket-model" class="input-glass w-full rounded-xl py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50 focus:border-primary transition-all" data-i18n="ticket.modelPlaceholder" placeholder="örn. iPhone 13" type="text" autocomplete="off"/>
+                <div id="model-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-xl hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-2xl no-scrollbar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- IMEI with Live Camera Scan -->
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <label data-i18n="ticket.imei" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">IMEI / Seri Numarası</label>
+                <span class="text-[11px] text-primary/80 font-mono">15 Hane</span>
+              </div>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">barcode</span>
+                <input id="ticket-imei" class="input-glass w-full rounded-xl py-3 ps-10 pe-14 text-on-background font-body-lg placeholder-on-surface-variant/50 font-mono tracking-wider focus:border-primary transition-all" data-i18n="ticket.imeiPlaceholder" placeholder="IMEI tara veya yaz" type="text"/>
+                <button type="button" id="scan-imei-btn" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-fixed hover:bg-primary/20 p-2 rounded-lg transition-all flex items-center justify-center border border-primary/30" title="IMEI / Barkod Tara">
+                  <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">qr_code_scanner</span>
                 </button>
+              </div>
             </div>
+
+            <!-- Passcode / PIN -->
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <label data-i18n="ticket.passcode" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Ekran Kilidi / PIN</label>
+                <label class="flex items-center gap-1.5 cursor-pointer text-xs text-on-surface-variant hover:text-primary select-none">
+                  <input type="checkbox" id="ticket-no-passcode" class="rounded bg-black/40 border-primary/30 text-primary focus:ring-0">
+                  <span id="label-no-passcode" data-i18n="ticket.noPasscodeLabel">Şifresiz Cihaz</span>
+                </label>
+              </div>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">password</span>
+                <input id="ticket-passcode" class="input-glass w-full rounded-xl py-3 ps-10 pe-4 text-on-background font-body-lg placeholder-on-surface-variant/50 focus:border-primary transition-all" data-i18n="ticket.passcodePlaceholder" placeholder="Örn. 1234 veya Desen" type="text"/>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- Step 3: Repair Diagnostics, Condition & Deadline -->
+      <section class="glass-panel rounded-2xl p-6 flex flex-col gap-stack-md relative overflow-hidden border border-amber-500/20 shadow-lg">
+        <div class="absolute top-0 start-0 w-1.5 h-full bg-amber-500/60"></div>
+
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500 text-amber-400 font-black flex items-center justify-center text-sm shrink-0">3</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-amber-400 font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">build</span>
+              <span data-i18n="ticket.step3Title">3. Arıza, Durum & Randevu</span>
+            </h2>
+            <p class="text-xs text-on-surface-variant mt-0.5" data-i18n="ticket.step3Subtitle">Arıza açıklaması, giriş durumu ve teslim randevusu</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Priority Selector -->
+          <div class="flex flex-col gap-2">
+            <label data-i18n="ticket.priority" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Öncelik Seviyesi</label>
+            <div class="grid grid-cols-3 gap-2" id="ticket-priority-selector">
+              <button type="button" data-priority="normal" class="priority-btn py-3 px-3 rounded-xl border border-primary/40 bg-primary/20 text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[18px]">schedule</span>
+                <span data-i18n="ticket.priorityNormal">Normal</span>
+              </button>
+              <button type="button" data-priority="express" class="priority-btn py-3 px-3 rounded-xl border border-white/10 bg-black/40 text-on-surface-variant hover:border-amber-500/50 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[18px] text-amber-400">bolt</span>
+                <span data-i18n="ticket.priorityExpress" class="text-amber-400">⚡ Ekspres</span>
+              </button>
+              <button type="button" data-priority="low" class="priority-btn py-3 px-3 rounded-xl border border-white/10 bg-black/40 text-on-surface-variant hover:border-white/20 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[18px]">low_priority</span>
+                <span data-i18n="ticket.priorityLow">Düşük</span>
+              </button>
+            </div>
+            <input type="hidden" id="ticket-priority" value="normal">
+          </div>
+
+          <!-- Estimated Completion / Deadline -->
+          <div class="flex flex-col gap-2 relative">
+            <div class="flex items-center justify-between">
+              <label data-i18n="ticket.deadline" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Teslimat Hedefi / Randevu</label>
+              <span class="text-[11px] text-primary/80 font-medium cursor-pointer hover:underline" id="toggle-manual-deadline-btn" data-i18n="ticket.manualDateInput">Manuel Tarih Yaz</span>
+            </div>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-primary pointer-events-none" style="font-variation-settings: 'FILL' 0;">event</span>
+              <input id="ticket-deadline-display" readonly class="input-glass w-full rounded-xl py-3 ps-10 pe-12 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Tarih ve Saat Seçin..." type="text"/>
+              <button type="button" id="open-calendar-btn" class="absolute end-2 top-1/2 -translate-y-1/2 text-primary hover:bg-primary/20 p-2 rounded-lg transition-colors border border-primary/20" title="Takvimden Seç">
+                <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+              </button>
+              <input type="hidden" id="ticket-deadline" value=""/>
+            </div>
+
+            <!-- Quick preset deadline buttons -->
+            <div class="flex flex-wrap gap-1.5 mt-1" id="deadline-presets">
+              <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-semibold transition-colors" data-hours="2" data-i18n="ticket.presetHours2">⚡ +2 Saat (Acil)</button>
+              <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="today-18" data-i18n="ticket.presetToday18">Bugün 18:00</button>
+              <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-target="tomorrow-12" data-i18n="ticket.presetTomorrow12">Yarın 12:00</button>
+              <button type="button" class="preset-btn px-2.5 py-1 rounded-full text-xs bg-surface-container border border-white/10 text-on-surface-variant hover:border-primary/50 transition-colors" data-days="3" data-i18n="ticket.presetDays3">+3 Gün</button>
+            </div>
+
+            <!-- Glass Calendar & Time Picker Popover -->
+            <div id="calendar-picker-popover" class="absolute inset-x-0 top-full mt-2 bg-surface-container-high/95 backdrop-blur-2xl border border-primary/30 rounded-2xl p-4 hidden z-50 shadow-[0_15px_40px_rgba(0,0,0,0.85)]">
+              <!-- Month / Year Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <button type="button" id="cal-prev-month" class="w-8 h-8 rounded-lg bg-surface-container border border-white/10 flex items-center justify-center text-on-surface hover:text-primary hover:border-primary/50 transition-all">
+                  <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                </button>
+                <span id="cal-month-year-label" class="font-bold text-sm text-primary tracking-wide">Ekim 2026</span>
+                <button type="button" id="cal-next-month" class="w-8 h-8 rounded-lg bg-surface-container border border-white/10 flex items-center justify-center text-on-surface hover:text-primary hover:border-primary/50 transition-all">
+                  <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                </button>
+              </div>
+              <!-- Weekday Labels -->
+              <div class="grid grid-cols-7 gap-1 text-center py-2 text-[11px] font-bold text-on-surface-variant/70 border-b border-white/5" id="cal-weekdays">
+                <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+              </div>
+              <!-- Calendar Days Grid -->
+              <div class="grid grid-cols-7 gap-1 py-2 text-center text-xs" id="cal-days-grid"></div>
+              <!-- Time Slots Section -->
+              <div class="pt-3 border-t border-white/10">
+                <label class="block font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-2" data-i18n="ticket.timeSlots">Hazır Saatler</label>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="cal-time-chips">
+                  <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="10:00">10:00</button>
+                  <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="12:00">12:00</button>
+                  <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="14:00">14:00</button>
+                  <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="16:00">16:00</button>
+                  <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-primary/20 border border-primary/50 text-primary font-bold transition-colors" data-time="18:00">18:00</button>
+                  <button type="button" class="cal-time-chip py-1.5 px-2 rounded-lg text-xs bg-surface-container border border-white/10 text-on-surface hover:border-primary/50 transition-colors" data-time="19:30">19:30</button>
+                </div>
+                <!-- Custom Time & Confirm Button -->
+                <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-white/5">
+                  <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                    <span data-i18n="ticket.customTime" class="text-[11px]">Özel Saat:</span>
+                    <input type="time" id="cal-custom-time-input" value="18:00" class="bg-black/40 border border-primary/20 rounded-lg px-2 py-1 text-xs text-on-surface focus:outline-none focus:border-primary font-mono"/>
+                  </div>
+                  <button type="button" id="cal-confirm-btn" class="bg-primary hover:bg-primary/90 text-black font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-[0_0_15px_rgba(227,30,36,0.3)]" data-i18n="ticket.applySelection">
+                    Seçimi Uygula
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue Description -->
+        <div class="flex flex-col gap-2">
+          <label data-i18n="ticket.issue" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Arıza Açıklaması & Belirtiler</label>
+          <textarea id="ticket-issue" class="input-glass w-full rounded-xl py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none focus:border-primary transition-all" data-i18n="ticket.issuePlaceholder" placeholder="Sorunu açıklayın..." rows="3"></textarea>
+        </div>
+
+        <!-- Intake Condition -->
+        <div class="flex flex-col gap-2">
+          <label data-i18n="ticket.intakeCondition" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Giriş Durumu (Mevcut Hasarlar)</label>
+          <div class="flex flex-wrap gap-1.5 mb-1" id="condition-chips">
+            <button type="button" class="cond-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condScreenCrack" data-i18n="ticket.condScreenCrack">Ekran Çizik</button>
+            <button type="button" class="cond-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condFrameDent" data-i18n="ticket.condFrameDent">Kasa Ezik</button>
+            <button type="button" class="cond-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condBackGlass" data-i18n="ticket.condBackGlass">Arka Cam Kırık</button>
+            <button type="button" class="cond-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condLensScratch" data-i18n="ticket.condLensScratch">Kamera Lens Çizik</button>
+            <button type="button" class="cond-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.condLiquid" data-i18n="ticket.condLiquid">Sıvı Teması</button>
+          </div>
+          <textarea id="ticket-condition" class="input-glass w-full rounded-xl py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none focus:border-primary transition-all" data-i18n="ticket.intakeConditionPlaceholder" placeholder="örn. Ekranda çizikler, kasada ezik..." rows="2"></textarea>
+        </div>
+
+        <!-- Checked-in Accessories -->
+        <div class="flex flex-col gap-2">
+          <label data-i18n="ticket.accessories" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Alınan Aksesuarlar</label>
+          <div class="flex flex-wrap gap-1.5 mb-1" id="accessory-chips">
+            <button type="button" class="acc-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accSim" data-i18n="ticket.accSim">SIM Kart</button>
+            <button type="button" class="acc-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accCase" data-i18n="ticket.accCase">Kılıf</button>
+            <button type="button" class="acc-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accCharger" data-i18n="ticket.accCharger">Şarj Cihazı</button>
+            <button type="button" class="acc-chip px-3 py-1.5 rounded-full text-xs bg-surface-container border border-white/10 hover:border-primary/50 text-on-surface-variant transition-colors" data-key="ticket.accBox" data-i18n="ticket.accBox">Kutu</button>
+          </div>
+          <input id="ticket-accessories" class="input-glass w-full rounded-xl py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 focus:border-primary transition-all" data-i18n="ticket.accessoriesPlaceholder" placeholder="örn. SIM kart, kılıf, şarj cihazı..." type="text"/>
+        </div>
+      </section>
+
+      <!-- Optional Section: Warranty & Expert Notes -->
+      <section class="glass-panel rounded-2xl p-6 flex flex-col gap-stack-md relative overflow-hidden border border-white/10 shadow-lg">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-xl bg-white/10 border border-white/20 text-on-surface font-black flex items-center justify-center text-sm shrink-0">✦</span>
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+              <span data-i18n="ticket.stepOptionalTitle">Garanti Süresi & Uzman Notları</span>
+            </h2>
+            <p class="text-xs text-on-surface-variant mt-0.5" data-i18n="ticket.stepOptionalSubtitle">Dahili atölye notları ve servis garanti kapsamı</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Warranty Duration -->
+          <div class="flex flex-col gap-2 relative">
+            <label data-i18n="ticket.warranty" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Garanti Süresi</label>
+            <div class="relative">
+              <input id="ticket-warranty-display" readonly class="input-glass w-full rounded-xl py-3 ps-4 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Garanti süresi seçin..." type="text" autocomplete="off" value="3 Ay (Standart)" data-value="3"/>
+              <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform" id="warranty-chevron">expand_more</span>
+              <input type="hidden" id="ticket-warranty" value="3"/>
+              <div id="warranty-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-xl hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-2xl no-scrollbar"></div>
+            </div>
+          </div>
+
+          <!-- Internal Expert Notes -->
+          <div class="flex flex-col gap-2">
+            <label data-i18n="ticket.techNotes" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">Uzman Notları (Dahili)</label>
+            <textarea id="ticket-technician-notes" class="input-glass w-full rounded-xl py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none text-xs focus:border-primary transition-all" data-i18n="ticket.techNotesPlaceholder" placeholder="Uzman teşhisleri, kullanılan parçalar vb." rows="2"></textarea>
+          </div>
+        </div>
+      </section>
+
     </div>
-</div>
 
-<div class="flex flex-col gap-2">
-<label data-i18n="ticket.issue" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Issue Description</label>
-<textarea id="ticket-issue" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none" data-i18n="ticket.issuePlaceholder" placeholder="Describe the problem..." rows="3"></textarea>
-</div>
+    <!-- RIGHT COLUMN (Sticky Live Ticket Summary & Workshop Cash Cockpit) -->
+    <div class="lg:col-span-5 xl:col-span-4 sticky top-24 flex flex-col gap-5">
 
-<!-- Section: Financials, Pricing & Deposits (Full Workshop Cash Register) -->
-<div class="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-primary/20 flex flex-col gap-3">
-    <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
+      <!-- Live Ticket Preview Pass Card -->
+      <div class="glass-panel rounded-2xl p-5 border border-primary/30 shadow-[0_10px_35px_rgba(0,0,0,0.6)] relative overflow-hidden bg-surface-container-lowest/80 backdrop-blur-2xl">
+        <!-- Accent Glow Line -->
+        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary via-amber-400 to-primary"></div>
+        
+        <div class="flex items-center justify-between pb-3.5 border-b border-white/10">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-primary/20 text-primary border border-primary/30 flex items-center justify-center font-bold text-xs">
+              <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-primary flex items-center gap-1.5" data-i18n="ticket.liveSummaryTitle">Canlı Talep Özeti</h3>
+              <p class="text-[11px] text-on-surface-variant font-mono">OXYGEN DRAFT PASS</p>
+            </div>
+          </div>
+          <span id="preview-priority-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-primary/20 text-primary border border-primary/40">
+            Normal
+          </span>
+        </div>
+
+        <!-- Live Content Rows -->
+        <div class="py-3.5 space-y-3 text-xs border-b border-white/10">
+          <!-- Customer -->
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-on-surface-variant font-medium flex items-center gap-1.5 shrink-0">
+              <span class="material-symbols-outlined text-[15px] text-primary">person</span>
+              <span data-i18n="table.customer">Müşteri</span>:
+            </span>
+            <div class="text-end">
+              <div id="preview-customer-name" class="font-bold text-on-background text-sm truncate max-w-[190px]" data-i18n="ticket.liveCustomerEmpty">Müşteri bekleniyor...</div>
+              <div id="preview-customer-phone" class="font-mono text-[11px] text-on-surface-variant">---</div>
+            </div>
+          </div>
+
+          <!-- Device & Model -->
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-on-surface-variant font-medium flex items-center gap-1.5 shrink-0">
+              <span class="material-symbols-outlined text-[15px] text-inverse-surface">smartphone</span>
+              <span data-i18n="table.device">Cihaz</span>:
+            </span>
+            <div class="text-end">
+              <div id="preview-device-title" class="font-bold text-on-background text-sm truncate max-w-[190px]" data-i18n="ticket.liveDeviceEmpty">Cihaz seçilmedi</div>
+              <div id="preview-device-imei" class="font-mono text-[11px] text-on-surface-variant truncate max-w-[190px]" data-i18n="ticket.liveImeiEmpty">IMEI girilmedi</div>
+            </div>
+          </div>
+
+          <!-- Pickup / Deadline -->
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-on-surface-variant font-medium flex items-center gap-1.5 shrink-0">
+              <span class="material-symbols-outlined text-[15px] text-amber-400">schedule</span>
+              <span data-i18n="ticket.deadline">Teslimat</span>:
+            </span>
+            <span id="preview-pickup-deadline" class="font-bold text-amber-400 font-mono text-end truncate max-w-[190px]">
+              Tarih bekleniyor...
+            </span>
+          </div>
+
+          <!-- Issue Note Preview -->
+          <div class="pt-1.5">
+            <div class="text-[11px] text-on-surface-variant font-medium flex items-center gap-1 mb-1">
+              <span class="material-symbols-outlined text-[14px]">report_problem</span>
+              <span data-i18n="ticket.issue">Sorun</span>:
+            </div>
+            <p id="preview-issue-text" class="text-on-surface/80 bg-black/40 rounded-lg p-2.5 text-xs italic line-clamp-2 border border-white/5" data-i18n="ticket.liveIssueEmpty">
+              Arıza açıklaması bekleniyor...
+            </p>
+          </div>
+        </div>
+
+        <!-- Mini QR Code & Barcode Watermark -->
+        <div class="pt-3 flex items-center justify-between text-[11px] text-on-surface-variant font-mono">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px] text-primary">qr_code_2</span>
+            <span>OTOMATİK QR & BARKOD</span>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px]">TERMAL FİŞ DESTEĞİ</span>
+        </div>
+      </div>
+
+      <!-- Workshop Cash Register & Payment Cockpit Card -->
+      <div class="glass-panel rounded-2xl p-5 border border-primary/20 shadow-lg bg-black/40 backdrop-blur-xl flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+          <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: 'FILL' 1;">payments</span>
-            <h3 class="font-headline-sm text-base text-primary font-bold" data-i18n="ticket.cashRegisterTitle">Nakit Ödeme & Para Üstü Hesaplayıcı</h3>
+            <h3 class="font-bold text-base text-primary" data-i18n="ticket.cashRegisterTitle">Nakit Ödeme & Kasa Cockpit</h3>
+          </div>
         </div>
-        <div class="flex items-center gap-2 text-xs">
-            <span class="text-on-surface-variant text-xs font-semibold" data-i18n="ticket.paymentMethod">Ödeme Yöntemi:</span>
-            <div class="flex gap-1.5" id="payment-method-chips">
-                <button type="button" data-method="cash" class="pay-chip active px-3 py-1.5 rounded-lg text-xs font-bold bg-primary/20 border border-primary/40 text-primary">Nakit</button>
-                <button type="button" data-method="card" class="pay-chip px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white">Kart</button>
-                <button type="button" data-method="transfer" class="pay-chip px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white">Havale</button>
-            </div>
-            <input type="hidden" id="ticket-payment-method" value="cash"/>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <!-- Estimated Total Cost -->
-        <div class="flex flex-col gap-1.5">
-            <label data-i18n="ticket.estCost" class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">Tahmini Toplam Tutar (₺)</label>
+        <!-- Payment Method Chips -->
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs text-on-surface-variant font-semibold" data-i18n="ticket.paymentMethod">Ödeme Yöntemi:</span>
+          <div class="flex gap-1.5" id="payment-method-chips">
+            <button type="button" data-method="cash" class="pay-chip active px-3 py-1.5 rounded-lg text-xs font-bold bg-primary/20 border border-primary/40 text-primary">Nakit</button>
+            <button type="button" data-method="card" class="pay-chip px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white">Kart</button>
+            <button type="button" data-method="transfer" class="pay-chip px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container border border-white/10 text-on-surface-variant hover:text-white">Havale</button>
+          </div>
+          <input type="hidden" id="ticket-payment-method" value="cash"/>
+        </div>
+
+        <!-- Total Cost & Down Payment (Kapora) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.estCost" class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">Tahmini Tutar (₺)</label>
             <div class="relative">
-                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">payments</span>
-                <input id="ticket-cost" class="input-glass w-full rounded-xl py-3 ps-11 pe-4 text-on-background text-base placeholder-on-surface-variant/50 font-bold font-mono" data-i18n="ticket.pricePlaceholder" placeholder="0.00" type="number" step="0.01"/>
+              <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">payments</span>
+              <input id="ticket-cost" class="input-glass w-full rounded-xl py-2.5 ps-9 pe-3 text-on-background text-base placeholder-on-surface-variant/50 font-bold font-mono focus:border-primary" data-i18n="ticket.pricePlaceholder" placeholder="0.00" type="number" step="0.01"/>
             </div>
-        </div>
+          </div>
 
-        <!-- Down Payment / Deposit (Kapora) -->
-        <div class="flex flex-col gap-1.5">
-            <label data-i18n="ticket.deposit" class="font-label-caps text-xs text-emerald-400 uppercase tracking-wider font-bold">Alınan Kapora (₺)</label>
+          <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.deposit" class="font-label-caps text-xs text-emerald-400 uppercase tracking-wider font-bold">Kapora (₺)</label>
             <div class="relative">
-                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-emerald-400 text-[20px]">savings</span>
-                <input id="ticket-deposit" class="input-glass w-full rounded-xl py-3 ps-11 pe-4 text-emerald-400 text-base placeholder-on-surface-variant/50 font-bold font-mono border-emerald-500/30 focus:border-emerald-500" data-i18n="ticket.depositPlaceholder" placeholder="0.00" type="number" step="0.01"/>
+              <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-emerald-400 text-[18px]">savings</span>
+              <input id="ticket-deposit" class="input-glass w-full rounded-xl py-2.5 ps-9 pe-3 text-emerald-400 text-base placeholder-on-surface-variant/50 font-bold font-mono border-emerald-500/30 focus:border-emerald-500" data-i18n="ticket.depositPlaceholder" placeholder="0.00" type="number" step="0.01"/>
             </div>
+          </div>
         </div>
-    </div>
 
-    <!-- Remaining Balance Summary Bar -->
-    <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-white/10 text-sm">
-        <span class="text-on-surface-variant flex items-center gap-2 font-medium">
+        <!-- Remaining Balance Bar -->
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-white/10 text-sm">
+          <span class="text-on-surface-variant flex items-center gap-2 font-medium">
             <span class="material-symbols-outlined text-[18px] text-amber-400">account_balance_wallet</span>
             <span data-i18n="ticket.remaining">Kalan Tutar</span>:
-        </span>
-        <div class="flex items-center gap-2.5">
-            <span id="ticket-remaining-badge" class="px-2.5 py-1 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" data-i18n="ticket.paidInFull">Tamamı Ödendi</span>
+          </span>
+          <div class="flex items-center gap-2">
+            <span id="ticket-remaining-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" data-i18n="ticket.paidInFull">Tamamı Ödendi</span>
             <span id="ticket-remaining-display" class="font-black text-xl text-primary font-mono">₺ 0.00</span>
+          </div>
         </div>
-    </div>
 
-    <!-- Cash Handed & Change Calculator (Real-time) -->
-    <div id="cash-change-calculator" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2.5 border-t border-white/10">
-        <div class="flex flex-col gap-1.5">
-            <label data-i18n="ticket.cashGiven" class="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider font-bold">Müşteriden Alınan Nakit (₺)</label>
+        <!-- Real-Time Cash Given & Change Calculator -->
+        <div id="cash-change-calculator" class="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+          <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.cashGiven" class="font-label-caps text-[11px] text-on-surface-variant uppercase tracking-wider font-bold truncate">Alınan Nakit (₺)</label>
             <div class="relative">
-                <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">attach_money</span>
-                <input id="ticket-cash-given" class="input-glass w-full rounded-xl py-2.5 ps-11 pe-4 text-on-background text-base placeholder-on-surface-variant/50 font-mono font-bold" placeholder="0.00" type="number" step="0.01"/>
+              <span class="material-symbols-outlined absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">attach_money</span>
+              <input id="ticket-cash-given" class="input-glass w-full rounded-xl py-2 ps-9 pe-3 text-on-background text-sm placeholder-on-surface-variant/50 font-mono font-bold" placeholder="0.00" type="number" step="0.01"/>
             </div>
-        </div>
-        <div class="flex flex-col gap-1.5">
-            <label data-i18n="ticket.changeDue" class="font-label-caps text-xs text-blue-400 uppercase tracking-wider font-bold">Müşteriye Verilecek Para Üstü (₺)</label>
-            <div class="input-glass w-full rounded-xl py-2.5 px-3.5 text-blue-400 text-lg font-black font-mono flex items-center justify-between border-blue-500/30 bg-blue-500/10">
-                <span>₺</span>
-                <span id="ticket-change-due">0.00</span>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label data-i18n="ticket.changeDue" class="font-label-caps text-[11px] text-blue-400 uppercase tracking-wider font-bold truncate">Para Üstü (₺)</label>
+            <div class="input-glass w-full rounded-xl py-2 px-3 text-blue-400 text-base font-black font-mono flex items-center justify-between border-blue-500/30 bg-blue-500/10">
+              <span>₺</span>
+              <span id="ticket-change-due">0.00</span>
             </div>
+          </div>
         </div>
+
+        <!-- Primary Action Submit Button -->
+        <button class="btn-primary w-full py-4 rounded-xl font-headline-sm text-headline-sm mt-2 flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(227,30,36,0.39)] hover:shadow-[0_6px_20px_rgba(227,30,36,0.23)] text-white font-bold cursor-pointer transition-all">
+          <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+          <span data-i18n="ticket.createAndPrint">Talebi Oluştur & Makbuz Yazdır</span>
+        </button>
+      </div>
+
     </div>
-</div>
 
-<!-- Warranty Duration (Custom Modern Glass Dropdown) -->
-<div class="flex flex-col gap-2 relative">
-    <label data-i18n="ticket.warranty" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Warranty Duration</label>
-    <div class="relative">
-        <input id="ticket-warranty-display" readonly class="input-glass w-full rounded-lg py-3 ps-4 pe-10 text-on-background font-body-lg cursor-pointer bg-surface-container/50 border border-primary/20 hover:border-primary/50 transition-colors" placeholder="Garanti süresi seçin..." type="text" autocomplete="off" value="3 Ay (Standart)" data-value="3"/>
-        <span class="material-symbols-outlined absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform" id="warranty-chevron">expand_more</span>
-        <input type="hidden" id="ticket-warranty" value="3"/>
-        <div id="warranty-suggestions" class="absolute inset-x-0 top-full mt-1 bg-surface-container-high/95 backdrop-blur-xl border border-primary/20 rounded-lg hidden z-50 max-h-48 overflow-y-auto divide-y divide-white/5 shadow-lg no-scrollbar"></div>
-    </div>
-</div>
-
-<!-- Expert Internal Notes -->
-<div class="flex flex-col gap-2">
-    <label data-i18n="ticket.techNotes" class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Expert Notes (Internal)</label>
-    <textarea id="ticket-technician-notes" class="input-glass w-full rounded-lg py-3 px-4 text-on-background font-body-lg placeholder-on-surface-variant/50 resize-none text-xs" data-i18n="ticket.techNotesPlaceholder" placeholder="Expert diagnosis, internal notes, test results, etc." rows="2"></textarea>
-</div>
-
-<!-- Submit Action -->
-<button class="btn-primary w-full py-4 rounded-xl font-headline-sm text-headline-sm mt-stack-sm flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(227,30,36,0.39)] hover:shadow-[0_6px_20px_rgba(227,30,36,0.23)]">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span><span data-i18n="ticket.create">Create Ticket</span></button>
-</section>
+  </div>
 </main>
 
 <!-- Script for interactive button ripple (Vanilla JS micro-interaction) -->

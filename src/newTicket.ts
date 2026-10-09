@@ -235,8 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
           selectedCustomerId = c.id;
           suggestionsBox.classList.add('hidden');
 
+          const historyPill = document.getElementById('customer-history-pill');
+          if (historyPill) historyPill.classList.remove('hidden');
+
           // Load devices for this customer
           loadSavedDevicesForCustomer(c.id);
+          (window as any).__updateLiveTicketPreview?.();
         });
         suggestionsBox.appendChild(item);
       });
@@ -248,6 +252,9 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedCustomerId = null;
     if (deviceSelectWrapper) deviceSelectWrapper.classList.add('hidden');
     if (deviceDetailsFields) deviceDetailsFields.classList.remove('hidden');
+    const historyPill = document.getElementById('customer-history-pill');
+    if (historyPill) historyPill.classList.add('hidden');
+    (window as any).__updateLiveTicketPreview?.();
   }
 
   function loadSavedDevicesForCustomer(custId: string) {
@@ -330,6 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         deviceDetailsFields.classList.add('hidden');
       }
+      (window as any).__updateLiveTicketPreview?.();
     });
   }
 
@@ -996,11 +1004,143 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ── Module 5: Live Digital Ticket Draft Preview ─────────────────────────
+  function initLiveTicketPreview() {
+    const previewCustName = document.getElementById('preview-customer-name');
+    const previewCustPhone = document.getElementById('preview-customer-phone');
+    const previewDeviceTitle = document.getElementById('preview-device-title');
+    const previewDeviceImei = document.getElementById('preview-device-imei');
+    const previewPriorityBadge = document.getElementById('preview-priority-badge');
+    const previewPickupDeadline = document.getElementById('preview-pickup-deadline');
+    const previewIssueText = document.getElementById('preview-issue-text');
+
+    const updatePreview = () => {
+      const lang = localStorage.getItem('appLang') || 'tr';
+      const isAr = lang === 'ar';
+
+      // 1. Customer
+      const custNameVal = nameInput?.value?.trim();
+      const custPhoneVal = phoneInput?.value?.trim();
+      if (previewCustName) {
+        previewCustName.textContent = custNameVal || (isAr ? 'بانتظار إدخال العميل...' : 'Müşteri bekleniyor...');
+        if (custNameVal) {
+          previewCustName.classList.remove('text-on-surface-variant/60', 'italic');
+          previewCustName.classList.add('text-on-background');
+        } else {
+          previewCustName.classList.remove('text-on-background');
+          previewCustName.classList.add('text-on-surface-variant/60', 'italic');
+        }
+      }
+      if (previewCustPhone) {
+        previewCustPhone.textContent = custPhoneVal || '---';
+      }
+
+      // 2. Device & IMEI
+      let devTitle = '';
+      let devImei = '';
+      if (deviceSelect && deviceSelect.value !== 'new') {
+        const matchedDev = devicesList.find(d => d.id === deviceSelect.value);
+        if (matchedDev) {
+          devTitle = `${matchedDev.brand || ''} ${matchedDev.model || ''}`.trim();
+          devImei = matchedDev.imei ? `IMEI: ${matchedDev.imei}` : (isAr ? 'بدون IMEI' : 'IMEI Yok');
+        }
+      }
+      if (!devTitle) {
+        const brandVal = brandInput?.value?.trim() || '';
+        const modelVal = modelInput?.value?.trim() || '';
+        if (brandVal || modelVal) {
+          devTitle = `${brandVal} ${modelVal}`.trim();
+        }
+      }
+      if (!devImei) {
+        const imeiVal = imeiInput?.value?.trim();
+        devImei = imeiVal ? `IMEI: ${imeiVal}` : (isAr ? 'لم يتم إدخال IMEI' : 'IMEI girilmedi');
+      }
+
+      if (previewDeviceTitle) {
+        previewDeviceTitle.textContent = devTitle || (isAr ? 'لم يتم تحديد الجهاز' : 'Cihaz seçilmedi');
+        if (devTitle) {
+          previewDeviceTitle.classList.remove('text-on-surface-variant/60', 'italic');
+          previewDeviceTitle.classList.add('text-on-background');
+        } else {
+          previewDeviceTitle.classList.remove('text-on-background');
+          previewDeviceTitle.classList.add('text-on-surface-variant/60', 'italic');
+        }
+      }
+      if (previewDeviceImei) {
+        previewDeviceImei.textContent = devImei;
+      }
+
+      // 3. Priority Badge
+      const prioVal = priorityInput?.value || 'normal';
+      if (previewPriorityBadge) {
+        if (prioVal === 'express') {
+          previewPriorityBadge.textContent = isAr ? '⚡ سريع (عاجل)' : '⚡ Ekspres';
+          previewPriorityBadge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]';
+        } else if (prioVal === 'low') {
+          previewPriorityBadge.textContent = isAr ? 'منخفض' : 'Düşük';
+          previewPriorityBadge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-white/10 text-on-surface-variant border border-white/20';
+        } else {
+          previewPriorityBadge.textContent = isAr ? 'عادي' : 'Normal';
+          previewPriorityBadge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-primary/20 text-primary border border-primary/40';
+        }
+      }
+
+      // 4. Pickup Deadline
+      const deadlineDisplayInput = document.getElementById('ticket-deadline-display') as HTMLInputElement;
+      if (previewPickupDeadline) {
+        const dlVal = deadlineDisplayInput?.value?.trim();
+        previewPickupDeadline.textContent = dlVal || (isAr ? 'لم يحدد موعد' : 'Tarih bekleniyor...');
+      }
+
+      // 5. Issue text
+      const issueVal = issueInput?.value?.trim();
+      if (previewIssueText) {
+        previewIssueText.textContent = issueVal || (isAr ? 'بانتظار وصف العطل...' : 'Arıza açıklaması bekleniyor...');
+        if (issueVal) {
+          previewIssueText.className = 'text-on-surface bg-surface-container/60 rounded-lg p-2.5 text-xs line-clamp-2 border border-white/10';
+        } else {
+          previewIssueText.className = 'text-on-surface/50 bg-black/40 rounded-lg p-2.5 text-xs italic line-clamp-2 border border-white/5';
+        }
+      }
+    };
+
+    // Bind real-time input event listeners
+    nameInput?.addEventListener('input', updatePreview);
+    phoneInput?.addEventListener('input', updatePreview);
+    brandInput?.addEventListener('input', updatePreview);
+    modelInput?.addEventListener('input', updatePreview);
+    imeiInput?.addEventListener('input', updatePreview);
+    issueInput?.addEventListener('input', updatePreview);
+
+    const deadlineDisplayInput = document.getElementById('ticket-deadline-display');
+    deadlineDisplayInput?.addEventListener('input', updatePreview);
+    deadlineDisplayInput?.addEventListener('change', updatePreview);
+
+    document.querySelectorAll('.priority-btn').forEach(btn => {
+      btn.addEventListener('click', () => setTimeout(updatePreview, 10));
+    });
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => setTimeout(updatePreview, 10));
+    });
+
+    const confirmCalBtn = document.getElementById('cal-confirm-btn');
+    confirmCalBtn?.addEventListener('click', () => setTimeout(updatePreview, 10));
+
+    // Expose for external calls
+    (window as any).__updateLiveTicketPreview = updatePreview;
+
+    // Initial render
+    updatePreview();
+  }
+
   // Initialize new modules
   initImeiScanner();
   initPaymentCalculator();
   initDateTimePicker();
   initCustomWarrantyDropdown();
+  initLiveTicketPreview();
 
   // 6. Submit Handler
   if (submitBtn) {
